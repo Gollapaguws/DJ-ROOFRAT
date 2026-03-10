@@ -1,6 +1,7 @@
 #include "crowdAI/CrowdStateMachine.h"
 
 #include <algorithm>
+#include <vector>
 
 namespace dj {
 
@@ -30,23 +31,55 @@ PersonalityConfig getConfig(CrowdPersonality personality) {
     }
 }
 
-std::string selectReaction(CrowdMood mood, float transitionSmoothness) {
+// Phase 6: Expanded reaction library with 3+ reactions per mood
+struct ReactionLibrary {
+    std::vector<std::string> unimpressed = {
+        "Murmurs", "Skeptical glances", "Indifferent stares"
+    };
+    std::vector<std::string> calm = {
+        "Head nods", "Finger taps", "Light sways"
+    };
+    std::vector<std::string> grooving = {
+        "Cheers", "Body rolls", "Synchronized claps"
+    };
+    std::vector<std::string> hyped = {
+        "Roaring crowd", "Arms raised", "Explosive jumping"
+    };
+};
+
+std::string selectReaction(CrowdMood mood, float transitionSmoothness, int& reactionIndex) {
+    // Phase 6: Use round-robin with reaction index for variety
+    static ReactionLibrary reactions;
+
     if (transitionSmoothness < 0.2f) {
         return "Boos";
     }
 
+    std::vector<std::string>* reactionList = nullptr;
+
     switch (mood) {
     case CrowdMood::Unimpressed:
-        return "Murmurs";
+        reactionList = &reactions.unimpressed;
+        break;
     case CrowdMood::Calm:
-        return "Head nods";
+        reactionList = &reactions.calm;
+        break;
     case CrowdMood::Grooving:
-        return "Cheers";
+        reactionList = &reactions.grooving;
+        break;
     case CrowdMood::Hyped:
-        return "Roaring crowd";
+        reactionList = &reactions.hyped;
+        break;
     }
 
-    return "Neutral";
+    if (reactionList == nullptr || reactionList->empty()) {
+        return "Neutral";
+    }
+
+    // Round-robin selection: cycle through reactions
+    const std::string selected = (*reactionList)[reactionIndex % reactionList->size()];
+    reactionIndex++;
+    return selected;
 }
 
 } // namespace
@@ -54,7 +87,7 @@ std::string selectReaction(CrowdMood mood, float transitionSmoothness) {
 CrowdStateMachine::CrowdStateMachine(CrowdPersonality personality)
     : personality_(personality) {}
 
-CrowdOutput CrowdStateMachine::update(float bpm, float transitionSmoothness, float trackEnergy) {
+CrowdOutput CrowdStateMachine::update(float bpm, float transitionSmoothness, float trackEnergy, float beatmatchDelta) {
     const PersonalityConfig config = getConfig(personality_);
 
     const float bpmNorm = std::clamp((bpm - 80.0f) / 90.0f, 0.0f, 1.0f);
@@ -66,6 +99,19 @@ CrowdOutput CrowdStateMachine::update(float bpm, float transitionSmoothness, flo
 
     if (smoothNorm < 0.2f) {
         energy_ *= config.decayFactor;
+    }
+
+    // Phase 6: Apply beatmatch bonus/penalty
+    // Bonus when beatmatchDelta < 1.0 (tight beatmatch)
+    // Penalty when beatmatchDelta > 3.0 (poor beatmatch)
+    if (beatmatchDelta < 1.0f) {
+        // Tight beatmatch: boost energy
+        const float bonus = (1.0f - beatmatchDelta) * 0.08f; // Up to 8% boost
+        energy_ += bonus;
+    } else if (beatmatchDelta > 3.0f) {
+        // Poor beatmatch: reduce energy
+        const float penalty = (beatmatchDelta - 3.0f) * 0.05f; // Up to 5% penalty per BPM over 3.0
+        energy_ -= penalty;
     }
 
     energy_ = std::clamp(energy_, 0.0f, 1.0f);
@@ -103,7 +149,7 @@ CrowdOutput CrowdStateMachine::update(float bpm, float transitionSmoothness, flo
     CrowdOutput output;
     output.energyMeter = energy_;
     output.mood = mood_;
-    output.reaction = selectReaction(mood_, smoothNorm);
+    output.reaction = selectReaction(mood_, smoothNorm, reactionIndex_);
     return output;
 }
 

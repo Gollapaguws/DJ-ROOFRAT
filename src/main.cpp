@@ -617,7 +617,10 @@ int main(int argc, char** argv) {
         const auto gains = mixer.crossfadeGains();
         const float gainSum = std::max(0.001f, gains.first + gains.second);
         const float blendedBpm = ((effectiveBpmA * gains.first) + (effectiveBpmB * gains.second)) / gainSum;
-        const dj::CrowdOutput crowdOut = crowd.update(blendedBpm, metrics.transitionSmoothness, metrics.rms);
+        
+        // Phase 6: Calculate beatmatch delta for crowd energy bonus/penalty
+        const float beatmatchDelta = std::abs(effectiveBpmB - effectiveBpmA);
+        const dj::CrowdOutput crowdOut = crowd.update(blendedBpm, metrics.transitionSmoothness, metrics.rms, beatmatchDelta);
 
         const int score = scoring.update(crowdOut.energyMeter, metrics.transitionSmoothness);
         career.update(crowdOut.energyMeter);

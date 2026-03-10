@@ -28,7 +28,13 @@ class CrowdStateMachine {
 public:
     explicit CrowdStateMachine(CrowdPersonality personality = CrowdPersonality::Default);
 
-    CrowdOutput update(float bpm, float transitionSmoothness, float trackEnergy);
+    // Phase 6: Extended signature with beatmatch delta input
+    CrowdOutput update(float bpm, float transitionSmoothness, float trackEnergy, float beatmatchDelta);
+
+    // Phase 5 backward compatibility: default beatmatchDelta = 2.0f (neutral)
+    CrowdOutput update(float bpm, float transitionSmoothness, float trackEnergy) {
+        return update(bpm, transitionSmoothness, trackEnergy, 2.0f);
+    }
 
 private:
     CrowdPersonality personality_;
@@ -36,6 +42,7 @@ private:
     CrowdMood mood_ = CrowdMood::Calm;
     float energyBuffer_ = 0.35f;
     int hysteresisCounter_ = 0;
+    int reactionIndex_ = 0;  // For round-robin reaction selection
 };
 
 } // namespace dj
