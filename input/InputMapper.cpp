@@ -68,6 +68,46 @@ InputCommand InputMapper::parse(const std::string& rawCommand) {
     if (command == "quit" || command == "exit") {
         return InputCommand::Quit;
     }
+    // Phase 4: Multi-cue and tempo ramp commands
+    if (command == "cue a1 set") {
+        return InputCommand::SetCueA1;
+    }
+    if (command == "cue a2 set") {
+        return InputCommand::SetCueA2;
+    }
+    if (command == "cue a3 set") {
+        return InputCommand::SetCueA3;
+    }
+    if (command == "cue a1 jump") {
+        return InputCommand::JumpCueA1;
+    }
+    if (command == "cue a2 jump") {
+        return InputCommand::JumpCueA2;
+    }
+    if (command == "cue a3 jump") {
+        return InputCommand::JumpCueA3;
+    }
+    if (command == "cue b1 set") {
+        return InputCommand::SetCueB1;
+    }
+    if (command == "cue b2 set") {
+        return InputCommand::SetCueB2;
+    }
+    if (command == "cue b3 set") {
+        return InputCommand::SetCueB3;
+    }
+    if (command == "cue b1 jump") {
+        return InputCommand::JumpCueB1;
+    }
+    if (command == "cue b2 jump") {
+        return InputCommand::JumpCueB2;
+    }
+    if (command == "cue b3 jump") {
+        return InputCommand::JumpCueB3;
+    }
+    if (command == "tempo ramp toggle") {
+        return InputCommand::TempoRampToggle;
+    }
 
     return InputCommand::None;
 }
@@ -77,7 +117,7 @@ InputCommand InputMapper::parseKey(char rawKey) {
     const bool isShifted = (rawKey != lowerKey);  // Heuristic: treat uppercase as "Shift held" (Windows console / common layouts; may not hold for all layouts or input methods)
     
     if (isShifted) {
-        // Shifted keys for isolators and filter order
+        // Shifted keys for isolators, filter order, and Phase 4 multi-cue jumps
         switch (lowerKey) {
         case 'q':
             return InputCommand::IsolatorLowA;
@@ -94,6 +134,21 @@ InputCommand InputMapper::parseKey(char rawKey) {
         case 'u':
         case 'p':
             return InputCommand::FilterOrderToggle;
+        // Phase 4: Jump to cue banks
+        case '1':
+            return InputCommand::JumpCueA1;
+        case '2':
+            return InputCommand::JumpCueA2;
+        case '3':
+            return InputCommand::JumpCueA3;
+        case '4':
+            return InputCommand::JumpCueB1;
+        case '5':
+            return InputCommand::JumpCueB2;
+        case '6':
+            return InputCommand::JumpCueB3;
+        case 'r':
+            return InputCommand::TempoRampToggle;
         default:
             return InputCommand::None;
         }
@@ -103,11 +158,17 @@ InputCommand InputMapper::parseKey(char rawKey) {
     const char key = lowerKey;
     switch (key) {
     case '1':
-        return InputCommand::ToggleLoopA;
+        return InputCommand::SetCueA1;  // Phase 4: Multi-cue A1 set
     case '2':
-        return InputCommand::SetCueA;
+        return InputCommand::SetCueA2;  // Phase 4: Multi-cue A2 set
     case '3':
-        return InputCommand::JumpCueA;
+        return InputCommand::SetCueA3;  // Phase 4: Multi-cue A3 set
+    case '4':
+        return InputCommand::SetCueB1;  // Phase 4: Multi-cue B1 set
+    case '5':
+        return InputCommand::SetCueB2;  // Phase 4: Multi-cue B2 set
+    case '6':
+        return InputCommand::SetCueB3;  // Phase 4: Multi-cue B3 set
     case '[':
         return InputCommand::CrossfadeLeft;
     case '\\':

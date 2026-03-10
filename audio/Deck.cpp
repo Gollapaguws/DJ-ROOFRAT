@@ -34,6 +34,14 @@ bool Deck::loadClip(const AudioClip& clip) {
     butterworthYZ2Right_ = 0.0f;
     recentEnergy_ = 0.0f;
     playing_ = false;
+    
+    // Phase 4: Reset tempo ramp and cue state
+    targetTempo_ = 0.0f;
+    tempoRampRate_ = 0.0f;
+    tempoRampEnabled_ = false;
+    cuePoints_ = {0, 0, 0};
+    activeCueBank_ = 0;
+    
     return true;
 }
 
@@ -180,6 +188,35 @@ void Deck::jumpToCue() {
     }
 }
 
+// Phase 4: Multi-cue hotspot - set cue point for a specific bank
+void Deck::setCue(std::size_t frame, int bank) {
+    if (!hasClip()) {
+        return;
+    }
+    
+    // Clamp bank to valid range (0-2)
+    const int normalizedBank = std::clamp(bank, 0, 2);
+    
+    // Clamp frame to valid range
+    cuePoints_[normalizedBank] = std::min(frame, clip_.frameCount() - 1U);
+}
+
+// Phase 4: Multi-cue hotspot - jump to cue in a specific bank
+void Deck::jumpToCue(int bank) {
+    // Clamp bank to valid range (0-2)
+    const int normalizedBank = std::clamp(bank, 0, 2);
+    
+    playbackHead_ = static_cast<double>(cuePoints_[normalizedBank]);
+    if (!slipMode_) {
+        slipHead_ = playbackHead_;
+    }
+}
+
+// Phase 4: Set the active cue bank
+void Deck::setActiveCueBank(int bank) {
+    activeCueBank_ = std::clamp(bank, 0, 2);
+}
+
 void Deck::configureLoop(std::size_t startFrame, std::size_t endFrame, bool enabled) {
     if (!hasClip() || endFrame <= startFrame || endFrame > clip_.frameCount()) {
         loopEnabled_ = false;
@@ -189,6 +226,59 @@ void Deck::configureLoop(std::size_t startFrame, std::size_t endFrame, bool enab
     loopStart_ = startFrame;
     loopEnd_ = endFrame;
     loopEnabled_ = enabled;
+}
+
+// Phase 4: Configure loop with beat quantization
+void Deck::configureLoop(std::size_t startFrame, std::size_t endFrame, bool enabled, float bpm) {
+    if (!hasClip() || endFrame <= startFrame || endFrame > clip_.frameCount()) {
+        loopEnabled_ = false;
+        return;
+    }
+
+    // If BPM is provided and valid, quantize the boundaries to beat grid
+    if (bpm > 0.0f) {
+        startFrame = quantizeFrameToBeat(startFrame, bpm);
+        endFrame = quantizeFrameToBeat(endFrame, bpm);
+        
+        // Ensure valid range after quantization
+        if (endFrame <= startFrame) {
+            endFrame = startFrame + 1;
+        }
+    }
+
+    // Additional bounds check after quantization
+    if (endFrame > clip_.frameCount()) {
+        endFrame = clip_.frameCount();
+    }
+
+    loopStart_ = startFrame;
+    loopEnd_ = endFrame;
+    loopEnabled_ = enabled;
+}
+
+// Phase 4: Helper to quantize a frame to the nearest beat
+std::size_t Deck::quantizeFrameToBeat(std::size_t frame, float bpm) const {
+    if (!hasClip() || bpm <= 0.0f) {
+        return frame;
+    }
+
+    const double secondsPerBeat = 60.0 / static_cast<double>(bpm);
+    const double framesPerBeat = secondsPerBeat * static_cast<double>(clip_.sampleRate);
+    
+    if (framesPerBeat < 1.0) {
+        return frame;  // Prevent division by near-zero
+    }
+
+    // Calculate nearest beat boundary: round(frame / framesPerBeat) * framesPerBeat
+    const double frameAsDouble = static_cast<double>(frame);
+    const std::size_t nearestBeat = static_cast<std::size_t>(
+        std::round(frameAsDouble / framesPerBeat)
+    );
+    const std::size_t quantizedFrame = static_cast<std::size_t>(
+        nearestBeat * framesPerBeat
+    );
+
+    return quantizedFrame;
 }
 
 void Deck::setSlipMode(bool enabled) {
@@ -205,6 +295,26 @@ void Deck::setSlipMode(bool enabled) {
 
 void Deck::setVinylMode(bool enabled) {
     vinylMode_ = enabled;
+}
+
+// Phase 4: Enable/disable tempo ramping
+void Deck::setTempoRampEnabled(bool enabled) {
+    tempoRampEnabled_ = enabled;
+    if (enabled) {
+        // When enabling, set target to current tempo for smooth transition
+        targetTempo_ = tempoPercent_;
+    }
+}
+
+// Phase 4: Set target tempo for ramping (will be interpolated to)
+void Deck::setTargetTempo(float percent) {
+    targetTempo_ = std::clamp(percent, -50.0f, 50.0f);
+}
+
+// Phase 4: Set the rate at which tempo ramps (0.0 to 1.0+, reasonable values are 0.001 to 0.1)
+void Deck::setTempoRampRate(float rate) {
+    // Clamp to reasonable range: prevent negative values and extreme values
+    tempoRampRate_ = std::clamp(rate, 0.0f, 1.0f);
 }
 
 std::array<float, 2> Deck::nextFrame() {
@@ -226,6 +336,14 @@ std::array<float, 2> Deck::nextFrame() {
 
     const float instantEnergy = 0.5f * ((eqOut[0] * eqOut[0]) + (eqOut[1] * eqOut[1]));
     recentEnergy_ = (recentEnergy_ * 0.92f) + (instantEnergy * 0.08f);
+
+    // Phase 4: Apply tempo ramping if enabled
+    if (tempoRampEnabled_) {
+        // Interpolate tempo toward target using ramp rate
+        tempoPercent_ += (targetTempo_ - tempoPercent_) * tempoRampRate_;
+        // Clamp to valid range to prevent drift
+        tempoPercent_ = std::clamp(tempoPercent_, -50.0f, 50.0f);
+    }
 
     const double sourceToOutputRate = static_cast<double>(clip_.sampleRate) / static_cast<double>(outputSampleRate_);
     double tempoScale = std::max(0.05, 1.0 + static_cast<double>(tempoPercent_) / 100.0);

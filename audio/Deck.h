@@ -40,10 +40,21 @@ public:
 
     void setCue(std::size_t frame);
     void jumpToCue();
+    // Phase 4: Multi-cue hotspot banks (A, B, C = banks 0, 1, 2)
+    void setCue(std::size_t frame, int bank);
+    void jumpToCue(int bank);
+    void setActiveCueBank(int bank);
 
     void configureLoop(std::size_t startFrame, std::size_t endFrame, bool enabled);
+    // Phase 4: Quantized loop configuration with BPM
+    void configureLoop(std::size_t startFrame, std::size_t endFrame, bool enabled, float bpm);
     void setSlipMode(bool enabled);
     void setVinylMode(bool enabled);
+
+    // Phase 4: Tempo ramping
+    void setTempoRampEnabled(bool enabled);
+    void setTargetTempo(float percent);
+    void setTempoRampRate(float rate);
 
     std::array<float, 2> nextFrame();
     float recentEnergy() const;
@@ -52,6 +63,8 @@ public:
 private:
     void advanceHeads(double step);
     std::array<float, 2> applyFilter(const std::array<float, 2>& input);
+    // Phase 4: Quantize frame to nearest beat given BPM and sample rate
+    std::size_t quantizeFrameToBeat(std::size_t frame, float bpm) const;
 
     AudioClip clip_;
     ThreeBandEQ eq_;
@@ -94,6 +107,15 @@ private:
     float butterworthYZ2Left_ = 0.0f;
     float butterworthYZ1Right_ = 0.0f;
     float butterworthYZ2Right_ = 0.0f;
+
+    // Phase 4: Tempo ramping
+    float targetTempo_ = 0.0f;
+    float tempoRampRate_ = 0.0f;
+    bool tempoRampEnabled_ = false;
+
+    // Phase 4: Multi-cue hotspot banks (3 banks: A, B, C = indices 0, 1, 2)
+    std::array<std::size_t, 3> cuePoints_ = {0, 0, 0};
+    int activeCueBank_ = 0;
 };
 
 } // namespace dj

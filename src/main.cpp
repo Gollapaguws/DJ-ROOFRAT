@@ -56,12 +56,15 @@ void printUsage() {
 
 void printLiveControls() {
     std::cout << "Live controls: [ left XF | \\ center XF | ] right XF | a toggle DeckA | b toggle DeckB\n";
-    std::cout << "               i tempo B+ | k tempo B- | o tempo reset | 1 loop A | 2 cueA set | 3 cueA jump\n";
-    std::cout << "               l loop B | c cueB set | v cueB jump | x quit\n";
+    std::cout << "               i tempo B+ | k tempo B- | o tempo reset | z tempo A+ | x tempo A- | c tempo A reset\n";
+    std::cout << "               l loop B | v cueB jump | ; loop beats toggle A | ' loop beats toggle B \n";
     std::cout << "               A EQ/Filter: q/w low-/+ e/r mid-/+ t/y high-/+ u/p filter-/+\n";
     std::cout << "               B EQ/Filter: d/f low-/+ g/h mid-/+ j/n high-/+ m/, filter-/+\n";
     std::cout << "               Isolators: Shift+q/w/e (A low/mid/high) Shift+d/f/g (B low/mid/high)\n";
     std::cout << "               Filter Order: Shift+u or Shift+p to toggle Butterworth mode (both decks)\n";
+    std::cout << "               Phase 4 - Multi-Cue Banks: 1/2/3 set cueA1/A2/A3, 4/5/6 set cueB1/B2/B3\n";
+    std::cout << "               Phase 4 - Cue Jump: Shift+1/2/3 jump cueA1/A2/A3, Shift+4/5/6 jump cueB1/B2/B3\n";
+    std::cout << "               Phase 4 - Tempo Ramp: Shift+R to toggle tempo ramping (both decks)\n";
 }
 
 std::vector<dj::InputCommand> pollKeyboardCommands() {
@@ -109,7 +112,8 @@ bool configurePerformanceLoop(dj::Deck& deck, float effectiveBpm) {
         return false;
     }
 
-    deck.configureLoop(start, end, true);
+    // Phase 4: Use quantized loop configuration with BPM for beat-aligned boundaries
+    deck.configureLoop(start, end, true, bpm);
     return true;
 }
 
@@ -241,6 +245,11 @@ int main(int argc, char** argv) {
     std::size_t cueB = 0;
     bool manualMixMode = false;
     bool quitRequested = false;
+    // Phase 4: Tempo ramp state
+    bool tempoRampEnabledA = false;
+    bool tempoRampEnabledB = false;
+    int activeCueBankA = 0;  // Active cue bank for Deck A (0, 1, or 2)
+    int activeCueBankB = 0;  // Active cue bank for Deck B (0, 1, or 2)
 
     dj::CrowdStateMachine crowd;
     dj::ScoringSystem scoring;
@@ -493,6 +502,85 @@ int main(int argc, char** argv) {
                 // Toggle between single-pole (1) and Butterworth (2)
                 deckA.setFilterOrder(deckA.getFilterOrder() == 1 ? 2 : 1);
                 deckB.setFilterOrder(deckB.getFilterOrder() == 1 ? 2 : 1);
+                break;
+            // Phase 4: Multi-cue hotspot bank A commands
+            case dj::InputCommand::SetCueA1:
+                deckA.setCue(deckA.currentFrame(), 0);
+                deckA.setActiveCueBank(0);
+                activeCueBankA = 0;
+                break;
+            case dj::InputCommand::SetCueA2:
+                deckA.setCue(deckA.currentFrame(), 1);
+                deckA.setActiveCueBank(1);
+                activeCueBankA = 1;
+                break;
+            case dj::InputCommand::SetCueA3:
+                deckA.setCue(deckA.currentFrame(), 2);
+                deckA.setActiveCueBank(2);
+                activeCueBankA = 2;
+                break;
+            case dj::InputCommand::JumpCueA1:
+                deckA.setActiveCueBank(0);
+                deckA.jumpToCue(0);
+                activeCueBankA = 0;
+                break;
+            case dj::InputCommand::JumpCueA2:
+                deckA.setActiveCueBank(1);
+                deckA.jumpToCue(1);
+                activeCueBankA = 1;
+                break;
+            case dj::InputCommand::JumpCueA3:
+                deckA.setActiveCueBank(2);
+                deckA.jumpToCue(2);
+                activeCueBankA = 2;
+                break;
+            // Phase 4: Multi-cue hotspot bank B commands
+            case dj::InputCommand::SetCueB1:
+                deckB.setCue(deckB.currentFrame(), 0);
+                deckB.setActiveCueBank(0);
+                activeCueBankB = 0;
+                break;
+            case dj::InputCommand::SetCueB2:
+                deckB.setCue(deckB.currentFrame(), 1);
+                deckB.setActiveCueBank(1);
+                activeCueBankB = 1;
+                break;
+            case dj::InputCommand::SetCueB3:
+                deckB.setCue(deckB.currentFrame(), 2);
+                deckB.setActiveCueBank(2);
+                activeCueBankB = 2;
+                break;
+            case dj::InputCommand::JumpCueB1:
+                deckB.setActiveCueBank(0);
+                deckB.jumpToCue(0);
+                activeCueBankB = 0;
+                break;
+            case dj::InputCommand::JumpCueB2:
+                deckB.setActiveCueBank(1);
+                deckB.jumpToCue(1);
+                activeCueBankB = 1;
+                break;
+            case dj::InputCommand::JumpCueB3:
+                deckB.setActiveCueBank(2);
+                deckB.jumpToCue(2);
+                activeCueBankB = 2;
+                break;
+            // Phase 4: Tempo ramp toggle
+            case dj::InputCommand::TempoRampToggle:
+                // Toggle tempo ramp for both decks
+                tempoRampEnabledA = !tempoRampEnabledA;
+                tempoRampEnabledB = !tempoRampEnabledB;
+                deckA.setTempoRampEnabled(tempoRampEnabledA);
+                deckB.setTempoRampEnabled(tempoRampEnabledB);
+                // When enabling, set target to current tempo for smooth start
+                if (tempoRampEnabledA) {
+                    deckA.setTargetTempo(tempoA);
+                    deckA.setTempoRampRate(0.01f);  // Moderate ramp rate
+                }
+                if (tempoRampEnabledB) {
+                    deckB.setTargetTempo(tempoB);
+                    deckB.setTempoRampRate(0.01f);  // Moderate ramp rate
+                }
                 break;
             case dj::InputCommand::Quit:
                 quitRequested = true;

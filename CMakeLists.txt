@@ -147,3 +147,38 @@ else()
 endif()
 
 set_target_properties(input_mapper_phase3_test PROPERTIES OUTPUT_NAME "InputMapper_Phase3_test")
+
+# Deck Phase 4 test
+add_executable(deck_phase4_test
+    audio/Deck_Phase4_test.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+)
+
+target_include_directories(deck_phase4_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(deck_phase4_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(deck_phase4_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(deck_phase4_test PROPERTIES OUTPUT_NAME "Deck_Phase4_test")
+
+# InputMapper Phase 4 test
+add_executable(input_mapper_phase4_test
+    input/InputMapper_Phase4_test.cpp
+    input/InputMapper.cpp
+)
+
+target_include_directories(input_mapper_phase4_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(input_mapper_phase4_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(input_mapper_phase4_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(input_mapper_phase4_test PROPERTIES OUTPUT_NAME "InputMapper_Phase4_test")

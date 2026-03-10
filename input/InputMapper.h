@@ -52,6 +52,20 @@ enum class InputCommand {
     IsolatorHighA,
     IsolatorHighB,
     FilterOrderToggle,
+    // Phase 4: Multi-cue and tempo ramp
+    SetCueA1,
+    SetCueA2,
+    SetCueA3,
+    JumpCueA1,
+    JumpCueA2,
+    JumpCueA3,
+    SetCueB1,
+    SetCueB2,
+    SetCueB3,
+    JumpCueB1,
+    JumpCueB2,
+    JumpCueB3,
+    TempoRampToggle,
     Quit,
 };
 
