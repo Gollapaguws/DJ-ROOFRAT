@@ -11,7 +11,7 @@ public:
     void setLowMidCrossover(float hz);
     void setMidHighCrossover(float hz);
     
-    static float gainTodB(float linear);
+    static float gainToDB(float linear);
     static float dBToGain(float dB);
     
     std::array<float, 2> process(const std::array<float, 2>& input);

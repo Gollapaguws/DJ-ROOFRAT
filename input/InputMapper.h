@@ -40,6 +40,13 @@ enum class InputCommand {
     DeckBHighUp,
     DeckBFilterDown,
     DeckBFilterUp,
+    IsolatorLowA,
+    IsolatorLowB,
+    IsolatorMidA,
+    IsolatorMidB,
+    IsolatorHighA,
+    IsolatorHighB,
+    FilterOrderToggle,
     Quit,
 };
 

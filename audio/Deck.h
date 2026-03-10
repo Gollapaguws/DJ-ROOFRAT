@@ -30,6 +30,10 @@ public:
     void setEQ(float low, float mid, float high);
     void setEQFrequencies(float lowMid, float midHigh);
     void setFilter(float cutoff);
+    void setIsolatorMode(bool low, bool mid, bool high);
+    bool isIsolatorEnabled(int band) const;
+    void setFilterOrder(int order);
+    int getFilterOrder() const;
 
     void setCue(std::size_t frame);
     void jumpToCue();
@@ -61,6 +65,11 @@ private:
     bool slipMode_ = false;
     bool vinylMode_ = false;
 
+    bool isolatorLow_ = false;
+    bool isolatorMid_ = false;
+    bool isolatorHigh_ = false;
+    int filterOrder_ = 1;  // 1 = single-pole (default), 2 = Butterworth
+
     int outputSampleRate_ = 44100;
     float tempoPercent_ = 0.0f;
     float trim_ = 1.0f;
@@ -69,6 +78,18 @@ private:
     float lowPassLeft_ = 0.0f;
     float lowPassRight_ = 0.0f;
     float recentEnergy_ = 0.0f;
+
+    // Butterworth filter state (for 2nd-order filter)
+    // Input history (x[n-1], x[n-2])
+    float butterworthZ1Left_ = 0.0f;
+    float butterworthZ2Left_ = 0.0f;
+    float butterworthZ1Right_ = 0.0f;
+    float butterworthZ2Right_ = 0.0f;
+    // Output history (y[n-1], y[n-2])
+    float butterworthYZ1Left_ = 0.0f;
+    float butterworthYZ2Left_ = 0.0f;
+    float butterworthYZ1Right_ = 0.0f;
+    float butterworthYZ2Right_ = 0.0f;
 };
 
 } // namespace dj

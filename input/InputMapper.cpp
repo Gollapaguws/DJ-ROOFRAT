@@ -73,7 +73,34 @@ InputCommand InputMapper::parse(const std::string& rawCommand) {
 }
 
 InputCommand InputMapper::parseKey(char rawKey) {
-    const char key = static_cast<char>(std::tolower(static_cast<unsigned char>(rawKey)));
+    const char lowerKey = static_cast<char>(std::tolower(static_cast<unsigned char>(rawKey)));
+    const bool isShifted = (rawKey != lowerKey);  // Uppercase means Shift held
+    
+    if (isShifted) {
+        // Shifted keys for isolators and filter order
+        switch (lowerKey) {
+        case 'q':
+            return InputCommand::IsolatorLowA;
+        case 'w':
+            return InputCommand::IsolatorMidA;
+        case 'e':
+            return InputCommand::IsolatorHighA;
+        case 'd':
+            return InputCommand::IsolatorLowB;
+        case 'f':
+            return InputCommand::IsolatorMidB;
+        case 'g':
+            return InputCommand::IsolatorHighB;
+        case 'u':
+        case 'p':
+            return InputCommand::FilterOrderToggle;
+        default:
+            return InputCommand::None;
+        }
+    }
+    
+    // Non-shifted keys (normal EQ controls)
+    const char key = lowerKey;
     switch (key) {
     case '1':
         return InputCommand::ToggleLoopA;

@@ -60,6 +60,8 @@ void printLiveControls() {
     std::cout << "               l loop B | c cueB set | v cueB jump | x quit\n";
     std::cout << "               A EQ/Filter: q/w low-/+ e/r mid-/+ t/y high-/+ u/p filter-/+\n";
     std::cout << "               B EQ/Filter: d/f low-/+ g/h mid-/+ j/n high-/+ m/, filter-/+\n";
+    std::cout << "               Isolators: Shift+q/w/e (A low/mid/high) Shift+d/f/g (B low/mid/high)\n";
+    std::cout << "               Filter Order: Shift+u or Shift+p to toggle Butterworth mode (both decks)\n";
 }
 
 std::vector<dj::InputCommand> pollKeyboardCommands() {
@@ -209,6 +211,14 @@ int main(int argc, char** argv) {
     float eqBHigh = 1.0f;
     float filterA = 1.0f;
     float filterB = 1.0f;
+
+    // Isolator state tracking
+    bool isolatorALow = false;
+    bool isolatorAMid = false;
+    bool isolatorAHigh = false;
+    bool isolatorBLow = false;
+    bool isolatorBMid = false;
+    bool isolatorBHigh = false;
 
     deckA.play();
     deckB.play();
@@ -410,6 +420,41 @@ int main(int argc, char** argv) {
             case dj::InputCommand::DeckBFilterUp:
                 filterB = std::clamp(filterB + 0.05f, 0.0f, 1.0f);
                 deckB.setFilter(filterB);
+                break;
+            case dj::InputCommand::IsolatorLowA:
+                isolatorALow = !isolatorALow;
+                deckA.setIsolatorMode(isolatorALow, isolatorAMid, isolatorAHigh);
+                deckA.setEQ(eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::IsolatorMidA:
+                isolatorAMid = !isolatorAMid;
+                deckA.setIsolatorMode(isolatorALow, isolatorAMid, isolatorAHigh);
+                deckA.setEQ(eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::IsolatorHighA:
+                isolatorAHigh = !isolatorAHigh;
+                deckA.setIsolatorMode(isolatorALow, isolatorAMid, isolatorAHigh);
+                deckA.setEQ(eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::IsolatorLowB:
+                isolatorBLow = !isolatorBLow;
+                deckB.setIsolatorMode(isolatorBLow, isolatorBMid, isolatorBHigh);
+                deckB.setEQ(eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::IsolatorMidB:
+                isolatorBMid = !isolatorBMid;
+                deckB.setIsolatorMode(isolatorBLow, isolatorBMid, isolatorBHigh);
+                deckB.setEQ(eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::IsolatorHighB:
+                isolatorBHigh = !isolatorBHigh;
+                deckB.setIsolatorMode(isolatorBLow, isolatorBMid, isolatorBHigh);
+                deckB.setEQ(eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::FilterOrderToggle:
+                // Toggle between single-pole (1) and Butterworth (2)
+                deckA.setFilterOrder(deckA.getFilterOrder() == 1 ? 2 : 1);
+                deckB.setFilterOrder(deckB.getFilterOrder() == 1 ? 2 : 1);
                 break;
             case dj::InputCommand::Quit:
                 quitRequested = true;

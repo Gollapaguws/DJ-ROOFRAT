@@ -41,7 +41,7 @@ void ThreeBandEQ::setMidHighCrossover(float hz) {
     midHighCrossoverHz_ = std::clamp(hz, 500.0f, 10000.0f);
 }
 
-float ThreeBandEQ::gainTodB(float linear) {
+float ThreeBandEQ::gainToDB(float linear) {
     if (linear <= 0.0f) {
         return -80.0f;  // Minimum dB value for silence
     }

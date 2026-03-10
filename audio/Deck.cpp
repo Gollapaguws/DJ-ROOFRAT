@@ -24,6 +24,14 @@ bool Deck::loadClip(const AudioClip& clip) {
     loopEnd_ = 0;
     lowPassLeft_ = 0.0f;
     lowPassRight_ = 0.0f;
+    butterworthZ1Left_ = 0.0f;
+    butterworthZ2Left_ = 0.0f;
+    butterworthZ1Right_ = 0.0f;
+    butterworthZ2Right_ = 0.0f;
+    butterworthYZ1Left_ = 0.0f;
+    butterworthYZ2Left_ = 0.0f;
+    butterworthYZ1Right_ = 0.0f;
+    butterworthYZ2Right_ = 0.0f;
     recentEnergy_ = 0.0f;
     playing_ = false;
     return true;
@@ -85,6 +93,17 @@ void Deck::setTrim(float trim) {
 }
 
 void Deck::setEQ(float low, float mid, float high) {
+    // Apply isolator logic: force 0.0 gain when isolator is enabled for each band
+    if (isolatorLow_) {
+        low = 0.0f;
+    }
+    if (isolatorMid_) {
+        mid = 0.0f;
+    }
+    if (isolatorHigh_) {
+        high = 0.0f;
+    }
+    
     eq_.setGains(low, mid, high);
 }
 
@@ -95,6 +114,33 @@ void Deck::setEQFrequencies(float lowMid, float midHigh) {
 
 void Deck::setFilter(float cutoff) {
     filterCutoff_ = std::clamp(cutoff, 0.0f, 1.0f);
+}
+
+void Deck::setIsolatorMode(bool low, bool mid, bool high) {
+    isolatorLow_ = low;
+    isolatorMid_ = mid;
+    isolatorHigh_ = high;
+}
+
+bool Deck::isIsolatorEnabled(int band) const {
+    if (band == 0) {
+        return isolatorLow_;
+    }
+    if (band == 1) {
+        return isolatorMid_;
+    }
+    if (band == 2) {
+        return isolatorHigh_;
+    }
+    return false;
+}
+
+void Deck::setFilterOrder(int order) {
+    filterOrder_ = std::clamp(order, 1, 2);
+}
+
+int Deck::getFilterOrder() const {
+    return filterOrder_;
 }
 
 void Deck::setCue(std::size_t frame) {
@@ -220,17 +266,68 @@ std::array<float, 2> Deck::applyFilter(const std::array<float, 2>& input) {
         return input;
     }
 
-    const float alpha = 0.02f + (filterCutoff_ * 0.45f);
-    lowPassLeft_ += alpha * (input[0] - lowPassLeft_);
-    lowPassRight_ += alpha * (input[1] - lowPassRight_);
+    if (filterOrder_ == 2) {
+        // 2nd-order Butterworth filter using biquad architecture
+        // Normalized cutoff frequency (0.0 to 1.0 maps to 0 to Nyquist)
+        const float wc = filterCutoff_ * 3.14159265f;  // Maps to 0-pi
+        const float c = std::cos(wc);
+        const float s = std::sin(wc);
+        const float alpha = s / (2.0f * 0.7071f);  // 0.7071 = sqrt(2)/2 for Butterworth Q
+        
+        // Biquad coefficients for lowpass
+        const float b0 = (1.0f - c) / 2.0f;
+        const float b1 = 1.0f - c;
+        const float b2 = (1.0f - c) / 2.0f;
+        const float a0 = 1.0f + alpha;
+        const float a1 = -2.0f * c;
+        const float a2 = 1.0f - alpha;
+        
+        // Normalized coefficients
+        const float b0_norm = b0 / a0;
+        const float b1_norm = b1 / a0;
+        const float b2_norm = b2 / a0;
+        const float a1_norm = a1 / a0;
+        const float a2_norm = a2 / a0;
+        
+        // Process left channel (Direct Form I biquad)
+        const float outLeft = b0_norm * input[0] + b1_norm * butterworthZ1Left_ + b2_norm * butterworthZ2Left_
+                             - a1_norm * butterworthYZ1Left_ - a2_norm * butterworthYZ2Left_;
+        butterworthZ2Left_ = butterworthZ1Left_;
+        butterworthZ1Left_ = input[0];
+        butterworthYZ2Left_ = butterworthYZ1Left_;
+        butterworthYZ1Left_ = outLeft;
+        lowPassLeft_ = outLeft;
+        
+        // Process right channel (Direct Form I biquad)
+        const float outRight = b0_norm * input[1] + b1_norm * butterworthZ1Right_ + b2_norm * butterworthZ2Right_
+                              - a1_norm * butterworthYZ1Right_ - a2_norm * butterworthYZ2Right_;
+        butterworthZ2Right_ = butterworthZ1Right_;
+        butterworthZ1Right_ = input[1];
+        butterworthYZ2Right_ = butterworthYZ1Right_;
+        butterworthYZ1Right_ = outRight;
+        lowPassRight_ = outRight;
+        
+        const float dryMix = filterCutoff_;
+        const float wetMix = 1.0f - dryMix;
+        
+        return {
+            (input[0] * dryMix) + (outLeft * wetMix),
+            (input[1] * dryMix) + (outRight * wetMix),
+        };
+    } else {
+        // Single-pole filter (default, order 1)
+        const float alpha = 0.02f + (filterCutoff_ * 0.45f);
+        lowPassLeft_ += alpha * (input[0] - lowPassLeft_);
+        lowPassRight_ += alpha * (input[1] - lowPassRight_);
 
-    const float dryMix = filterCutoff_;
-    const float wetMix = 1.0f - dryMix;
+        const float dryMix = filterCutoff_;
+        const float wetMix = 1.0f - dryMix;
 
-    return {
-        (input[0] * dryMix) + (lowPassLeft_ * wetMix),
-        (input[1] * dryMix) + (lowPassRight_ * wetMix),
-    };
+        return {
+            (input[0] * dryMix) + (lowPassLeft_ * wetMix),
+            (input[1] * dryMix) + (lowPassRight_ * wetMix),
+        };
+    }
 }
 
 } // namespace dj
