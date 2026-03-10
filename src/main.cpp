@@ -91,7 +91,7 @@ bool configurePerformanceLoop(dj::Deck& deck, float effectiveBpm) {
 
     const float bpm = std::max(60.0f, effectiveBpm);
     const double secondsPerBeat = 60.0 / static_cast<double>(bpm);
-    std::size_t loopFrames = static_cast<std::size_t>(secondsPerBeat * 16.0 * static_cast<double>(clip->sampleRate));
+    std::size_t loopFrames = static_cast<std::size_t>(secondsPerBeat * static_cast<double>(deck.loopBeats()) * static_cast<double>(clip->sampleRate));
     loopFrames = std::max<std::size_t>(1024U, loopFrames);
     loopFrames = std::min(loopFrames, clip->frameCount() - 1U);
 
@@ -197,6 +197,8 @@ int main(int argc, char** argv) {
     deckB.setSlipMode(true);
     deckA.setVinylMode(true);
     deckB.setVinylMode(true);
+    deckA.setLoopBeats(16);
+    deckB.setLoopBeats(16);
 
     deckA.setEQ(1.0f, 1.0f, 1.0f);
     deckB.setEQ(1.0f, 1.0f, 1.0f);
@@ -233,6 +235,8 @@ int main(int argc, char** argv) {
     float tempoB = 0.0f;
     bool loopAEnabled = false;
     bool loopBEnabled = false;
+    int loopBeatsA = 16;
+    int loopBeatsB = 16;
     std::size_t cueA = 0;
     std::size_t cueB = 0;
     bool manualMixMode = false;
@@ -320,6 +324,40 @@ int main(int argc, char** argv) {
             case dj::InputCommand::ResetTempoB:
                 tempoB = 0.0f;
                 deckB.setTempoPercent(tempoB);
+                break;
+            case dj::InputCommand::NudgeTempoAUp:
+                tempoA = std::clamp(tempoA + 0.25f, -20.0f, 20.0f);
+                deckA.setTempoPercent(tempoA);
+                break;
+            case dj::InputCommand::NudgeTempoADown:
+                tempoA = std::clamp(tempoA - 0.25f, -20.0f, 20.0f);
+                deckA.setTempoPercent(tempoA);
+                break;
+            case dj::InputCommand::ResetTempoA:
+                tempoA = 0.0f;
+                deckA.setTempoPercent(tempoA);
+                break;
+            case dj::InputCommand::LoopBeatsToggleA:
+                // Cycle: 16 → 32 → 8 → 16
+                if (loopBeatsA == 16) {
+                    loopBeatsA = 32;
+                } else if (loopBeatsA == 32) {
+                    loopBeatsA = 8;
+                } else {
+                    loopBeatsA = 16;
+                }
+                deckA.setLoopBeats(loopBeatsA);
+                break;
+            case dj::InputCommand::LoopBeatsToggleB:
+                // Cycle: 16 → 32 → 8 → 16
+                if (loopBeatsB == 16) {
+                    loopBeatsB = 32;
+                } else if (loopBeatsB == 32) {
+                    loopBeatsB = 8;
+                } else {
+                    loopBeatsB = 16;
+                }
+                deckB.setLoopBeats(loopBeatsB);
                 break;
             case dj::InputCommand::ToggleLoopA:
                 loopAEnabled = !loopAEnabled;

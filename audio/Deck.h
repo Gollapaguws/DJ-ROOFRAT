@@ -26,6 +26,9 @@ public:
     void setTempoPercent(float percent);
     float tempoPercent() const;
 
+    void setLoopBeats(int beats);
+    int loopBeats() const;
+
     void setTrim(float trim);
     void setEQ(float low, float mid, float high);
     void setEQFrequencies(float lowMid, float midHigh);
@@ -72,6 +75,7 @@ private:
 
     int outputSampleRate_ = 44100;
     float tempoPercent_ = 0.0f;
+    int loopBeats_ = 16;
     float trim_ = 1.0f;
     float filterCutoff_ = 1.0f;
 

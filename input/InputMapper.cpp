@@ -74,7 +74,7 @@ InputCommand InputMapper::parse(const std::string& rawCommand) {
 
 InputCommand InputMapper::parseKey(char rawKey) {
     const char lowerKey = static_cast<char>(std::tolower(static_cast<unsigned char>(rawKey)));
-    const bool isShifted = (rawKey != lowerKey);  // Uppercase means Shift held
+    const bool isShifted = (rawKey != lowerKey);  // Heuristic: treat uppercase as "Shift held" (Windows console / common layouts; may not hold for all layouts or input methods)
     
     if (isShifted) {
         // Shifted keys for isolators and filter order
@@ -118,6 +118,10 @@ InputCommand InputMapper::parseKey(char rawKey) {
         return InputCommand::PlayPauseA;
     case 'b':
         return InputCommand::PlayPauseB;
+    case 'z':
+        return InputCommand::NudgeTempoAUp;
+    case 'x':
+        return InputCommand::NudgeTempoADown;
     case 'i':
         return InputCommand::NudgeTempoBUp;
     case 'k':
@@ -127,9 +131,13 @@ InputCommand InputMapper::parseKey(char rawKey) {
     case 'l':
         return InputCommand::ToggleLoopB;
     case 'c':
-        return InputCommand::SetCueB;
+        return InputCommand::ResetTempoA;
     case 'v':
         return InputCommand::JumpCueB;
+    case ';':
+        return InputCommand::LoopBeatsToggleA;
+    case '\'':
+        return InputCommand::LoopBeatsToggleB;
     case 'q':
         return InputCommand::DeckALowDown;
     case 'w':
@@ -162,8 +170,6 @@ InputCommand InputMapper::parseKey(char rawKey) {
         return InputCommand::DeckBFilterDown;
     case ',':
         return InputCommand::DeckBFilterUp;
-    case 'x':
-        return InputCommand::Quit;
     default:
         return InputCommand::None;
     }

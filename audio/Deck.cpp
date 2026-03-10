@@ -88,6 +88,28 @@ float Deck::tempoPercent() const {
     return tempoPercent_;
 }
 
+void Deck::setLoopBeats(int beats) {
+    // Only accept valid values: 8, 16, or 32
+    if (beats == 8 || beats == 16 || beats == 32) {
+        loopBeats_ = beats;
+    } else {
+        // Clamp to nearest valid value
+        if (beats < 8) {
+            loopBeats_ = 8;
+        } else if (beats < 16) {
+            loopBeats_ = 8;
+        } else if (beats < 32) {
+            loopBeats_ = 16;
+        } else {
+            loopBeats_ = 32;
+        }
+    }
+}
+
+int Deck::loopBeats() const {
+    return loopBeats_;
+}
+
 void Deck::setTrim(float trim) {
     trim_ = std::clamp(trim, 0.0f, 2.0f);
 }
