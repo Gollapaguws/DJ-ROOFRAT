@@ -90,6 +90,12 @@ void Deck::setOutputSampleRate(int sampleRate) {
 
 void Deck::setTempoPercent(float percent) {
     tempoPercent_ = std::clamp(percent, -50.0f, 50.0f);
+
+    // Keep ramp target aligned with direct/manual tempo changes so nudges are not
+    // immediately pulled back on the next frame when ramp mode is enabled.
+    if (tempoRampEnabled_) {
+        targetTempo_ = tempoPercent_;
+    }
 }
 
 float Deck::tempoPercent() const {
