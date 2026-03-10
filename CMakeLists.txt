@@ -182,3 +182,19 @@ else()
 endif()
 
 set_target_properties(input_mapper_phase4_test PROPERTIES OUTPUT_NAME "InputMapper_Phase4_test")
+
+# CrowdStateMachine Phase 5 test
+add_executable(crowd_phase5_test
+    crowdAI/CrowdStateMachine_Phase5_test.cpp
+    crowdAI/CrowdStateMachine.cpp
+)
+
+target_include_directories(crowd_phase5_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(crowd_phase5_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(crowd_phase5_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(crowd_phase5_test PROPERTIES OUTPUT_NAME "CrowdStateMachine_Phase5_test")

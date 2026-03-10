@@ -251,7 +251,7 @@ int main(int argc, char** argv) {
     int activeCueBankA = 0;  // Active cue bank for Deck A (0, 1, or 2)
     int activeCueBankB = 0;  // Active cue bank for Deck B (0, 1, or 2)
 
-    dj::CrowdStateMachine crowd;
+    dj::CrowdStateMachine crowd(dj::CrowdPersonality::Default);
     dj::ScoringSystem scoring;
     dj::CareerProgression career;
     dj::WaveformRenderer waveform(68, 11);
