@@ -2,12 +2,15 @@
 
 #include <array>
 #include <cstddef>
+#include <memory>
 #include <string>
 
 #include "audio/AudioClip.h"
 #include "audio/ThreeBandEQ.h"
 
 namespace dj {
+
+class EffectChain;
 
 class Deck {
 public:
@@ -37,6 +40,10 @@ public:
     bool isIsolatorEnabled(int band) const;
     void setFilterOrder(int order);
     int getFilterOrder() const;
+
+    // Phase 15: Effect chain integration
+    void setEffectChain(std::shared_ptr<EffectChain> effectChain);
+    void setEffectSendLevel(float sendLevel);  // 0.0 = no send, 1.0 = full send
 
     void setCue(std::size_t frame);
     void jumpToCue();
@@ -116,6 +123,10 @@ private:
     // Phase 4: Multi-cue hotspot banks (3 banks: A, B, C = indices 0, 1, 2)
     std::array<std::size_t, 3> cuePoints_ = {0, 0, 0};
     int activeCueBank_ = 0;
+
+    // Phase 15: Effect chain processing
+    std::shared_ptr<EffectChain> effectChain_;
+    float effectSendLevel_ = 0.0f;
 };
 
 } // namespace dj

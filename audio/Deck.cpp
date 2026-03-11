@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "audio/TrackLoader.h"
+#include "audio/EffectChain.h"
 
 namespace dj {
 
@@ -343,6 +344,13 @@ std::array<float, 2> Deck::nextFrame() {
     const float instantEnergy = 0.5f * ((eqOut[0] * eqOut[0]) + (eqOut[1] * eqOut[1]));
     recentEnergy_ = (recentEnergy_ * 0.92f) + (instantEnergy * 0.08f);
 
+    // Phase 15: Apply effect chain if configured
+    if (effectChain_ && effectSendLevel_ > 0.0f) {
+        std::array<float, 2> effected = effectChain_->process(eqOut);
+        eqOut[0] = eqOut[0] * (1.0f - effectSendLevel_) + effected[0] * effectSendLevel_;
+        eqOut[1] = eqOut[1] * (1.0f - effectSendLevel_) + effected[1] * effectSendLevel_;
+    }
+
     // Phase 4: Apply tempo ramping if enabled
     if (tempoRampEnabled_) {
         // Interpolate tempo toward target using ramp rate
@@ -474,6 +482,15 @@ std::array<float, 2> Deck::applyFilter(const std::array<float, 2>& input) {
             (input[1] * dryMix) + (lowPassRight_ * wetMix),
         };
     }
+}
+
+// Phase 15: Effect chain integration
+void Deck::setEffectChain(std::shared_ptr<EffectChain> effectChain) {
+    effectChain_ = effectChain;
+}
+
+void Deck::setEffectSendLevel(float sendLevel) {
+    effectSendLevel_ = std::clamp(sendLevel, 0.0f, 1.0f);
 }
 
 } // namespace dj

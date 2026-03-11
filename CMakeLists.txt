@@ -109,6 +109,9 @@ add_executable(${DJ_ROOFRAT_TARGET}
     audio/WAVExporter.cpp
     audio/MP3Exporter.cpp
     audio/SessionMetadata.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/EffectChain.cpp
     crowdAI/CrowdStateMachine.cpp
     visuals/WaveformRenderer.cpp
     visuals/GraphicsContext.cpp
@@ -213,6 +216,9 @@ add_executable(deck_phase2_test
     audio/MetadataParser.cpp
     audio/KeyDetector.cpp
     audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
 )
 
 target_include_directories(deck_phase2_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -252,6 +258,9 @@ add_executable(deck_phase3_test
     audio/MetadataParser.cpp
     audio/KeyDetector.cpp
     audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
 )
 
 target_include_directories(deck_phase3_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -291,6 +300,9 @@ add_executable(deck_phase4_test
     audio/MetadataParser.cpp
     audio/KeyDetector.cpp
     audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
 )
 
 target_include_directories(deck_phase4_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -626,3 +638,29 @@ else()
 endif()
 
 set_target_properties(recorder_phase14_test PROPERTIES OUTPUT_NAME "Recorder_Phase14_test")
+
+# Effects Phase 15 test (Time-Based Effects: Reverb & Delay)
+add_executable(effects_phase15_test
+    audio/Effects_Phase15_test.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/EffectChain.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+)
+
+target_include_directories(effects_phase15_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(effects_phase15_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(effects_phase15_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(effects_phase15_test PROPERTIES OUTPUT_NAME "Effects_Phase15_test")
