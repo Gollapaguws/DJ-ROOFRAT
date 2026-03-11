@@ -112,6 +112,11 @@ add_executable(${DJ_ROOFRAT_TARGET}
     audio/Reverb.cpp
     audio/Delay.cpp
     audio/EffectChain.cpp
+    audio/Flanger.cpp
+    audio/Phaser.cpp
+    audio/Bitcrusher.cpp
+    audio/RingModulator.cpp
+    audio/AutoFilter.cpp
     crowdAI/CrowdStateMachine.cpp
     visuals/WaveformRenderer.cpp
     visuals/GraphicsContext.cpp
@@ -664,3 +669,23 @@ else()
 endif()
 
 set_target_properties(effects_phase15_test PROPERTIES OUTPUT_NAME "Effects_Phase15_test")
+
+# Effects Phase 16 test (Modulation & Distortion Effects)
+add_executable(effects_phase16_test
+    audio/Effects_Phase16_test.cpp
+    audio/Flanger.cpp
+    audio/Phaser.cpp
+    audio/Bitcrusher.cpp
+    audio/RingModulator.cpp
+    audio/AutoFilter.cpp
+)
+
+target_include_directories(effects_phase16_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(effects_phase16_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(effects_phase16_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(effects_phase16_test PROPERTIES OUTPUT_NAME "Effects_Phase16_test")
