@@ -46,6 +46,8 @@ add_executable(${DJ_ROOFRAT_TARGET}
     visuals/WaveformRenderer.cpp
     visuals/GraphicsContext.cpp
     visuals/LightingRig.cpp
+    visuals/LaserController.cpp
+    visuals/CrowdRenderer.cpp
     gameplay/GameModes.cpp
     input/InputMapper.cpp
 )
@@ -264,3 +266,35 @@ else()
 endif()
 
 set_target_properties(lighting_rig_phase7_test PROPERTIES OUTPUT_NAME "LightingRig_Phase7_test")
+
+# LaserController Phase 8 test
+add_executable(laser_controller_phase8_test
+    visuals/LaserController_Phase8_test.cpp
+    visuals/LaserController.cpp
+)
+
+target_include_directories(laser_controller_phase8_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(laser_controller_phase8_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(laser_controller_phase8_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(laser_controller_phase8_test PROPERTIES OUTPUT_NAME "LaserController_Phase8_test")
+
+# CrowdRenderer Phase 8 test
+add_executable(crowd_renderer_phase8_test
+    visuals/CrowdRenderer_Phase8_test.cpp
+    visuals/CrowdRenderer.cpp
+)
+
+target_include_directories(crowd_renderer_phase8_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(crowd_renderer_phase8_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(crowd_renderer_phase8_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(crowd_renderer_phase8_test PROPERTIES OUTPUT_NAME "CrowdRenderer_Phase8_test")
