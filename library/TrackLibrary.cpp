@@ -11,10 +11,18 @@ class TrackLibrary::Impl {
 public:
     std::map<int, StoredTrack> tracks_;
     int nextId_ = 1;
+    std::string dbPath_;
+
+    ~Impl() = default;
+
+    bool initializeDatabase(std::string* errorOut) {
+        (void)errorOut;
+        // In-memory implementation: nothing to initialize
+        return true;
+    }
 
     int addTrackImpl(const std::string& path, const TrackMetadata& metadata, std::string* errorOut) {
         (void)errorOut;
-        
         StoredTrack track;
         track.id = nextId_++;
         track.path = path;
@@ -24,14 +32,12 @@ public:
         track.key = metadata.key;
         track.durationSeconds = metadata.durationSeconds;
         track.genre = metadata.genre;
-        
         tracks_[track.id] = track;
         return track.id;
     }
 
     std::optional<StoredTrack> getTrackImpl(int id, std::string* errorOut) {
         (void)errorOut;
-        
         auto it = tracks_.find(id);
         if (it != tracks_.end()) {
             return it->second;
@@ -46,7 +52,6 @@ public:
 
     std::vector<StoredTrack> getAllTracksImpl(std::string* errorOut) {
         (void)errorOut;
-        
         std::vector<StoredTrack> result;
         result.reserve(tracks_.size());
         for (const auto& [id, track] : tracks_) {
@@ -55,24 +60,27 @@ public:
         return result;
     }
 
-    std::vector<StoredTrack> queryByBPMImpl(float minBPM, float maxBPM, std::string* errorOut) {
+    std::vector<StoredTrack> queryByBpmImpl(float minBpm, float maxBpm, std::string* errorOut) {
         (void)errorOut;
-        
         std::vector<StoredTrack> result;
         for (const auto& [id, track] : tracks_) {
             if (track.bpm.has_value()) {
                 float bpm = track.bpm.value();
-                if (bpm >= minBPM && bpm <= maxBPM) {
+                if (bpm >= minBpm && bpm <= maxBpm) {
                     result.push_back(track);
                 }
             }
         }
+        std::sort(result.begin(), result.end(), [](const StoredTrack& a, const StoredTrack& b) {
+            if (!a.bpm.has_value()) return false;
+            if (!b.bpm.has_value()) return true;
+            return a.bpm.value() < b.bpm.value();
+        });
         return result;
     }
 
     std::vector<StoredTrack> queryByKeyImpl(const std::string& key, std::string* errorOut) {
         (void)errorOut;
-        
         std::vector<StoredTrack> result;
         for (const auto& [id, track] : tracks_) {
             if (track.key.has_value() && track.key.value() == key) {
@@ -82,10 +90,37 @@ public:
         return result;
     }
 
-    void clearImpl(std::string* errorOut) {
+    std::vector<StoredTrack> queryByArtistImpl(const std::string& artist, std::string* errorOut) {
+        (void)errorOut;
+        std::vector<StoredTrack> result;
+        for (const auto& [id, track] : tracks_) {
+            if (track.artist == artist) {
+                result.push_back(track);
+            }
+        }
+        return result;
+    }
+
+    std::vector<StoredTrack> queryByGenreImpl(const std::string& genre, std::string* errorOut) {
+        (void)errorOut;
+        std::vector<StoredTrack> result;
+        for (const auto& [id, track] : tracks_) {
+            if (track.genre == genre) {
+                result.push_back(track);
+            }
+        }
+        return result;
+    }
+
+    int getTrackCountImpl(std::string* errorOut) {
+        (void)errorOut;
+        return static_cast<int>(tracks_.size());
+    }
+
+    bool clearDatabaseImpl(std::string* errorOut) {
         (void)errorOut;
         tracks_.clear();
-        nextId_ = 1;
+        return true;
     }
 };
 
@@ -98,24 +133,21 @@ TrackLibrary::TrackLibrary() : pImpl(std::make_unique<Impl>()) {}
 TrackLibrary::~TrackLibrary() = default;
 
 bool TrackLibrary::initialize(const std::string& dbPath, std::string* errorOut) {
-    (void)dbPath;
-    (void)errorOut;
-    
     if (!pImpl) {
         if (errorOut) {
             *errorOut = "Internal error: implementation not initialized";
         }
         return false;
     }
-    
-    // In-memory implementation, always succeeds
-    return true;
+
+    pImpl->dbPath_ = dbPath;
+    return pImpl->initializeDatabase(errorOut);
 }
 
 bool TrackLibrary::addTrack(const std::string& path, const TrackMetadata& metadata, int* outId, std::string* errorOut) {
     if (!pImpl) {
         if (errorOut) {
-            *errorOut = "Internal error: implementation not initialized";
+            *errorOut = "Internal error: database not initialized";
         }
         return false;
     }
@@ -169,7 +201,7 @@ std::vector<StoredTrack> TrackLibrary::queryByBpm(float minBpm, float maxBpm, st
         return {};
     }
 
-    return pImpl->queryByBPMImpl(minBpm, maxBpm, errorOut);
+    return pImpl->queryByBpmImpl(minBpm, maxBpm, errorOut);
 }
 
 std::vector<StoredTrack> TrackLibrary::queryByKey(const std::string& key, std::string* errorOut) {
@@ -184,19 +216,25 @@ std::vector<StoredTrack> TrackLibrary::queryByKey(const std::string& key, std::s
 }
 
 std::vector<StoredTrack> TrackLibrary::queryByArtist(const std::string& artist, std::string* errorOut) {
-    (void)artist;
-    if (errorOut) {
-        *errorOut = "queryByArtist not yet implemented";
+    if (!pImpl) {
+        if (errorOut) {
+            *errorOut = "Internal error: implementation not initialized";
+        }
+        return {};
     }
-    return {};
+
+    return pImpl->queryByArtistImpl(artist, errorOut);
 }
 
 std::vector<StoredTrack> TrackLibrary::queryByGenre(const std::string& genre, std::string* errorOut) {
-    (void)genre;
-    if (errorOut) {
-        *errorOut = "queryByGenre not yet implemented";
+    if (!pImpl) {
+        if (errorOut) {
+            *errorOut = "Internal error: implementation not initialized";
+        }
+        return {};
     }
-    return {};
+
+    return pImpl->queryByGenreImpl(genre, errorOut);
 }
 
 std::vector<StoredTrack> TrackLibrary::getAllTracks(std::string* errorOut) {
@@ -218,7 +256,7 @@ int TrackLibrary::getTrackCount(std::string* errorOut) {
         return 0;
     }
 
-    return static_cast<int>(pImpl->tracks_.size());
+    return pImpl->getTrackCountImpl(errorOut);
 }
 
 bool TrackLibrary::clearDatabase(std::string* errorOut) {
@@ -229,8 +267,7 @@ bool TrackLibrary::clearDatabase(std::string* errorOut) {
         return false;
     }
 
-    pImpl->clearImpl(errorOut);
-    return true;
+    return pImpl->clearDatabaseImpl(errorOut);
 }
 
 } // namespace dj::library

@@ -100,16 +100,23 @@ add_executable(${DJ_ROOFRAT_TARGET}
     visuals/CrowdRenderer.cpp
     gameplay/GameModes.cpp
     input/InputMapper.cpp
+    input/MIDIDevice.cpp
+    input/MIDIMessage.cpp
+    input/MIDIController.cpp
     library/TrackLibrary.cpp
     library/LibraryScanner.cpp
     library/TrackBrowser.cpp
+    # vendor/sqlite3_stub.cpp  # Using std::map implementation instead
 )
 
 set_target_properties(${DJ_ROOFRAT_TARGET} PROPERTIES
     OUTPUT_NAME "DJ-ROOFRAT"
 )
 
-target_include_directories(${DJ_ROOFRAT_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${DJ_ROOFRAT_TARGET} PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor
+)
 
 if(DJ_SIM_USE_PORTAUDIO)
     target_compile_definitions(${DJ_ROOFRAT_TARGET} PRIVATE DJ_SIM_USE_PORTAUDIO=1)
@@ -132,6 +139,11 @@ if(DJROOFRAT_ENABLE_GRAPHICS)
     if(WIN32)
         target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE d3d11 dxgi)
     endif()
+endif()
+
+# Windows Multimedia API for MIDI input
+if(WIN32)
+    target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE winmm)
 endif()
 
 # Configure SQLite3 for main target
@@ -474,11 +486,28 @@ add_executable(tracklibrary_phase11_test
     library/TrackLibrary.cpp
     library/LibraryScanner.cpp
     library/TrackBrowser.cpp
+    # vendor/sqlite3_stub.cpp  # Using std::map implementation instead
 )
 
 target_include_directories(tracklibrary_phase11_test PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor
 )
+
+# Configure SQLite3 for test target - always enable with vendor stub
+# target_compile_definitions(tracklibrary_phase11_test PRIVATE DJ_SIM_USE_SQLITE3=1)
+
+if(SQLite3_FOUND)
+    target_compile_definitions(tracklibrary_phase11_test PRIVATE DJ_SIM_USE_SQLITE3=1)
+    if(SQLITE3_TARGET)
+        target_link_libraries(tracklibrary_phase11_test PRIVATE ${SQLITE3_TARGET})
+    endif()
+    if(SQLITE3_INCLUDE_DIR)
+        target_include_directories(tracklibrary_phase11_test PRIVATE ${SQLITE3_INCLUDE_DIR})
+    elseif(SQLite3_INCLUDE_DIRS)
+        target_include_directories(tracklibrary_phase11_test PRIVATE ${SQLite3_INCLUDE_DIRS})
+    endif()
+endif()
 
 if(MSVC)
     target_compile_options(tracklibrary_phase11_test PRIVATE /W4 /permissive-)
@@ -487,3 +516,26 @@ else()
 endif()
 
 set_target_properties(tracklibrary_phase11_test PROPERTIES OUTPUT_NAME "TrackLibrary_Phase11_test")
+
+# MIDIController Phase 12 test (MIDI Controller Foundation)
+add_executable(midicontroller_phase12_test
+    input/MIDIController_Phase12_test.cpp
+    input/MIDIDevice.cpp
+    input/MIDIMessage.cpp
+    input/MIDIController.cpp
+)
+
+target_include_directories(midicontroller_phase12_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Link Windows Multimedia API
+if(WIN32)
+    target_link_libraries(midicontroller_phase12_test PRIVATE winmm)
+endif()
+
+if(MSVC)
+    target_compile_options(midicontroller_phase12_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(midicontroller_phase12_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(midicontroller_phase12_test PROPERTIES OUTPUT_NAME "MIDIController_Phase12_test")
