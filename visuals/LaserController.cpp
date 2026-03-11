@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace dj {
 
@@ -21,8 +22,7 @@ void LaserController::update(float bpm, float crossfader, float dtSeconds) {
     // Secondary angle oscillates with BPM
     // Higher BPM = faster oscillation
     phaseTime_ += clampedDt * (clampedBpm / 60.0f);  // Convert to oscillations per second
-    const float oscillationFactor = 60.0f;  // Angular speed in degrees per second at 60 BPM
-    secondaryAngle_ = 90.0f * std::sin(2.0f * 3.14159265359f * phaseTime_);
+    secondaryAngle_ = 90.0f * std::sin(2.0f * std::numbers::pi_v<float> * phaseTime_);
 
     // Intensity scales with BPM (normalized to typical range 60-200)
     // Map BPM to intensity: 60 BPM -> 0.3, 200 BPM -> 1.0
@@ -35,15 +35,15 @@ void LaserController::update(float bpm, float crossfader, float dtSeconds) {
     intensity_ = std::clamp(intensity_, 0.0f, 1.0f);
 }
 
-float LaserController::primaryAngleDegrees() const {
+float LaserController::primaryAngleDegrees() const noexcept {
     return primaryAngle_;
 }
 
-float LaserController::secondaryAngleDegrees() const {
+float LaserController::secondaryAngleDegrees() const noexcept {
     return secondaryAngle_;
 }
 
-float LaserController::intensity() const {
+float LaserController::intensity() const noexcept {
     return intensity_;
 }
 

@@ -15,15 +15,15 @@ public:
 
     // Get animation motion amplitude in [0, 1]
     // Higher mood and energy produce higher amplitude
-    float motionAmplitude() const;
+    float motionAmplitude() const noexcept;
 
     // Get crowd density in [0, 1]
     // Higher energy produces higher density
-    float density() const;
+    float density() const noexcept;
 
     // Get number of visible crowd silhouettes
-    // Typically 0-1000 depending on mood and energy
-    int visibleSilhouettes() const;
+    // Typically 0-550 depending on mood and energy
+    int visibleSilhouettes() const noexcept;
 
 private:
     float motionAmplitude_;

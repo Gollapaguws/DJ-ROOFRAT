@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 namespace dj {
 
@@ -42,8 +43,8 @@ void CrowdRenderer::update(int mood, float energy, float dtSeconds) {
 
     // Update animation phase for smooth motion
     animationPhase_ += clampedDt * 3.0f;  // ~3 cycles per second base rate
-    if (animationPhase_ > 2.0f * 3.14159265359f) {
-        animationPhase_ -= 2.0f * 3.14159265359f;
+    if (animationPhase_ > 2.0f * std::numbers::pi_v<float>) {
+        animationPhase_ -= 2.0f * std::numbers::pi_v<float>;
     }
 
     // Visible silhouettes range from 0 to ~500 based on mood and energy
@@ -56,15 +57,15 @@ void CrowdRenderer::update(int mood, float energy, float dtSeconds) {
     ));
 }
 
-float CrowdRenderer::motionAmplitude() const {
+float CrowdRenderer::motionAmplitude() const noexcept {
     return motionAmplitude_;
 }
 
-float CrowdRenderer::density() const {
+float CrowdRenderer::density() const noexcept {
     return density_;
 }
 
-int CrowdRenderer::visibleSilhouettes() const {
+int CrowdRenderer::visibleSilhouettes() const noexcept {
     return visibleSilhouettes_;
 }
 

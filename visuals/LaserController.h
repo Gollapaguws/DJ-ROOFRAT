@@ -14,13 +14,13 @@ public:
     void update(float bpm, float crossfader, float dtSeconds);
 
     // Get primary laser beam angle in degrees, roughly [-45, +45] following crossfader
-    float primaryAngleDegrees() const;
+    float primaryAngleDegrees() const noexcept;
 
     // Get secondary laser beam angle in degrees, [-180, 180], oscillates with BPM
-    float secondaryAngleDegrees() const;
+    float secondaryAngleDegrees() const noexcept;
 
     // Get laser intensity in [0, 1], increases with BPM/sync activity
-    float intensity() const;
+    float intensity() const noexcept;
 
 private:
     float primaryAngle_;

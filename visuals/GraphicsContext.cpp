@@ -1,5 +1,10 @@
 #include "visuals/GraphicsContext.h"
 
+#include <memory>
+
+#include "visuals/LaserController.h"
+#include "visuals/CrowdRenderer.h"
+
 #if defined(_WIN32)
 #include <d3d11.h>
 #endif
@@ -7,7 +12,9 @@
 namespace dj {
 
 GraphicsContext::GraphicsContext()
-    : available_(false), width_(0), height_(0) {
+    : available_(false), width_(0), height_(0),
+      laserController_(std::make_unique<LaserController>()),
+      crowdRenderer_(std::make_unique<CrowdRenderer>()) {
 }
 
 GraphicsContext::~GraphicsContext() {
@@ -48,9 +55,24 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
     }
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    // Update laser and crowd animation state
+    const float blockDurationSeconds = 512.0f / 44100.0f;  // Typical audio block duration
+    
+    if (laserController_) {
+        laserController_->update(bpm, crossfader, blockDurationSeconds);
+    }
+    
+    if (crowdRenderer_) {
+        crowdRenderer_->update(mood, energy, blockDurationSeconds);
+    }
+
     // DirectX 11 rendering would go here
     // For this phase, simply succeed if graphics are available
-    // A real implementation would render lighting bars, waveforms, etc.
+    // A real implementation would composite:
+    // 1. Background layer
+    // 2. Crowd silhouettes (via crowdRenderer)
+    // 3. Lighting rig effects
+    // 4. Laser beams (via laserController)
     return true;
 #else
     // Suppress unreferenced parameter warnings

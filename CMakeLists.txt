@@ -232,6 +232,8 @@ set_target_properties(crowd_phase6_test PROPERTIES OUTPUT_NAME "CrowdStateMachin
 add_executable(graphics_context_phase7_test
     visuals/GraphicsContext_Phase7_test.cpp
     visuals/GraphicsContext.cpp
+    visuals/LaserController.cpp
+    visuals/CrowdRenderer.cpp
 )
 
 target_include_directories(graphics_context_phase7_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -298,3 +300,28 @@ else()
 endif()
 
 set_target_properties(crowd_renderer_phase8_test PROPERTIES OUTPUT_NAME "CrowdRenderer_Phase8_test")
+
+# GraphicsContext Phase 8 test
+add_executable(graphics_context_phase8_test
+    visuals/GraphicsContext_Phase8_test.cpp
+    visuals/GraphicsContext.cpp
+    visuals/LaserController.cpp
+    visuals/CrowdRenderer.cpp
+)
+
+target_include_directories(graphics_context_phase8_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(graphics_context_phase8_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(graphics_context_phase8_test PRIVATE d3d11 dxgi)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(graphics_context_phase8_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(graphics_context_phase8_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(graphics_context_phase8_test PROPERTIES OUTPUT_NAME "GraphicsContext_Phase8_test")
