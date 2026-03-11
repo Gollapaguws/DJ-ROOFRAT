@@ -53,6 +53,9 @@ add_executable(${DJ_ROOFRAT_TARGET}
     visuals/CrowdRenderer.cpp
     gameplay/GameModes.cpp
     input/InputMapper.cpp
+    library/TrackLibrary.cpp
+    library/LibraryScanner.cpp
+    library/TrackBrowser.cpp
 )
 
 set_target_properties(${DJ_ROOFRAT_TARGET} PROPERTIES
@@ -402,3 +405,21 @@ else()
 endif()
 
 set_target_properties(trackloader_phase10_test PROPERTIES OUTPUT_NAME "TrackLoader_Phase10_test")
+
+# TrackLibrary Phase 11 test (Track Library & Browser)
+add_executable(tracklibrary_phase11_test
+    library/TrackLibrary_Phase11_test.cpp
+    library/TrackLibrary.cpp
+    library/LibraryScanner.cpp
+    library/TrackBrowser.cpp
+)
+
+target_include_directories(tracklibrary_phase11_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(tracklibrary_phase11_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(tracklibrary_phase11_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(tracklibrary_phase11_test PROPERTIES OUTPUT_NAME "TrackLibrary_Phase11_test")

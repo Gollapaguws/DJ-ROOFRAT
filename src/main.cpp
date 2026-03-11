@@ -22,6 +22,9 @@
 #include "visuals/WaveformRenderer.h"
 #include "visuals/GraphicsContext.h"
 #include "visuals/LightingRig.h"
+#include "library/TrackLibrary.h"
+#include "library/LibraryScanner.h"
+#include "library/TrackBrowser.h"
 
 namespace {
 
@@ -282,6 +285,13 @@ int main(int argc, char** argv) {
     } else {
         std::cout << "Audio disabled by flag (--no-audio).\n";
     }
+
+    // Phase 11: Track Library & Browser initialization
+    auto library = std::make_shared<dj::library::TrackLibrary>();
+    std::string libError;
+    library->initialize(":memory:", &libError);  // In-memory database for development
+    auto browser = std::make_shared<dj::library::TrackBrowser>(library);
+    std::cout << "Track Library initialized with browser support.\n";
 
     constexpr std::size_t framesPerBlock = 512;
     constexpr int totalBlocks = 1200;
