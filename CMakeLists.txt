@@ -136,6 +136,11 @@ add_executable(${DJ_ROOFRAT_TARGET}
     library/TrackLibrary.cpp
     library/LibraryScanner.cpp
     library/TrackBrowser.cpp
+    visuals/Camera.cpp
+    visuals/Shader.cpp
+    visuals/VertexBuffer.cpp
+    visuals/IndexBuffer.cpp
+    visuals/StageGeometry.cpp
     # vendor/sqlite3_stub.cpp  # Using std::map implementation instead
 )
 
@@ -177,7 +182,7 @@ endif()
 if(DJROOFRAT_ENABLE_GRAPHICS)
     target_compile_definitions(${DJ_ROOFRAT_TARGET} PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
     if(WIN32)
-        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE d3d11 dxgi)
+        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE d3d11 dxgi d3dcompiler)
     endif()
 endif()
 
@@ -467,6 +472,36 @@ else()
 endif()
 
 set_target_properties(graphics_context_phase8_test PROPERTIES OUTPUT_NAME "GraphicsContext_Phase8_test")
+
+# GraphicsContext Phase 18 test (DirectX 11 Core Rendering Pipeline)
+add_executable(graphics_context_phase18_test
+    visuals/GraphicsContext_Phase18_test.cpp
+    visuals/GraphicsContext.cpp
+    visuals/Camera.cpp
+    visuals/Shader.cpp
+    visuals/VertexBuffer.cpp
+    visuals/IndexBuffer.cpp
+    visuals/StageGeometry.cpp
+    visuals/LaserController.cpp
+    visuals/CrowdRenderer.cpp
+)
+
+target_include_directories(graphics_context_phase18_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(graphics_context_phase18_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(graphics_context_phase18_test PRIVATE d3d11 dxgi d3dcompiler)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(graphics_context_phase18_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(graphics_context_phase18_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(graphics_context_phase18_test PROPERTIES OUTPUT_NAME "GraphicsContext_Phase18_test")
 
 # TrackLoader Phase 9 test (MP3 support and comprehensive audio loading)
 add_executable(trackloader_phase9_test
