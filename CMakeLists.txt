@@ -78,6 +78,19 @@ if(DJ_SIM_ENABLE_AUDIO_BACKEND)
             set(DJ_SIM_USE_SNDFILE ON)
         endif()
     endif()
+
+    # Try to find LAME for MP3 encoding (optional)
+    find_package(Lame QUIET)
+    set(DJ_SIM_USE_LAME OFF)
+    if(Lame_FOUND)
+        set(DJ_SIM_USE_LAME ON)
+    else()
+        find_path(LAME_INCLUDE_DIR NAMES lame/lame.h)
+        find_library(LAME_LIBRARY NAMES mp3lame libmp3lame)
+        if(LAME_INCLUDE_DIR AND LAME_LIBRARY)
+            set(DJ_SIM_USE_LAME ON)
+        endif()
+    endif()
 endif()
 
 add_executable(${DJ_ROOFRAT_TARGET}
@@ -92,6 +105,10 @@ add_executable(${DJ_ROOFRAT_TARGET}
     audio/KeyDetector.cpp
     audio/WaveformCache.cpp
     audio/PortAudioPlayer.cpp
+    audio/Recorder.cpp
+    audio/WAVExporter.cpp
+    audio/MP3Exporter.cpp
+    audio/SessionMetadata.cpp
     crowdAI/CrowdStateMachine.cpp
     visuals/WaveformRenderer.cpp
     visuals/GraphicsContext.cpp
@@ -103,6 +120,9 @@ add_executable(${DJ_ROOFRAT_TARGET}
     input/MIDIDevice.cpp
     input/MIDIMessage.cpp
     input/MIDIController.cpp
+    input/MIDIMapping.cpp
+    input/MIDILearnMode.cpp
+    input/ControllerProfiles.cpp
     library/TrackLibrary.cpp
     library/LibraryScanner.cpp
     library/TrackBrowser.cpp
@@ -131,6 +151,16 @@ if(DJ_SIM_USE_SNDFILE)
     else()
         target_include_directories(${DJ_ROOFRAT_TARGET} PRIVATE ${SNDFILE_INCLUDE_DIR})
         target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE ${SNDFILE_LIBRARY})
+    endif()
+endif()
+
+if(DJ_SIM_USE_LAME)
+    target_compile_definitions(${DJ_ROOFRAT_TARGET} PRIVATE DJ_RECORDING_MP3_AVAILABLE=1)
+    if(Lame_FOUND)
+        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE Lame::Lame)
+    else()
+        target_include_directories(${DJ_ROOFRAT_TARGET} PRIVATE ${LAME_INCLUDE_DIR})
+        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE ${LAME_LIBRARY})
     endif()
 endif()
 
@@ -169,6 +199,7 @@ endif()
 
 message(STATUS "DJ_SIM_USE_PORTAUDIO=${DJ_SIM_USE_PORTAUDIO}")
 message(STATUS "DJ_SIM_USE_SNDFILE=${DJ_SIM_USE_SNDFILE}")
+message(STATUS "DJ_SIM_USE_LAME=${DJ_SIM_USE_LAME}")
 message(STATUS "DJROOFRAT_ENABLE_GRAPHICS=${DJROOFRAT_ENABLE_GRAPHICS}")
 
 # Test targets
@@ -539,3 +570,59 @@ else()
 endif()
 
 set_target_properties(midicontroller_phase12_test PROPERTIES OUTPUT_NAME "MIDIController_Phase12_test")
+
+# MIDIMapping Phase 13 test (MIDI Mapping System)
+add_executable(midicontroller_phase13_test
+    input/MIDIMapping_Phase13_test.cpp
+    input/MIDIMapping.cpp
+    input/MIDILearnMode.cpp
+    input/ControllerProfiles.cpp
+    input/MIDIDevice.cpp
+    input/MIDIMessage.cpp
+    input/MIDIController.cpp
+)
+
+target_include_directories(midicontroller_phase13_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Link Windows Multimedia API
+if(WIN32)
+    target_link_libraries(midicontroller_phase13_test PRIVATE winmm)
+endif()
+
+if(MSVC)
+    target_compile_options(midicontroller_phase13_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(midicontroller_phase13_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(midicontroller_phase13_test PROPERTIES OUTPUT_NAME "MIDIController_Phase13_test")
+
+# Recorder Phase 14 test (Performance Recording & Export)
+add_executable(recorder_phase14_test
+    audio/Recorder_Phase14_test.cpp
+    audio/Recorder.cpp
+    audio/WAVExporter.cpp
+    audio/MP3Exporter.cpp
+    audio/SessionMetadata.cpp
+)
+
+target_include_directories(recorder_phase14_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Configure LAME for test if available
+if(DJ_SIM_USE_LAME)
+    target_compile_definitions(recorder_phase14_test PRIVATE DJ_RECORDING_MP3_AVAILABLE=1)
+    if(Lame_FOUND)
+        target_link_libraries(recorder_phase14_test PRIVATE Lame::Lame)
+    else()
+        target_include_directories(recorder_phase14_test PRIVATE ${LAME_INCLUDE_DIR})
+        target_link_libraries(recorder_phase14_test PRIVATE ${LAME_LIBRARY})
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(recorder_phase14_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(recorder_phase14_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(recorder_phase14_test PROPERTIES OUTPUT_NAME "Recorder_Phase14_test")

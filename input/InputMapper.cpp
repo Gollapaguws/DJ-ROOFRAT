@@ -149,6 +149,8 @@ InputCommand InputMapper::parseKey(char rawKey) {
             return InputCommand::JumpCueB3;
         case 'r':
             return InputCommand::TempoRampToggle;
+        case 's':
+            return InputCommand::SaveRecording;
         default:
             return InputCommand::None;
         }
@@ -157,6 +159,8 @@ InputCommand InputMapper::parseKey(char rawKey) {
     // Non-shifted keys (normal EQ controls)
     const char key = lowerKey;
     switch (key) {
+    case 's':
+        return InputCommand::RecordToggle;
     case '1':
         return InputCommand::SetCueA1;  // Phase 4: Multi-cue A1 set
     case '2':

@@ -66,6 +66,8 @@ enum class InputCommand {
     JumpCueB2,
     JumpCueB3,
     TempoRampToggle,
+    RecordToggle,
+    SaveRecording,
     Quit,
 };
 

@@ -1,3 +1,7 @@
+#if defined(_WIN32)
+#define NOMINMAX
+#endif
+
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -16,9 +20,14 @@
 #include "audio/Deck.h"
 #include "audio/Mixer.h"
 #include "audio/PortAudioPlayer.h"
+#include "audio/Recorder.h"
+#include "audio/WAVExporter.h"
 #include "crowdAI/CrowdStateMachine.h"
 #include "gameplay/GameModes.h"
 #include "input/InputMapper.h"
+#include "input/MIDIController.h"
+#include "input/MIDIMapping.h"
+#include "input/ControllerProfiles.h"
 #include "visuals/WaveformRenderer.h"
 #include "visuals/GraphicsContext.h"
 #include "visuals/LightingRig.h"
@@ -70,6 +79,7 @@ void printLiveControls() {
     std::cout << "               Phase 4 - Multi-Cue Banks: 1/2/3 set cueA1/A2/A3, 4/5/6 set cueB1/B2/B3\n";
     std::cout << "               Phase 4 - Cue Jump: Shift+1/2/3 jump cueA1/A2/A3, Shift+4/5/6 jump cueB1/B2/B3\n";
     std::cout << "               Phase 4 - Tempo Ramp: Shift+R to toggle tempo ramping (both decks)\n";
+    std::cout << "               Phase 14 - Recording: s toggle record | Shift+s save recording to WAV\n";
 }
 
 std::vector<dj::InputCommand> pollKeyboardCommands() {
@@ -237,6 +247,10 @@ int main(int argc, char** argv) {
     dj::Mixer mixer;
     mixer.setMasterGain(0.9f);
 
+    // Phase 14: Initialize Recorder for session recording (stereo, 44.1kHz, 10 minute capacity)
+    dj::Recorder recorder(outputRate, 2, 600);  // 10 minutes of recording capacity
+    bool recordingActive = false;
+
     float crossfaderPosition = -1.0f;
     mixer.setCrossfader(crossfaderPosition);
 
@@ -292,6 +306,18 @@ int main(int argc, char** argv) {
     library->initialize(":memory:", &libError);  // In-memory database for development
     auto browser = std::make_shared<dj::library::TrackBrowser>(library);
     std::cout << "Track Library initialized with browser support.\n";
+
+    // Phase 13: MIDI Controller initialization
+    dj::midi::MIDIController midiController;
+    auto midiProfile = dj::input::ControllerProfiles::getDefaultProfile();
+    std::cout << "MIDI system initialized with default controller profile.\n"
+              << "Available MIDI functions: ";
+    for (const auto& fn : midiProfile->getAvailableFunctions()) {
+        std::cout << fn << " ";
+    }
+    std::cout << "\n";
+    // Note: MIDI device enumeration and opening is optional for development
+    // In production, would enumerate devices and allow user selection
 
     constexpr std::size_t framesPerBlock = 512;
     constexpr int totalBlocks = 1200;
@@ -604,6 +630,39 @@ int main(int argc, char** argv) {
                     deckB.setTempoRampRate(0.01f);  // Moderate ramp rate
                 }
                 break;
+            // Phase 14: Recording control
+            case dj::InputCommand::RecordToggle:
+                if (!recordingActive) {
+                    recorder.clear();
+                    recorder.start();
+                    recordingActive = true;
+                } else {
+                    recorder.stop();
+                    recordingActive = false;
+                }
+                break;
+            case dj::InputCommand::SaveRecording:
+                if (recordingActive) {
+                    recorder.stop();
+                    recordingActive = false;
+                }
+                if (recorder.getDuration() > 0.0f) {
+                    // Export recorded session to WAV file
+                    const std::string filename = "session_recording.wav";
+                    const auto recordedData = recorder.getRecordedData();
+                    if (!recordedData.empty()) {
+                        dj::WAVExporter exporter(outputRate, 2, 16);
+                        const std::size_t numFrames = recordedData.size() / 2;  // 2 channels
+                        if (exporter.exportToFile(filename, recordedData.data(), numFrames)) {
+                            std::cout << "Recording saved to " << filename << "\n";
+                        } else {
+                            std::cout << "Failed to save recording to " << filename << "\n";
+                        }
+                    }
+                } else {
+                    std::cout << "No recording data to save.\n";
+                }
+                break;
             case dj::InputCommand::Quit:
                 quitRequested = true;
                 break;
@@ -623,6 +682,11 @@ int main(int argc, char** argv) {
 
         dj::MixMetrics metrics;
         const std::vector<float> mixed = mixer.mixBlock(deckA, deckB, framesPerBlock, metrics);
+
+        // Phase 14: Submit audio to recorder if recording is active
+        if (recordingActive && !mixed.empty()) {
+            recorder.submitFrames(mixed.data(), framesPerBlock);
+        }
 
         if (realtimeAudio) {
             std::string writeError;
@@ -659,7 +723,9 @@ int main(int argc, char** argv) {
         if ((block % 60) == 0) {
             std::cout << "\nBlock " << block << "/" << totalBlocks
                       << "  XF: " << std::setw(5) << mixer.crossfader()
-                      << "  Gains A/B: " << gains.first << " / " << gains.second << "\n";
+                      << "  Gains A/B: " << gains.first << " / " << gains.second 
+                      << (recordingActive ? "  [REC]" : "")  // Phase 14: Recording indicator
+                      << "\n";
             std::cout << "Mix mode: " << (manualMixMode ? "Manual" : "Autopilot")
                       << " | Tempo B: " << tempoB << "%"
                       << " | Beat delta(B-A): " << (effectiveBpmB - effectiveBpmA)
