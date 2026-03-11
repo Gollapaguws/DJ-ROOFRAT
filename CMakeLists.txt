@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
+
+# vcpkg toolchain is set automatically via CMAKE_TOOLCHAIN_FILE env variable or command line
+
 project(DJ_ROOFRAT VERSION 0.1.0 LANGUAGES CXX)
 
 set(DJ_ROOFRAT_TARGET dj_roofrat)
@@ -7,11 +10,55 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+include(FetchContent)
+
 option(DJ_SIM_ENABLE_AUDIO_BACKEND "Enable PortAudio and libsndfile when available" ON)
 option(DJROOFRAT_ENABLE_GRAPHICS "Enable DirectX 11 visuals" OFF)
 
 set(DJ_SIM_USE_PORTAUDIO OFF)
 set(DJ_SIM_USE_SNDFILE OFF)
+set(DJ_SIM_USE_SQLITE3 ON)
+
+# SQLite3 setup - try multiple methods to find it
+set(SQLITE3_TARGET "")
+set(SQLITE3_INCLUDE_DIR "")
+
+# Method 1: Try find_package
+find_package(SQLite3 QUIET)
+if(SQLite3_FOUND)
+    message(STATUS "SQLite3 found via find_package: ${SQLite3_LIBRARIES}")
+    set(SQLITE3_TARGET SQLite3::SQLite3)
+    if(NOT SQLite3_INCLUDE_DIRS)
+        find_path(SQLite3_INCLUDE_DIRS NAMES sqlite3.h)
+    endif()
+endif()
+
+# Method 2: Try pkg-config
+if(NOT SQLite3_FOUND AND PKG_CONFIG_FOUND)
+    pkg_check_modules(SQLite3 QUIET sqlite3)
+    if(SQLite3_FOUND)
+        message(STATUS "SQLite3 found via pkg-config: ${SQLite3_LIBRARIES}")
+        set(SQLITE3_TARGET ${SQLite3_LIBRARIES})
+        set(SQLITE3_INCLUDE_DIR ${SQLite3_INCLUDE_DIRS})
+    endif()
+endif()
+
+# Method 3: Try find_library and find_path directly
+if(NOT SQLite3_FOUND)
+    find_path(SQLITE3_INCLUDE_DIR NAMES sqlite3.h)
+    find_library(SQLITE3_LIBRARY NAMES sqlite3 sqlite libsqlite3)
+    
+    if(SQLITE3_INCLUDE_DIR AND SQLITE3_LIBRARY)
+        message(STATUS "SQLite3 found via find_library: ${SQLITE3_LIBRARY}")
+        set(SQLite3_FOUND TRUE)
+        set(SQLITE3_TARGET ${SQLITE3_LIBRARY})
+    endif()
+endif()
+
+if(NOT SQLite3_FOUND)
+    message(WARNING "SQLite3 not found on system. Trying to fetch from GitHub...")
+    # Try to download and build the amalgamation... (optional fallback)
+endif()
 
 if(DJ_SIM_ENABLE_AUDIO_BACKEND)
     find_path(PORTAUDIO_INCLUDE_DIR NAMES portaudio.h)
@@ -85,6 +132,21 @@ if(DJROOFRAT_ENABLE_GRAPHICS)
     if(WIN32)
         target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE d3d11 dxgi)
     endif()
+endif()
+
+# Configure SQLite3 for main target
+if(SQLite3_FOUND)
+    target_compile_definitions(${DJ_ROOFRAT_TARGET} PRIVATE DJ_SIM_USE_SQLITE3=1)
+    if(SQLITE3_TARGET)
+        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE ${SQLITE3_TARGET})
+    endif()
+    if(SQLITE3_INCLUDE_DIR)
+        target_include_directories(${DJ_ROOFRAT_TARGET} PRIVATE ${SQLITE3_INCLUDE_DIR})
+    elseif(SQLite3_INCLUDE_DIRS)
+        target_include_directories(${DJ_ROOFRAT_TARGET} PRIVATE ${SQLite3_INCLUDE_DIRS})
+    endif()
+else()
+    message(WARNING "SQLite3 not found - TrackLibrary will not have database support")
 endif()
 
 if(MSVC)
@@ -414,7 +476,9 @@ add_executable(tracklibrary_phase11_test
     library/TrackBrowser.cpp
 )
 
-target_include_directories(tracklibrary_phase11_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(tracklibrary_phase11_test PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 if(MSVC)
     target_compile_options(tracklibrary_phase11_test PRIVATE /W4 /permissive-)

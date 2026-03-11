@@ -1,0 +1,8 @@
+{
+  "name": "dj-roofrat",
+  "version": "0.1.0",
+  "builtin-baseline": "ef6e2d0a382e0d0fe81841b2c7c33fdd2a2a7919",
+  "dependencies": [
+    "sqlite3"
+  ]
+}
