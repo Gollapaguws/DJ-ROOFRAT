@@ -5,6 +5,8 @@
 
 #include "audio/TrackLoader.h"
 #include "audio/EffectChain.h"
+#include "audio/VinylSimulator.h"
+#include "audio/ScratchDetector.h"
 
 namespace dj {
 
@@ -43,6 +45,20 @@ bool Deck::loadClip(const AudioClip& clip) {
     cuePoints_ = {0, 0, 0};
     activeCueBank_ = 0;
     
+    // Phase 17: Initialize vinyl simulator and scratch detector
+    if (!vinylSimulator_) {
+        vinylSimulator_ = std::make_shared<VinylSimulator>();
+    }
+    vinylSimulator_->setSampleRate(clip_.sampleRate);
+    vinylSimulator_->setMotorOn(false);
+    vinylSimulator_->reset();
+    
+    if (!scratchDetector_) {
+        scratchDetector_ = std::make_shared<ScratchDetector>();
+    }
+    scratchDetector_->setSampleRate(clip_.sampleRate);
+    scratchDetector_->reset();
+    
     return true;
 }
 
@@ -68,6 +84,12 @@ const AudioClip* Deck::clip() const {
 void Deck::play() {
     if (hasClip()) {
         playing_ = true;
+        
+        // Phase 17: Start vinyl motor if in vinyl mode
+        if (vinylMode_ && vinylSimulator_) {
+            vinylSimulator_->setMotorOn(true);
+            vinylSimulator_->setTargetVelocity(1.0f);
+        }
     }
 }
 
@@ -79,6 +101,11 @@ void Deck::stop() {
     playing_ = false;
     playbackHead_ = 0.0;
     slipHead_ = 0.0;
+    
+    // Phase 17: Stop vinyl motor if in vinyl mode
+    if (vinylMode_ && vinylSimulator_) {
+        vinylSimulator_->setMotorOn(false);
+    }
 }
 
 bool Deck::isPlaying() const {
@@ -304,6 +331,10 @@ void Deck::setVinylMode(bool enabled) {
     vinylMode_ = enabled;
 }
 
+void Deck::setScratchVelocity(float velocity) {
+    scratchVelocity_ = std::clamp(velocity, -1.0f, 1.0f);
+}
+
 // Phase 4: Enable/disable tempo ramping
 void Deck::setTempoRampEnabled(bool enabled) {
     tempoRampEnabled_ = enabled;
@@ -362,8 +393,36 @@ std::array<float, 2> Deck::nextFrame() {
     const double sourceToOutputRate = static_cast<double>(clip_.sampleRate) / static_cast<double>(outputSampleRate_);
     double tempoScale = std::max(0.05, 1.0 + static_cast<double>(tempoPercent_) / 100.0);
 
-    if (vinylMode_ && !playing_) {
-        tempoScale = 0.0;
+    // Phase 17: Vinyl mode uses platter velocity instead of fixed tempoScale
+    if (vinylMode_) {
+        if (vinylSimulator_) {
+            // Update vinyl physics (e.g., motor ramp, friction decay)
+            // Use sample-accurate timestep: 1 frame = 1 sample
+            const float vinylUpdateDt = 1.0f / static_cast<float>(outputSampleRate_);
+            
+            // If scratch velocity is active, use it to set target velocity
+            // Otherwise, use normal forward speed (1.0)
+            if (std::abs(scratchVelocity_) > 0.001f) {
+                vinylSimulator_->setTargetVelocity(scratchVelocity_);
+                
+                // Call scratch detector to process input
+                if (scratchDetector_) {
+                    scratchDetector_->processScratchInput(scratchVelocity_, vinylUpdateDt);
+                }
+            } else {
+                // No scratch input - use normal motor speed
+                vinylSimulator_->setTargetVelocity(1.0f);
+            }
+            
+            vinylSimulator_->update(vinylUpdateDt);
+            
+            // Use platter velocity directly as tempo scale
+            tempoScale = vinylSimulator_->platterVelocity();
+        }
+        
+        if (!playing_) {
+            tempoScale = 0.0;
+        }
     }
 
     const double step = sourceToOutputRate * tempoScale;

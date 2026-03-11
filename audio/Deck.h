@@ -11,6 +11,8 @@
 namespace dj {
 
 class EffectChain;
+class VinylSimulator;
+class ScratchDetector;
 
 class Deck {
 public:
@@ -57,6 +59,9 @@ public:
     void configureLoop(std::size_t startFrame, std::size_t endFrame, bool enabled, float bpm);
     void setSlipMode(bool enabled);
     void setVinylMode(bool enabled);
+    
+    // Phase 17: Scratch control for vinyl mode
+    void setScratchVelocity(float velocity);
 
     // Phase 4: Tempo ramping
     void setTempoRampEnabled(bool enabled);
@@ -127,6 +132,11 @@ private:
     // Phase 15: Effect chain processing
     std::shared_ptr<EffectChain> effectChain_;
     float effectSendLevel_ = 0.0f;
+
+    // Phase 17: Vinyl simulation and scratch detection
+    std::shared_ptr<VinylSimulator> vinylSimulator_;
+    std::shared_ptr<ScratchDetector> scratchDetector_;
+    float scratchVelocity_ = 0.0f;  // Current scratch velocity from user input
 };
 
 } // namespace dj

@@ -1,0 +1,27 @@
+Running Effects Phase 15 Test 
+
+=== Running Effects Phase 15 Tests ===
+✓ test_Reverb_RoomSize passed
+✓ test_Reverb_Damping passed
+✓ test_Delay_TempoSync passed
+✓ test_Delay_Feedback passed
+✓ test_EffectChain_Serial passed
+✓ test_EffectChain_Parallel passed
+✓ test_Deck_EffectSend passed
+
+=== Effects Phase 15 Tests Complete ===
+ 
+Running Effects Phase 16 Test 
+
+=== Phase 16: Modulation & Distortion Effects Tests ===
+✓ test_Flanger_LFORate passed
+✓ test_Flanger_Depth passed
+✓ test_Phaser_Stages passed
+✓ test_Bitcrusher_BitDepth passed
+✓ test_Bitcrusher_SampleRate passed
+✓ test_RingModulator_Frequency passed
+✓ test_AutoFilter_EnvelopeFollowing passed
+
+=== All Phase 16 tests passed! ===
+ 
+All tests completed 

@@ -117,6 +117,8 @@ add_executable(${DJ_ROOFRAT_TARGET}
     audio/Bitcrusher.cpp
     audio/RingModulator.cpp
     audio/AutoFilter.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
     crowdAI/CrowdStateMachine.cpp
     visuals/WaveformRenderer.cpp
     visuals/GraphicsContext.cpp
@@ -689,3 +691,31 @@ else()
 endif()
 
 set_target_properties(effects_phase16_test PROPERTIES OUTPUT_NAME "Effects_Phase16_test")
+
+# Vinyl Phase 17 test (Vinyl Simulation & Scratching)
+add_executable(vinyl_phase17_test
+    audio/Vinyl_Phase17_test.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+)
+
+target_include_directories(vinyl_phase17_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(vinyl_phase17_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(vinyl_phase17_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(vinyl_phase17_test PROPERTIES OUTPUT_NAME "Vinyl_Phase17_test")
