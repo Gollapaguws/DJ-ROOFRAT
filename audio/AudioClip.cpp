@@ -4,6 +4,8 @@
 #include <cmath>
 #include <numbers>
 
+#include "audio/TrackMetadata.h"
+
 namespace dj {
 
 namespace {
@@ -59,6 +61,13 @@ std::array<float, 2> AudioClip::frameAt(double frameIndex) const {
         (a[0] * (1.0f - t)) + (b[0] * t),
         (a[1] * (1.0f - t)) + (b[1] * t),
     };
+}
+
+const TrackMetadata* AudioClip::metadata() const {
+    if (metadata_.has_value()) {
+        return &(*metadata_);
+    }
+    return nullptr;
 }
 
 AudioClip AudioClip::generateTestTone(float frequencyHz, float seconds, int outputSampleRate) {

@@ -41,6 +41,9 @@ add_executable(${DJ_ROOFRAT_TARGET}
     audio/Deck.cpp
     audio/Mixer.cpp
     audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
     audio/PortAudioPlayer.cpp
     crowdAI/CrowdStateMachine.cpp
     visuals/WaveformRenderer.cpp
@@ -325,3 +328,61 @@ else()
 endif()
 
 set_target_properties(graphics_context_phase8_test PROPERTIES OUTPUT_NAME "GraphicsContext_Phase8_test")
+
+# TrackLoader Phase 9 test (MP3 support and comprehensive audio loading)
+add_executable(trackloader_phase9_test
+    audio/TrackLoader_Phase9_test.cpp
+    audio/TrackLoader.cpp
+    audio/AudioClip.cpp
+)
+
+target_include_directories(trackloader_phase9_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJ_SIM_USE_SNDFILE)
+    target_compile_definitions(trackloader_phase9_test PRIVATE DJ_SIM_USE_SNDFILE=1)
+    if(SNDFILE_TARGET)
+        target_link_libraries(trackloader_phase9_test PRIVATE ${SNDFILE_TARGET})
+    else()
+        target_include_directories(trackloader_phase9_test PRIVATE ${SNDFILE_INCLUDE_DIR})
+        target_link_libraries(trackloader_phase9_test PRIVATE ${SNDFILE_LIBRARY})
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(trackloader_phase9_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(trackloader_phase9_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(trackloader_phase9_test PROPERTIES OUTPUT_NAME "TrackLoader_Phase9_test")
+
+# TrackLoader Phase 10 test (Track Metadata & BPM Detection)
+add_executable(trackloader_phase10_test
+    audio/TrackLoader_Phase10_test.cpp
+    audio/TrackLoader.cpp
+    audio/AudioClip.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/BPMDetector.cpp
+)
+
+target_include_directories(trackloader_phase10_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJ_SIM_USE_SNDFILE)
+    target_compile_definitions(trackloader_phase10_test PRIVATE DJ_SIM_USE_SNDFILE=1)
+    if(SNDFILE_TARGET)
+        target_link_libraries(trackloader_phase10_test PRIVATE ${SNDFILE_TARGET})
+    else()
+        target_include_directories(trackloader_phase10_test PRIVATE ${SNDFILE_INCLUDE_DIR})
+        target_link_libraries(trackloader_phase10_test PRIVATE ${SNDFILE_LIBRARY})
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(trackloader_phase10_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(trackloader_phase10_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(trackloader_phase10_test PROPERTIES OUTPUT_NAME "TrackLoader_Phase10_test")
