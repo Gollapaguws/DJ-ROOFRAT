@@ -20,6 +20,8 @@
 #include "gameplay/GameModes.h"
 #include "input/InputMapper.h"
 #include "visuals/WaveformRenderer.h"
+#include "visuals/GraphicsContext.h"
+#include "visuals/LightingRig.h"
 
 namespace {
 
@@ -255,6 +257,16 @@ int main(int argc, char** argv) {
     dj::ScoringSystem scoring;
     dj::CareerProgression career;
     dj::WaveformRenderer waveform(68, 11);
+
+    // Phase 7: Initialize graphics context and lighting rig
+    dj::GraphicsContext graphics;
+    dj::LightingRig lighting;
+    bool graphicsEnabled = graphics.initialize(1280, 720);
+    if (graphicsEnabled) {
+        std::cout << "DirectX 11 graphics initialized.\n";
+    } else {
+        std::cout << "Graphics unavailable; using ASCII waveform fallback.\n";
+    }
 
     dj::PortAudioPlayer player;
     bool realtimeAudio = false;
@@ -625,6 +637,15 @@ int main(int argc, char** argv) {
         const int score = scoring.update(crowdOut.energyMeter, metrics.transitionSmoothness);
         career.update(crowdOut.energyMeter);
 
+        // Phase 7: Update lighting rig and render graphics if available
+        constexpr float blockDurationSeconds = framesPerBlock / 44100.0f;
+        lighting.update(blendedBpm, crowdOut.energyMeter, blockDurationSeconds);
+        
+        int moodIndex = static_cast<int>(crowdOut.mood);
+        if (graphicsEnabled) {
+            graphics.renderFrame(blendedBpm, crowdOut.energyMeter, moodIndex, mixer.crossfader());
+        }
+
         if ((block % 60) == 0) {
             std::cout << "\nBlock " << block << "/" << totalBlocks
                       << "  XF: " << std::setw(5) << mixer.crossfader()
@@ -648,6 +669,11 @@ int main(int argc, char** argv) {
         if (!deckA.isPlaying() && !deckB.isPlaying()) {
             break;
         }
+    }
+
+    // Phase 7: Clean up graphics
+    if (graphicsEnabled) {
+        graphics.shutdown();
     }
 
     player.close();

@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(DJ_SIM_ENABLE_AUDIO_BACKEND "Enable PortAudio and libsndfile when available" ON)
+option(DJROOFRAT_ENABLE_GRAPHICS "Enable DirectX 11 visuals" OFF)
 
 set(DJ_SIM_USE_PORTAUDIO OFF)
 set(DJ_SIM_USE_SNDFILE OFF)
@@ -43,6 +44,8 @@ add_executable(${DJ_ROOFRAT_TARGET}
     audio/PortAudioPlayer.cpp
     crowdAI/CrowdStateMachine.cpp
     visuals/WaveformRenderer.cpp
+    visuals/GraphicsContext.cpp
+    visuals/LightingRig.cpp
     gameplay/GameModes.cpp
     input/InputMapper.cpp
 )
@@ -69,6 +72,13 @@ if(DJ_SIM_USE_SNDFILE)
     endif()
 endif()
 
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(${DJ_ROOFRAT_TARGET} PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE d3d11 dxgi)
+    endif()
+endif()
+
 if(MSVC)
     target_compile_options(${DJ_ROOFRAT_TARGET} PRIVATE /W4 /permissive-)
 else()
@@ -77,6 +87,7 @@ endif()
 
 message(STATUS "DJ_SIM_USE_PORTAUDIO=${DJ_SIM_USE_PORTAUDIO}")
 message(STATUS "DJ_SIM_USE_SNDFILE=${DJ_SIM_USE_SNDFILE}")
+message(STATUS "DJROOFRAT_ENABLE_GRAPHICS=${DJROOFRAT_ENABLE_GRAPHICS}")
 
 # Test targets
 add_executable(deck_phase2_test
@@ -214,3 +225,42 @@ else()
 endif()
 
 set_target_properties(crowd_phase6_test PROPERTIES OUTPUT_NAME "CrowdStateMachine_Phase6_test")
+
+# GraphicsContext Phase 7 test
+add_executable(graphics_context_phase7_test
+    visuals/GraphicsContext_Phase7_test.cpp
+    visuals/GraphicsContext.cpp
+)
+
+target_include_directories(graphics_context_phase7_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(graphics_context_phase7_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(graphics_context_phase7_test PRIVATE d3d11 dxgi)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(graphics_context_phase7_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(graphics_context_phase7_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(graphics_context_phase7_test PROPERTIES OUTPUT_NAME "GraphicsContext_Phase7_test")
+
+# LightingRig Phase 7 test
+add_executable(lighting_rig_phase7_test
+    visuals/LightingRig_Phase7_test.cpp
+    visuals/LightingRig.cpp
+)
+
+target_include_directories(lighting_rig_phase7_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(lighting_rig_phase7_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(lighting_rig_phase7_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(lighting_rig_phase7_test PROPERTIES OUTPUT_NAME "LightingRig_Phase7_test")
