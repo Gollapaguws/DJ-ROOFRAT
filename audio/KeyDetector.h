@@ -5,7 +5,7 @@
 
 namespace dj {
 
-class AudioClip;
+struct AudioClip;
 
 class KeyDetector {
 public:

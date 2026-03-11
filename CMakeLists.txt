@@ -101,6 +101,10 @@ add_executable(deck_phase2_test
     audio/AudioClip.cpp
     audio/ThreeBandEQ.cpp
     audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
 )
 
 target_include_directories(deck_phase2_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -136,6 +140,10 @@ add_executable(deck_phase3_test
     audio/AudioClip.cpp
     audio/ThreeBandEQ.cpp
     audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
 )
 
 target_include_directories(deck_phase3_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -171,6 +179,10 @@ add_executable(deck_phase4_test
     audio/AudioClip.cpp
     audio/ThreeBandEQ.cpp
     audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
 )
 
 target_include_directories(deck_phase4_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -334,6 +346,10 @@ add_executable(trackloader_phase9_test
     audio/TrackLoader_Phase9_test.cpp
     audio/TrackLoader.cpp
     audio/AudioClip.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
 )
 
 target_include_directories(trackloader_phase9_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

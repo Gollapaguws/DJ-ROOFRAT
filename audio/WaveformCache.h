@@ -4,7 +4,7 @@
 
 namespace dj {
 
-class AudioClip;
+struct AudioClip;
 
 struct WaveformBucket {
     float minSample = 0.0f;
