@@ -503,6 +503,39 @@ endif()
 
 set_target_properties(graphics_context_phase18_test PROPERTIES OUTPUT_NAME "GraphicsContext_Phase18_test")
 
+# Lighting Phase 19 test (Advanced Lighting & Shaders)
+add_executable(lighting_phase19_test
+    visuals/Lighting_Phase19_test.cpp
+    visuals/LightingRig.cpp
+    visuals/LaserController.cpp
+    visuals/GraphicsContext.cpp
+    visuals/Shader.cpp
+    visuals/RenderTarget.cpp
+    visuals/PostProcessor.cpp
+    visuals/Camera.cpp
+    visuals/VertexBuffer.cpp
+    visuals/IndexBuffer.cpp
+    visuals/StageGeometry.cpp
+    visuals/CrowdRenderer.cpp
+)
+
+target_include_directories(lighting_phase19_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(lighting_phase19_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(lighting_phase19_test PRIVATE d3d11 dxgi d3dcompiler)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(lighting_phase19_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(lighting_phase19_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(lighting_phase19_test PROPERTIES OUTPUT_NAME "Lighting_Phase19_test")
+
 # TrackLoader Phase 9 test (MP3 support and comprehensive audio loading)
 add_executable(trackloader_phase9_test
     audio/TrackLoader_Phase9_test.cpp

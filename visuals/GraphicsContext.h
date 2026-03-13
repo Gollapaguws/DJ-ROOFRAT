@@ -73,6 +73,9 @@ public:
     // Get current FPS
     float getFPS() const { return fps_; }
 
+    // Create additive blend state for laser effects (Phase 19)
+    ID3D11BlendState* createAdditiveBlendState() const;
+
 private:
     bool available_;
     int width_;

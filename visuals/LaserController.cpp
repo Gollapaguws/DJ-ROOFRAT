@@ -47,4 +47,59 @@ float LaserController::intensity() const noexcept {
     return intensity_;
 }
 
+BeamGeometry LaserController::getBeamGeometry(float width) const noexcept {
+    BeamGeometry geom;
+
+    // Clamp width to reasonable values
+    float w = std::clamp(width, 0.01f, 10.0f);
+    const float halfWidth = w / 2.0f;
+
+    // Convert angles to radians
+    const float primaryRad = primaryAngle_ * std::numbers::pi_v<float> / 180.0f;
+    const float secondaryRad = secondaryAngle_ * std::numbers::pi_v<float> / 180.0f;
+
+    // Beam extends along primary angle with some depth for volumetric effect
+    const float beamLength = 10.0f;
+
+    // Compute beam direction (primary angle dominant, secondary for swing)
+    float cosAngle = std::cos(primaryRad);
+    float sinAngle = std::sin(primaryRad);
+
+    // Add secondary oscillation as rotation
+    float rotX = std::sin(secondaryRad) * 0.1f;
+
+    // Create quad geometry (4 vertices, 2 triangles)
+    // Vertices arranged as quad corners
+    LaserVertex v0, v1, v2, v3;
+
+    // Front-left
+    v0.position = {-halfWidth, 0.0f, 0.0f};
+    v0.texCoord = {0.0f, 0.0f};
+    v0.color = {1.0f, 0.0f, 0.5f, 0.8f};  // Magenta-ish laser
+
+    // Front-right
+    v1.position = {halfWidth, 0.0f, 0.0f};
+    v1.texCoord = {1.0f, 0.0f};
+    v1.color = {1.0f, 0.0f, 0.5f, 0.8f};
+
+    // Back-left (extends along beam direction)
+    v2.position = {-halfWidth + cosAngle * beamLength, rotX, sinAngle * beamLength};
+    v2.texCoord = {0.0f, 1.0f};
+    v2.color = {1.0f, 0.2f, 0.7f, 0.4f};  // Fade at end
+
+    // Back-right
+    v3.position = {halfWidth + cosAngle * beamLength, rotX, sinAngle * beamLength};
+    v3.texCoord = {1.0f, 1.0f};
+    v3.color = {1.0f, 0.2f, 0.7f, 0.4f};
+
+    geom.vertices = {v0, v1, v2, v3};
+
+    // Indices for two triangles (CCW winding)
+    // Triangle 1: v0, v1, v2
+    // Triangle 2: v1, v3, v2
+    geom.indices = {0, 1, 2, 1, 3, 2};
+
+    return geom;
+}
+
 } // namespace dj

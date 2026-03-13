@@ -444,4 +444,39 @@ void GraphicsContext::shutdown() {
     available_ = false;
 }
 
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+ID3D11BlendState* GraphicsContext::createAdditiveBlendState() const {
+    if (!device_) {
+        return nullptr;
+    }
+
+    D3D11_BLEND_DESC blendDesc = {};
+    blendDesc.AlphaToCoverageEnable = FALSE;
+    blendDesc.IndependentBlendEnable = FALSE;
+    
+    // Additive blending: SrcBlend = SRC_ALPHA, DestBlend = ONE
+    blendDesc.RenderTarget[0].BlendEnable = TRUE;
+    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;  // Additive
+    blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+    ID3D11BlendState* blendState = nullptr;
+    HRESULT hr = device_->CreateBlendState(&blendDesc, &blendState);
+    
+    if (FAILED(hr)) {
+        return nullptr;
+    }
+
+    return blendState;
+}
+#else
+ID3D11BlendState* GraphicsContext::createAdditiveBlendState() const {
+    return nullptr;
+}
+#endif
+
 } // namespace dj

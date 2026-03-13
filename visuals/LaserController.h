@@ -1,6 +1,22 @@
 #pragma once
 
+#include <array>
+#include <vector>
+
 namespace dj {
+
+// Vertex structure for laser beam geometry
+struct LaserVertex {
+    std::array<float, 3> position;
+    std::array<float, 2> texCoord;
+    std::array<float, 4> color;
+};
+
+// Beam geometry returned by getBeamGeometry()
+struct BeamGeometry {
+    std::vector<LaserVertex> vertices;
+    std::vector<unsigned int> indices;
+};
 
 class LaserController {
 public:
@@ -21,6 +37,11 @@ public:
 
     // Get laser intensity in [0, 1], increases with BPM/sync activity
     float intensity() const noexcept;
+
+    // Get volumetric beam geometry (quad strip) for rendering
+    // width: beam width in world units
+    // Returns quad of 4 vertices with 6 indices (2 triangles)
+    BeamGeometry getBeamGeometry(float width) const noexcept;
 
 private:
     float primaryAngle_;

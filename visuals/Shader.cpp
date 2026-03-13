@@ -1,5 +1,8 @@
 #include "visuals/Shader.h"
 
+#include <fstream>
+#include <iterator>
+
 namespace dj {
 
 Shader::Shader() = default;
@@ -139,37 +142,151 @@ bool Shader::createShaders(ID3D11Device* device) {
         return false;
     }
 
-    // Create vertex shader
-    if (vertexShaderBlob_) {
-        HRESULT hr = device->CreateVertexShader(
-            vertexShaderBlob_->GetBufferPointer(),
-            vertexShaderBlob_->GetBufferSize(),
-            nullptr,
-            vertexShader_.GetAddressOf()
-        );
-
-        if (FAILED(hr)) {
-            return false;
-        }
-    }
-
-    // Create pixel shader
-    if (pixelShaderBlob_) {
-        HRESULT hr = device->CreatePixelShader(
-            pixelShaderBlob_->GetBufferPointer(),
-            pixelShaderBlob_->GetBufferSize(),
-            nullptr,
-            pixelShader_.GetAddressOf()
-        );
-
-        if (FAILED(hr)) {
-            return false;
-        }
-    }
-
-    return vertexShader_ && pixelShader_;
+    return createVertexShader(device) && createPixelShader(device);
 #else
     (void)device;
+    return false;
+#endif
+}
+
+bool Shader::createPixelShader(ID3D11Device* device) {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (!device || !pixelShaderBlob_) {
+        return false;
+    }
+
+    HRESULT hr = device->CreatePixelShader(
+        pixelShaderBlob_->GetBufferPointer(),
+        pixelShaderBlob_->GetBufferSize(),
+        nullptr,
+        pixelShader_.GetAddressOf()
+    );
+
+    return SUCCEEDED(hr);
+#else
+    (void)device;
+    return false;
+#endif
+}
+
+bool Shader::createVertexShader(ID3D11Device* device) {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (!device || !vertexShaderBlob_) {
+        return false;
+    }
+
+    HRESULT hr = device->CreateVertexShader(
+        vertexShaderBlob_->GetBufferPointer(),
+        vertexShaderBlob_->GetBufferSize(),
+        nullptr,
+        vertexShader_.GetAddressOf()
+    );
+
+    return SUCCEEDED(hr);
+#else
+    (void)device;
+    return false;
+#endif
+}
+
+bool Shader::compile(const std::string& shaderName, const std::string& entryPoint, const std::string& target, std::string* errorOut) {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    // Load shader source from external .hlsl file
+    std::string filePath = "shaders/" + shaderName + ".hlsl";
+    
+    std::ifstream shaderFile(filePath, std::ios::binary);
+    if (!shaderFile.is_open()) {
+        if (errorOut) {
+            *errorOut = "Failed to open shader file: " + filePath;
+        }
+        return false;
+    }
+
+    // Read entire file into string
+    std::string hlslSourceStr((std::istreambuf_iterator<char>(shaderFile)),
+                              std::istreambuf_iterator<char>());
+    shaderFile.close();
+
+    if (hlslSourceStr.empty()) {
+        if (errorOut) {
+            *errorOut = "Shader file is empty: " + filePath;
+        }
+        return false;
+    }
+
+    ID3DBlob* errorBlob = nullptr;
+    uint32_t compileFlags = 0;
+#ifdef _DEBUG
+    compileFlags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#else
+    compileFlags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
+#endif
+
+    if (target == "ps_5_0") {
+        HRESULT hr = D3DCompile(
+            hlslSourceStr.c_str(),
+            hlslSourceStr.size(),
+            filePath.c_str(),
+            nullptr,
+            nullptr,
+            entryPoint.c_str(),
+            target.c_str(),
+            compileFlags,
+            0,
+            pixelShaderBlob_.GetAddressOf(),
+            &errorBlob
+        );
+
+        if (FAILED(hr)) {
+            if (errorOut && errorBlob) {
+                *errorOut = static_cast<const char*>(errorBlob->GetBufferPointer());
+                errorBlob->Release();
+            } else if (errorOut) {
+                *errorOut = "Pixel shader compilation failed for: " + filePath;
+            }
+            return false;
+        }
+
+        return true;
+    } else if (target == "vs_5_0") {
+        HRESULT hr = D3DCompile(
+            hlslSourceStr.c_str(),
+            hlslSourceStr.size(),
+            filePath.c_str(),
+            nullptr,
+            nullptr,
+            entryPoint.c_str(),
+            target.c_str(),
+            compileFlags,
+            0,
+            vertexShaderBlob_.GetAddressOf(),
+            &errorBlob
+        );
+
+        if (FAILED(hr)) {
+            if (errorOut && errorBlob) {
+                *errorOut = static_cast<const char*>(errorBlob->GetBufferPointer());
+                errorBlob->Release();
+            } else if (errorOut) {
+                *errorOut = "Vertex shader compilation failed for: " + filePath;
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    if (errorOut) {
+        *errorOut = "Unknown shader target: " + target;
+    }
+    return false;
+#else
+    (void)shaderName;
+    (void)entryPoint;
+    (void)target;
+    if (errorOut) {
+        *errorOut = "Shader compilation not available (graphics disabled)";
+    }
     return false;
 #endif
 }
