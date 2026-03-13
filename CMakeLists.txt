@@ -861,3 +861,37 @@ else()
 endif()
 
 set_target_properties(vinyl_phase17_test PROPERTIES OUTPUT_NAME "Vinyl_Phase17_test")
+
+# GameplaySystem Phase 21 test (Tutorial & Training System)
+add_executable(gameplay_phase21_test
+    gameplay/GameplaySystem_Phase21_test.cpp
+    gameplay/TutorialSystem.cpp
+    gameplay/Lesson.cpp
+    gameplay/lessons/BeatmatchingLesson.cpp
+    gameplay/lessons/EQMixingLesson.cpp
+    gameplay/ProgressTracker.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/Mixer.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+)
+
+target_include_directories(gameplay_phase21_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(gameplay_phase21_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(gameplay_phase21_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(gameplay_phase21_test PROPERTIES OUTPUT_NAME "GameplaySystem_Phase21_test")
