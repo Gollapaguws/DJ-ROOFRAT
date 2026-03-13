@@ -125,6 +125,8 @@ add_executable(${DJ_ROOFRAT_TARGET}
     visuals/LightingRig.cpp
     visuals/LaserController.cpp
     visuals/CrowdRenderer.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
     gameplay/GameModes.cpp
     input/InputMapper.cpp
     input/MIDIDevice.cpp
@@ -231,6 +233,8 @@ add_executable(deck_phase2_test
     audio/EffectChain.cpp
     audio/Reverb.cpp
     audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
 )
 
 target_include_directories(deck_phase2_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -273,6 +277,8 @@ add_executable(deck_phase3_test
     audio/EffectChain.cpp
     audio/Reverb.cpp
     audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
 )
 
 target_include_directories(deck_phase3_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -315,6 +321,8 @@ add_executable(deck_phase4_test
     audio/EffectChain.cpp
     audio/Reverb.cpp
     audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
 )
 
 target_include_directories(deck_phase4_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -379,8 +387,15 @@ set_target_properties(crowd_phase6_test PROPERTIES OUTPUT_NAME "CrowdStateMachin
 add_executable(graphics_context_phase7_test
     visuals/GraphicsContext_Phase7_test.cpp
     visuals/GraphicsContext.cpp
+    visuals/Camera.cpp
+    visuals/Shader.cpp
+    visuals/VertexBuffer.cpp
+    visuals/IndexBuffer.cpp
+    visuals/StageGeometry.cpp
     visuals/LaserController.cpp
     visuals/CrowdRenderer.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
 )
 
 target_include_directories(graphics_context_phase7_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -388,7 +403,7 @@ target_include_directories(graphics_context_phase7_test PRIVATE ${CMAKE_CURRENT_
 if(DJROOFRAT_ENABLE_GRAPHICS)
     target_compile_definitions(graphics_context_phase7_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
     if(WIN32)
-        target_link_libraries(graphics_context_phase7_test PRIVATE d3d11 dxgi)
+        target_link_libraries(graphics_context_phase7_test PRIVATE d3d11 dxgi d3dcompiler)
     endif()
 endif()
 
@@ -436,9 +451,18 @@ set_target_properties(laser_controller_phase8_test PROPERTIES OUTPUT_NAME "Laser
 add_executable(crowd_renderer_phase8_test
     visuals/CrowdRenderer_Phase8_test.cpp
     visuals/CrowdRenderer.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
 )
 
 target_include_directories(crowd_renderer_phase8_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(crowd_renderer_phase8_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(crowd_renderer_phase8_test PRIVATE d3d11 dxgi d3dcompiler)
+    endif()
+endif()
 
 if(MSVC)
     target_compile_options(crowd_renderer_phase8_test PRIVATE /W4 /permissive-)
@@ -452,8 +476,15 @@ set_target_properties(crowd_renderer_phase8_test PROPERTIES OUTPUT_NAME "CrowdRe
 add_executable(graphics_context_phase8_test
     visuals/GraphicsContext_Phase8_test.cpp
     visuals/GraphicsContext.cpp
+    visuals/Camera.cpp
+    visuals/Shader.cpp
+    visuals/VertexBuffer.cpp
+    visuals/IndexBuffer.cpp
+    visuals/StageGeometry.cpp
     visuals/LaserController.cpp
     visuals/CrowdRenderer.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
 )
 
 target_include_directories(graphics_context_phase8_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -461,7 +492,7 @@ target_include_directories(graphics_context_phase8_test PRIVATE ${CMAKE_CURRENT_
 if(DJROOFRAT_ENABLE_GRAPHICS)
     target_compile_definitions(graphics_context_phase8_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
     if(WIN32)
-        target_link_libraries(graphics_context_phase8_test PRIVATE d3d11 dxgi)
+        target_link_libraries(graphics_context_phase8_test PRIVATE d3d11 dxgi d3dcompiler)
     endif()
 endif()
 
@@ -484,6 +515,8 @@ add_executable(graphics_context_phase18_test
     visuals/StageGeometry.cpp
     visuals/LaserController.cpp
     visuals/CrowdRenderer.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
 )
 
 target_include_directories(graphics_context_phase18_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -517,6 +550,8 @@ add_executable(lighting_phase19_test
     visuals/IndexBuffer.cpp
     visuals/StageGeometry.cpp
     visuals/CrowdRenderer.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
 )
 
 target_include_directories(lighting_phase19_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -535,6 +570,43 @@ else()
 endif()
 
 set_target_properties(lighting_phase19_test PROPERTIES OUTPUT_NAME "Lighting_Phase19_test")
+
+# Particles Phase 20 test (Particle Systems & Crowd Enhancement)
+add_executable(particles_phase20_test
+    visuals/Particles_Phase20_test.cpp
+    visuals/ParticleSystem.cpp
+    visuals/ComputeShader.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
+    visuals/CrowdRenderer.cpp
+    visuals/GraphicsContext.cpp
+    visuals/Shader.cpp
+    visuals/RenderTarget.cpp
+    visuals/PostProcessor.cpp
+    visuals/Camera.cpp
+    visuals/VertexBuffer.cpp
+    visuals/IndexBuffer.cpp
+    visuals/StageGeometry.cpp
+    visuals/LightingRig.cpp
+    visuals/LaserController.cpp
+)
+
+target_include_directories(particles_phase20_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(particles_phase20_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(particles_phase20_test PRIVATE d3d11 dxgi d3dcompiler)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(particles_phase20_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(particles_phase20_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(particles_phase20_test PROPERTIES OUTPUT_NAME "Particles_Phase20_test")
 
 # TrackLoader Phase 9 test (MP3 support and comprehensive audio loading)
 add_executable(trackloader_phase9_test
@@ -728,6 +800,8 @@ add_executable(effects_phase15_test
     audio/MetadataParser.cpp
     audio/KeyDetector.cpp
     audio/WaveformCache.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
 )
 
 target_include_directories(effects_phase15_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
