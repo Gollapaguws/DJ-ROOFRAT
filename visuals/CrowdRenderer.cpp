@@ -81,8 +81,9 @@ int CrowdRenderer::visibleSilhouettes() const noexcept {
 
 // ===== Phase 20: Instanced Rendering Implementation =====
 
-bool CrowdRenderer::initialize(ID3D11Device* device) {
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+
+bool CrowdRenderer::initialize(ID3D11Device* device) {
     if (!device || !crowdMesh_ || !animator_) {
         return false;
     }
@@ -107,17 +108,12 @@ bool CrowdRenderer::initialize(ID3D11Device* device) {
     }
 
     return true;
-#else
-    return false;
-#endif
 }
 
 void CrowdRenderer::addInstance(const InstanceData& instance) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (instances_.size() < static_cast<size_t>(maxInstances_)) {
         instances_.push_back(instance);
     }
-#endif
 }
 
 int CrowdRenderer::getInstanceCount() const noexcept {
@@ -146,7 +142,6 @@ int CrowdRenderer::calculateLODLevel(const float3& crowdPos, const float3& camer
 }
 
 bool CrowdRenderer::renderInstanced(ID3D11DeviceContext* context, const float3& cameraPos) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (!context || !instanceBuffer_ || instances_.empty() || !crowdMesh_) {
         return false;
     }
@@ -196,9 +191,8 @@ bool CrowdRenderer::renderInstanced(ID3D11DeviceContext* context, const float3& 
     }
 
     return true;
-#else
-    return false;
-#endif
 }
+
+#endif // defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 
 } // namespace dj

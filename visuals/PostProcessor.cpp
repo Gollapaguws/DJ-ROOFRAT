@@ -10,8 +10,6 @@ namespace dj {
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 PostProcessor::PostProcessor() : device_(nullptr), context_(nullptr), width_(0), height_(0) {}
-#else
-PostProcessor::PostProcessor() {}
 #endif
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)

@@ -8,8 +8,6 @@ namespace dj {
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 RenderTarget::RenderTarget() : width_(0), height_(0) {}
-#else
-RenderTarget::RenderTarget() {}
 #endif
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)

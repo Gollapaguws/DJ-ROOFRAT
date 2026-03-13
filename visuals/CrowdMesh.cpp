@@ -6,6 +6,9 @@
 namespace dj {
 
 CrowdMesh::CrowdMesh() = default;
+
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+
 CrowdMesh::~CrowdMesh() = default;
 
 bool CrowdMesh::generateLOD(ID3D11Device* device, LODLevel lodLevel) {
@@ -294,5 +297,7 @@ void CrowdMesh::createSphere(std::vector<Vertex>& vertices, std::vector<uint32_t
         }
     }
 }
+
+#endif // defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 
 } // namespace dj
