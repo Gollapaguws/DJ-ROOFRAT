@@ -473,10 +473,6 @@ ID3D11BlendState* GraphicsContext::createAdditiveBlendState() const {
 
     return blendState;
 }
-#else
-ID3D11BlendState* GraphicsContext::createAdditiveBlendState() const {
-    return nullptr;
-}
 #endif
 
 } // namespace dj

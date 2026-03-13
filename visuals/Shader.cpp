@@ -127,8 +127,8 @@ float4 PSMain(PS_INPUT input) : SV_TARGET {
 #endif
 }
 
-bool Shader::createShaders(ID3D11Device* device) {
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+bool Shader::createShaders(ID3D11Device* device) {
     if (!device) {
         return false;
     }
@@ -143,14 +143,9 @@ bool Shader::createShaders(ID3D11Device* device) {
     }
 
     return createVertexShader(device) && createPixelShader(device);
-#else
-    (void)device;
-    return false;
-#endif
 }
 
 bool Shader::createPixelShader(ID3D11Device* device) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (!device || !pixelShaderBlob_) {
         return false;
     }
@@ -163,14 +158,9 @@ bool Shader::createPixelShader(ID3D11Device* device) {
     );
 
     return SUCCEEDED(hr);
-#else
-    (void)device;
-    return false;
-#endif
 }
 
 bool Shader::createVertexShader(ID3D11Device* device) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (!device || !vertexShaderBlob_) {
         return false;
     }
@@ -183,11 +173,9 @@ bool Shader::createVertexShader(ID3D11Device* device) {
     );
 
     return SUCCEEDED(hr);
-#else
-    (void)device;
-    return false;
-#endif
 }
+
+#endif // defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 
 bool Shader::compile(const std::string& shaderName, const std::string& entryPoint, const std::string& target, std::string* errorOut) {
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)

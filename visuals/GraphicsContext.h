@@ -73,8 +73,11 @@ public:
     // Get current FPS
     float getFPS() const { return fps_; }
 
+
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     // Create additive blend state for laser effects (Phase 19)
     ID3D11BlendState* createAdditiveBlendState() const;
+#endif
 
 private:
     bool available_;
