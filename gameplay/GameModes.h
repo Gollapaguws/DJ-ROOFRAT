@@ -25,6 +25,11 @@ public:
     void update(float crowdEnergy);
     int tier() const;
     std::string currentVenueName() const;
+    
+    // NEW METHODS for Phase 23
+    float reputation() const;
+    int peakTier() const;
+    bool isVenueUnlocked(int venueTier) const;
 
 private:
     float reputation_ = 10.0f;

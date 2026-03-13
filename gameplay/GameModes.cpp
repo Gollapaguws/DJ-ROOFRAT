@@ -75,4 +75,16 @@ std::string CareerProgression::currentVenueName() const {
     }
 }
 
+float CareerProgression::reputation() const {
+    return reputation_;
+}
+
+int CareerProgression::peakTier() const {
+    return peakTier_;
+}
+
+bool CareerProgression::isVenueUnlocked(int venueTier) const {
+    return venueTier <= peakTier_;
+}
+
 } // namespace dj

@@ -916,3 +916,22 @@ else()
 endif()
 
 set_target_properties(gameplay_phase22_test PROPERTIES OUTPUT_NAME "GameplaySystem_Phase22_test")
+
+# GameplaySystem Phase 23 test (Career Mode Expansion)
+add_executable(gameplay_phase23_test
+    gameplay/GameplaySystem_Phase23_test.cpp
+    gameplay/Venue.cpp
+    gameplay/UnlockSystem.cpp
+    gameplay/AchievementSystem.cpp
+    gameplay/GameModes.cpp
+)
+
+target_include_directories(gameplay_phase23_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(gameplay_phase23_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(gameplay_phase23_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(gameplay_phase23_test PROPERTIES OUTPUT_NAME "GameplaySystem_Phase23_test")
