@@ -935,3 +935,22 @@ else()
 endif()
 
 set_target_properties(gameplay_phase23_test PROPERTIES OUTPUT_NAME "GameplaySystem_Phase23_test")
+
+# Multiplayer Phase 24 test (Terminal Hotseat Battles)
+add_executable(multiplayer_phase24_test
+    multiplayer/BattleSystem_Phase24_test.cpp
+    multiplayer/BattleMode.cpp
+    multiplayer/BattleRules.cpp
+    multiplayer/Judge.cpp
+    input/InputMapper.cpp
+)
+
+target_include_directories(multiplayer_phase24_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(multiplayer_phase24_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(multiplayer_phase24_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(multiplayer_phase24_test PROPERTIES OUTPUT_NAME "BattleSystem_Phase24_test")

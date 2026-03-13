@@ -240,4 +240,58 @@ InputCommand InputMapper::parseKey(char rawKey) {
     }
 }
 
+// Phase 24: Player 1 key parsing (uses existing parseKey logic)
+InputCommand InputMapper::parseKeyPlayer1(char key) {
+    return parseKey(key);
+}
+
+// Phase 24: Player 2 key parsing (arrow keys, numpad, and safe key combinations)
+InputCommand InputMapper::parseKeyPlayer2(char key) {
+    // Player 2 uses arrow keys and numpad to avoid conflicts with Player1 WASD/arrow control
+    // 
+    // Arrow key handling in Windows console:
+    // _getch() returns 224 (0xE0) or 0 (0x00) for extended keys, then second _getch() gets scan code:
+    //   UP_ARROW:    0xE0 + 0x48
+    //   DOWN_ARROW:  0xE0 + 0x50
+    //   LEFT_ARROW:  0xE0 + 0x4B
+    //   RIGHT_ARROW: 0xE0 + 0x4D
+    //
+    // Numpad layout (when NumLock is on):
+    //   7  8  9
+    //   4  5  6
+    //   1  2  3
+    //   0
+    
+    switch (key) {
+    // Arrow keys (extended scan codes from Windows _getch())
+    case 0x48:  // UP_ARROW
+        return InputCommand::Player2NudgeTempoBUp;
+    case 0x50:  // DOWN_ARROW
+        return InputCommand::Player2NudgeTempoBDown;
+    case 0x4B:  // LEFT_ARROW
+        return InputCommand::Player2CrossfadeLeft;
+    case 0x4D:  // RIGHT_ARROW
+        return InputCommand::Player2CrossfadeRight;
+    
+    // Numpad number keys (when NumLock is on, numpad returns ASCII values)
+    case '0':  // Numpad 0
+        return InputCommand::Player2ResetTempoB;
+    case '1':  // Numpad 1
+        return InputCommand::Player2PlayPauseB;
+    case '2':  // Numpad 2
+        return InputCommand::Player2PlayB;
+    case '3':  // Numpad 3
+        return InputCommand::Player2PauseB;
+    case '5':  // Numpad 5
+        return InputCommand::Player2CrossfadeCenter;
+    case '7':  // Numpad 7
+        return InputCommand::Player2CrossfadeLeft;
+    case '9':  // Numpad 9
+        return InputCommand::Player2CrossfadeRight;
+    
+    default:
+        return InputCommand::None;
+    }
+}
+
 } // namespace dj

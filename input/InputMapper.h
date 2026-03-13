@@ -69,12 +69,27 @@ enum class InputCommand {
     RecordToggle,
     SaveRecording,
     Quit,
+    
+    // Phase 24: Player 2 commands for multiplayer battles
+    Player2CrossfadeLeft,
+    Player2CrossfadeCenter,
+    Player2CrossfadeRight,
+    Player2NudgeTempoBUp,
+    Player2NudgeTempoBDown,
+    Player2ResetTempoB,
+    Player2PlayPauseB,
+    Player2PlayB,
+    Player2PauseB,
 };
 
 class InputMapper {
 public:
     static InputCommand parse(const std::string& rawCommand);
     static InputCommand parseKey(char key);
+    
+    // Phase 24: Player-specific parsing
+    static InputCommand parseKeyPlayer1(char key);
+    static InputCommand parseKeyPlayer2(char key);
 };
 
 } // namespace dj
