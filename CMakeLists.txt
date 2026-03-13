@@ -895,3 +895,24 @@ else()
 endif()
 
 set_target_properties(gameplay_phase21_test PROPERTIES OUTPUT_NAME "GameplaySystem_Phase21_test")
+
+# GameplaySystem Phase 22 test (Mission & Challenge System)
+add_executable(gameplay_phase22_test
+    gameplay/GameplaySystem_Phase22_test.cpp
+    gameplay/MissionSystem.cpp
+    gameplay/Mission.cpp
+    gameplay/missions/SustainedBeatmatchMission.cpp
+    gameplay/missions/EnergySurvivalMission.cpp
+    gameplay/missions/TransitionMission.cpp
+    gameplay/Leaderboard.cpp
+)
+
+target_include_directories(gameplay_phase22_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(gameplay_phase22_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(gameplay_phase22_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(gameplay_phase22_test PROPERTIES OUTPUT_NAME "GameplaySystem_Phase22_test")

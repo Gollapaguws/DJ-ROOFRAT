@@ -1,18 +1,18 @@
 
 === Running GameplaySystem Phase 22 Tests ===
 Running test_MissionSystem_Lifecycle...
-✓ test_MissionSystem_Lifecycle passed
+ԣ� test_MissionSystem_Lifecycle passed
 Running test_SustainedBeatmatchMission_Timer...
-✓ test_SustainedBeatmatchMission_Timer passed
+ԣ� test_SustainedBeatmatchMission_Timer passed
 Running test_SustainedBeatmatchMission_Failure...
-✓ test_SustainedBeatmatchMission_Failure passed
+ԣ� test_SustainedBeatmatchMission_Failure passed
 Running test_EnergySurvivalMission_ThresholdDetection...
-✓ test_EnergySurvivalMission_ThresholdDetection passed
+ԣ� test_EnergySurvivalMission_ThresholdDetection passed
 Running test_TransitionMission_SmoothnessBoundary...
-✓ test_TransitionMission_SmoothnessBoundary passed
+ԣ� test_TransitionMission_SmoothnessBoundary passed
 Running test_Leaderboard_PersistenceAndRanking...
-✓ test_Leaderboard_PersistenceAndRanking passed
+ԣ� test_Leaderboard_PersistenceAndRanking passed
 Running test_Leaderboard_MultiMissionTracking...
-✓ test_Leaderboard_MultiMissionTracking passed
+ԣ� test_Leaderboard_MultiMissionTracking passed
 
 === GameplaySystem Phase 22 Tests Complete ===
