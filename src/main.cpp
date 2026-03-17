@@ -22,6 +22,8 @@
 #include "audio/PortAudioPlayer.h"
 #include "audio/Recorder.h"
 #include "audio/WAVExporter.h"
+#include "core/ConfigManager.h"
+#include "core/SessionState.h"
 #include "crowdAI/CrowdStateMachine.h"
 #include "gameplay/GameModes.h"
 #include "gameplay/TutorialSystem.h"
@@ -40,6 +42,9 @@
 #include "input/MIDIController.h"
 #include "input/MIDIMapping.h"
 #include "input/ControllerProfiles.h"
+#include "multiplayer/BattleMode.h"
+#include "multiplayer/BattleRules.h"
+#include "multiplayer/Judge.h"
 #include "visuals/WaveformRenderer.h"
 #include "visuals/GraphicsContext.h"
 #include "visuals/LightingRig.h"
@@ -83,6 +88,7 @@ void printUsage() {
     std::cout << "  --tutorial        Run tutorial mode (learn beatmatching and EQ mixing)\n";
     std::cout << "  --mission [type]  Run mission mode (beatmatch|energy|transition)\n";
     std::cout << "  --career          Run career mode with progression feedback\n";
+    std::cout << "  --battle [format] Run battle mode (quick|standard|tournament)\n";
     std::cout << "\nIf no tracks are provided, generated test tones are used.\n";
 }
 
@@ -187,9 +193,8 @@ int runTutorialMode() {
     dj::ProgressTracker progress;
     
     // Load previous progress
-    std::vector<int> completed;
     if (progress.loadProgress("tutorial_progress.json")) {
-        completed = progress.getCompletedLessons();
+        const auto& completed = progress.getCompletedLessons();
         std::cout << "Progress loaded: " << completed.size() << " lessons completed previously.\n";
     }
     
@@ -207,8 +212,8 @@ int runTutorialMode() {
         std::cout << "✓ Lesson complete!\n";
         
         // Save progress
-        completed.push_back(tutorial.getCurrentLessonIndex());
-        progress.saveProgress("tutorial_progress.json", completed);
+        progress.markLessonComplete(tutorial.getCurrentLessonIndex());
+        progress.saveProgress("tutorial_progress.json");
         
         tutorial.nextLesson();
     }
@@ -266,6 +271,78 @@ int runMissionMode(const std::string& missionType) {
     return 0;
 }
 
+// Arc VI Integration: Battle Mode
+int runBattleMode(const std::string& formatType) {
+    std::cout << "\n=== BATTLE MODE: " << formatType << " ===\n";
+    
+    // Parse format
+    dj::BattleFormat format = dj::BattleFormat::Standard;
+    if (formatType == "quick") {
+        format = dj::BattleFormat::Quick;
+        std::cout << "Format: Quick Battle (1 round, 30 seconds each)\n";
+    } else if (formatType == "standard") {
+        format = dj::BattleFormat::Standard;
+        std::cout << "Format: Standard Battle (3 rounds, 60 seconds each)\n";
+    } else if (formatType == "tournament") {
+        format = dj::BattleFormat::Tournament;
+        std::cout << "Format: Tournament Battle (5 rounds, 90 seconds each)\n";
+    } else {
+        std::cout << "Unknown format: " << formatType << "\n";
+        std::cout << "Valid formats: quick, standard, tournament\n";
+        return 1;
+    }
+    
+    // Create battle rules and mode
+    auto rules = std::make_shared<dj::BattleRules>(format, dj::TurnMode::TurnBased);
+    dj::BattleMode battle;
+    battle.startBattle(rules);
+    
+    std::cout << "\nBattle started! " << rules->getRounds() << " rounds\n";
+    std::cout << "\nControls:\n";
+    std::cout << "Player 1 (QWERTY): Q/A tempo, W/S crossfade, 1-9 effects\n";
+    std::cout << "Player 2 (Arrow+Numpad): UP/DOWN tempo, LEFT/RIGHT crossfade, Numpad 0-9 effects\n";
+    std::cout << "\nPress ENTER to simulate battle (in real mode, players would perform)...\n";
+    std::cin.get();
+    
+    // Simulate rounds
+    for (int round = 1; round <= rules->getRounds(); ++round) {
+        std::cout << "\n--- Round " << round << " ---\n";
+        
+        // Simulate Player 1 performance
+        std::cout << "Player 1 performing...\n";
+        battle.submitPerformance(1, 0.5f, 0.8f, 0.7f, 100);
+        
+        // Simulate Player 2 performance
+        std::cout << "Player 2 performing...\n";
+        battle.submitPerformance(2, 0.3f, 0.9f, 0.75f, 100);
+        
+        // Show round scores
+        auto p1Score = battle.getPlayerScore(1);
+        auto p2Score = battle.getPlayerScore(2);
+        std::cout << "Player 1 score: " << p1Score.totalScore << " (beatmatch: " << p1Score.beatmatchScore 
+                  << ", transitions: " << p1Score.transitionScore << ")\n";
+        std::cout << "Player 2 score: " << p2Score.totalScore << " (beatmatch: " << p2Score.beatmatchScore 
+                  << ", transitions: " << p2Score.transitionScore << ")\n";
+        
+        if (round < rules->getRounds()) {
+            battle.advanceRound();
+        }
+    }
+    
+    // Determine winner
+    int winner = battle.getWinner();
+    std::cout << "\n=== BATTLE COMPLETE ===\n";
+    if (winner == 0) {
+        std::cout << "Result: TIE!\n";
+    } else {
+        std::cout << "Winner: Player " << winner << "!\n";
+        auto winnerScore = battle.getPlayerScore(winner);
+        std::cout << "Final score: " << winnerScore.totalScore << "\n";
+    }
+    
+    return 0;
+}
+
 // Arc V Integration: Career Mode
 void printCareerStatus(const dj::CareerProgression& career, const dj::UnlockSystem& unlocks, const dj::AchievementSystem& achievements) {
     std::cout << "\n=== CAREER STATUS ===\n";
@@ -308,7 +385,9 @@ int main(int argc, char** argv) {
     bool tutorialMode = false;
     bool missionMode = false;
     bool careerMode = false;
+    bool battleMode = false;
     std::string missionType = "beatmatch";  // Default mission type
+    std::string battleFormat = "standard";  // Default battle format
 
     for (int i = 1; i < argc; ++i) {
         const std::string arg = argv[i];
@@ -337,10 +416,27 @@ int main(int argc, char** argv) {
             careerMode = true;
             continue;
         }
+        if (arg == "--battle") {
+            battleMode = true;
+            // Check if next arg is battle format
+            if (i + 1 < argc && argv[i + 1][0] != '-') {
+                battleFormat = argv[i + 1];
+                ++i;  // Skip next arg
+            }
+            continue;
+        }
         tracks.push_back(arg);
     }
 
-    // Arc V Integration: Mode dispatcher
+    // Arc VI Integration: Load configuration
+    dj::ConfigManager configManager;
+    if (configManager.loadConfig("config.json")) {
+        std::cout << "Configuration loaded from config.json\n";
+    } else {
+        std::cout << "Using default configuration (config.json not found)\n";
+    }
+
+    // Arc V & VI Integration: Mode dispatcher
     if (tutorialMode) {
         return runTutorialMode();
     }
@@ -349,13 +445,17 @@ int main(int argc, char** argv) {
         return runMissionMode(missionType);
     }
     
+    if (battleMode) {
+        return runBattleMode(battleFormat);
+    }
+    
     // Career mode runs normal performance loop with enhanced feedback
     // (implemented below with printCareerStatus calls)
 
     dj::Deck deckA;
     dj::Deck deckB;
 
-    constexpr int outputRate = 44100;
+    const int outputRate = configManager.getSampleRate();
     deckA.setOutputSampleRate(outputRate);
     deckB.setOutputSampleRate(outputRate);
 
@@ -418,7 +518,7 @@ int main(int argc, char** argv) {
     deckB.play();
 
     dj::Mixer mixer;
-    mixer.setMasterGain(0.9f);
+    mixer.setMasterGain(configManager.getMasterVolume());
 
     // Phase 14: Initialize Recorder for session recording (stereo, 44.1kHz, 10 minute capacity)
     dj::Recorder recorder(outputRate, 2, 600);  // 10 minutes of recording capacity
@@ -468,7 +568,8 @@ int main(int argc, char** argv) {
     // Phase 7: Initialize graphics context and lighting rig
     dj::GraphicsContext graphics;
     dj::LightingRig lighting;
-    bool graphicsEnabled = graphics.initialize(1280, 720);
+    const auto& config = configManager.getConfig();
+    bool graphicsEnabled = config.enableGraphics ? graphics.initialize(config.graphicsWidth, config.graphicsHeight) : false;
     if (graphicsEnabled) {
         std::cout << "DirectX 11 graphics initialized.\n";
     } else {
@@ -982,6 +1083,11 @@ int main(int argc, char** argv) {
     if (careerMode) {
         printCareerStatus(career, unlocks, achievements);
         achievements.saveToFile("achievements.json");
+    }
+    
+    // Arc VI: Save configuration on exit
+    if (configManager.saveConfig("config.json")) {
+        std::cout << "Configuration saved to config.json\n";
     }
     
     std::cout << "Milestone status: dual playback, crossfade, crowd meter, waveform visualization complete.\n";

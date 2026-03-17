@@ -5,14 +5,12 @@
 
 namespace dj {
 
-CrowdMesh::CrowdMesh() = default;
-
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 
+CrowdMesh::CrowdMesh() = default;
 CrowdMesh::~CrowdMesh() = default;
 
 bool CrowdMesh::generateLOD(ID3D11Device* device, LODLevel lodLevel) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (!device) {
         return false;
     }
@@ -75,28 +73,21 @@ bool CrowdMesh::generateLOD(ID3D11Device* device, LODLevel lodLevel) {
     lodData_[lodIndex].indices = indices;
 
     return true;
-#else
-    return false;
-#endif
 }
 
 ID3D11Buffer* CrowdMesh::getVertexBuffer(LODLevel lodLevel) const {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     int lodIndex = static_cast<int>(lodLevel);
     if (lodIndex >= 0 && lodIndex <= 2) {
         return lodData_[lodIndex].vertexBuffer.Get();
     }
-#endif
     return nullptr;
 }
 
 ID3D11Buffer* CrowdMesh::getIndexBuffer(LODLevel lodLevel) const {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     int lodIndex = static_cast<int>(lodLevel);
     if (lodIndex >= 0 && lodIndex <= 2) {
         return lodData_[lodIndex].indexBuffer.Get();
     }
-#endif
     return nullptr;
 }
 

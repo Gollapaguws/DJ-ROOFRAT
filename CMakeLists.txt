@@ -128,6 +128,24 @@ add_executable(${DJ_ROOFRAT_TARGET}
     visuals/CrowdMesh.cpp
     visuals/CrowdAnimator.cpp
     gameplay/GameModes.cpp
+    gameplay/TutorialSystem.cpp
+    gameplay/ProgressTracker.cpp
+    gameplay/MissionSystem.cpp
+    gameplay/Leaderboard.cpp
+    gameplay/Venue.cpp
+    gameplay/UnlockSystem.cpp
+    gameplay/AchievementSystem.cpp
+    gameplay/lessons/BeatmatchingLesson.cpp
+    gameplay/lessons/EQMixingLesson.cpp
+    gameplay/missions/SustainedBeatmatchMission.cpp
+    gameplay/missions/EnergySurvivalMission.cpp
+    gameplay/missions/TransitionMission.cpp
+    multiplayer/BattleMode.cpp
+    multiplayer/BattleRules.cpp
+    multiplayer/Judge.cpp
+    core/ConfigManager.cpp
+    core/SessionState.cpp
+    core/PresetManager.cpp
     input/InputMapper.cpp
     input/MIDIDevice.cpp
     input/MIDIMessage.cpp
@@ -954,3 +972,21 @@ else()
 endif()
 
 set_target_properties(multiplayer_phase24_test PROPERTIES OUTPUT_NAME "BattleSystem_Phase24_test")
+
+# ConfigSystem Phase 25 test (Configuration & State Management)
+add_executable(config_system_phase25_test
+    core/ConfigSystem_Phase25_test.cpp
+    core/ConfigManager.cpp
+    core/SessionState.cpp
+    core/PresetManager.cpp
+)
+
+target_include_directories(config_system_phase25_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(config_system_phase25_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(config_system_phase25_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(config_system_phase25_test PROPERTIES OUTPUT_NAME "ConfigSystem_Phase25_test")
