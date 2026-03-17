@@ -1219,3 +1219,20 @@ else()
 endif()
 
 set_target_properties(energy_analyzer_phase33_test PROPERTIES OUTPUT_NAME "EnergyAnalyzer_Phase33_test")
+
+# FFT Phase 34 test (Cooley-Tukey FFT Implementation)
+add_executable(fft_phase34_test
+    audio/FFT_Phase34_test.cpp
+    audio/FFTEngine.cpp
+    audio/SpectrumAnalyzer.cpp
+)
+
+target_include_directories(fft_phase34_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(fft_phase34_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(fft_phase34_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(fft_phase34_test PROPERTIES OUTPUT_NAME "FFT_Phase34_test")
