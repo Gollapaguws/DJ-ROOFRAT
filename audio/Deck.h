@@ -68,6 +68,9 @@ public:
     void setTargetTempo(float percent);
     void setTempoRampRate(float rate);
 
+    // Phase 38: Phase alignment for auto-sync
+    void alignPhaseWithDeck(const Deck& targetDeck, double bpmA, double bpmB);
+
     std::array<float, 2> nextFrame();
     float recentEnergy() const;
     std::size_t currentFrame() const;

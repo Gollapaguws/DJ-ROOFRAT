@@ -124,6 +124,7 @@ add_executable(${DJ_ROOFRAT_TARGET}
     audio/OnsetDetector.cpp
     audio/BeatGrid.cpp
     audio/BeatGridEditor.cpp
+    audio/PhaseAligner.cpp
     audio/EnergyAnalyzer.cpp
     audio/CamelotAnalyzer.cpp
     crowdAI/CrowdStateMachine.cpp
@@ -1298,3 +1299,37 @@ else()
 endif()
 
 set_target_properties(energycurve_phase37_test PROPERTIES OUTPUT_NAME "EnergyCurve_Phase37_test")
+
+# Phase Alignment Engine Phase 38 test (Arc X Phase 1)
+add_executable(phasealigner_phase38_test
+    audio/PhaseAligner_Phase38_test.cpp
+    audio/PhaseAligner.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BeatGrid.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/Flanger.cpp
+    audio/Phaser.cpp
+    audio/Bitcrusher.cpp
+    audio/RingModulator.cpp
+    audio/AutoFilter.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/BPMDetector.cpp
+    audio/KeyDetector.cpp
+    audio/MetadataParser.cpp
+)
+
+target_include_directories(phasealigner_phase38_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(phasealigner_phase38_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(phasealigner_phase38_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(phasealigner_phase38_test PROPERTIES OUTPUT_NAME "PhaseAligner_Phase38_test")

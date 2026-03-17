@@ -7,6 +7,7 @@
 #include "audio/EffectChain.h"
 #include "audio/VinylSimulator.h"
 #include "audio/ScratchDetector.h"
+#include "audio/PhaseAligner.h"
 
 namespace dj {
 
@@ -353,6 +354,29 @@ void Deck::setTargetTempo(float percent) {
 void Deck::setTempoRampRate(float rate) {
     // Clamp to reasonable range: prevent negative values and extreme values
     tempoRampRate_ = std::clamp(rate, 0.0f, 1.0f);
+}
+
+// Phase 38: Align phase with another deck for auto-sync
+void Deck::alignPhaseWithDeck(const Deck& targetDeck, double bpmA, double bpmB) {
+    PhaseAligner aligner;
+    
+    // Calculate phase offset in samples (positive = this deck ahead)
+    double offsetSamples = aligner.calculatePhaseOffset(targetDeck, *this, bpmA, bpmB);
+    
+    // Adjust playback position to align phases
+    // If offset is positive (we're ahead), move backward
+    // If offset is negative (we're behind), move forward
+    double newPosition = playbackHead_ - offsetSamples;
+    
+    // Clamp to valid range
+    if (newPosition < 0.0) {
+        newPosition = 0.0;
+    }
+    if (newPosition >= static_cast<double>(clip_.frameCount())) {
+        newPosition = static_cast<double>(clip_.frameCount() - 1);
+    }
+    
+    playbackHead_ = newPosition;
 }
 
 std::array<float, 2> Deck::nextFrame() {
