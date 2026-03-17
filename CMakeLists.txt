@@ -151,6 +151,9 @@ add_executable(${DJ_ROOFRAT_TARGET}
     gameplay/missions/SustainedBeatmatchMission.cpp
     gameplay/missions/EnergySurvivalMission.cpp
     gameplay/missions/TransitionMission.cpp
+    gameplay/EnergyCurve.cpp
+    gameplay/MixQualityAnalyzer.cpp
+    visuals/EnergyCurveRenderer.cpp
     multiplayer/BattleMode.cpp
     multiplayer/BattleRules.cpp
     multiplayer/Judge.cpp
@@ -1276,3 +1279,22 @@ else()
 endif()
 
 set_target_properties(beatgrid_editor_phase36_test PROPERTIES OUTPUT_NAME "BeatGridEditor_Phase36_test")
+
+# Energy Curve & Mix Quality Scoring Phase 37 test (Final Arc IX Phase)
+add_executable(energycurve_phase37_test
+    gameplay/EnergyCurve_Phase37_test.cpp
+    gameplay/EnergyCurve.cpp
+    gameplay/MixQualityAnalyzer.cpp
+    visuals/EnergyCurveRenderer.cpp
+    audio/CamelotAnalyzer.cpp
+)
+
+target_include_directories(energycurve_phase37_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(energycurve_phase37_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(energycurve_phase37_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(energycurve_phase37_test PROPERTIES OUTPUT_NAME "EnergyCurve_Phase37_test")

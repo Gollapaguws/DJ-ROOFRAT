@@ -60,7 +60,10 @@
 #include "audio/CamelotAnalyzer.h"
 #include "audio/BeatGridEditor.h"
 #include "audio/BeatGrid.h"
+#include "gameplay/EnergyCurve.h"
+#include "gameplay/MixQualityAnalyzer.h"
 #include "visuals/BeatMarkerOverlay.h"
+#include "visuals/EnergyCurveRenderer.h"
 
 namespace {
 
@@ -253,7 +256,7 @@ void printLiveControls() {
     std::cout << "               l loop B | v cueB jump | ; loop beats toggle A | ' loop beats toggle B \n";
     std::cout << "               A EQ/Filter: q/w low-/+ e/r mid-/+ t/y high-/+ u/p filter-/+\n";
     std::cout << "               B EQ/Filter: d/f low-/+ g/h mid-/+ j/n high-/+ m/, filter-/+\n";
-    std::cout << "               Isolators: Shift+q/w/e (A low/mid/high) Shift+d/f/g (B low/mid/high)\n";
+    std::cout << "               Isolators: Shift+q/w/t (A low/mid/high) Shift+d/f/g (B low/mid/high)\n";
     std::cout << "               Filter Order: Shift+u or Shift+p to toggle Butterworth mode (both decks)\n";
     std::cout << "               Phase 4 - Multi-Cue Banks: 1/2/3 set cueA1/A2/A3, 4/5/6 set cueB1/B2/B3\n";
     std::cout << "               Phase 4 - Cue Jump: Shift+1/2/3 jump cueA1/A2/A3, Shift+4/5/6 jump cueB1/B2/B3\n";
@@ -262,6 +265,7 @@ void printLiveControls() {
     std::cout << "               Phase 27 - Presets: F1-F12 load Deck A presets | Shift+F1-F12 load Deck B presets\n";
     std::cout << "               Phase 35 - Spectrum: 9 toggle real-time spectrum analyzer (dual-deck view)\n";
     std::cout << "               Phase 36 - Beat Grid: - nudge left | = nudge right | Shift+- first beat left | Shift+= first beat right | Ctrl+Z undo | Ctrl+Y redo\n";
+    std::cout << "               Phase 37 - Energy Curve: Shift+E toggle energy analytics + mix quality score\n";
 }
 
 std::vector<dj::InputCommand> pollKeyboardCommands() {
@@ -813,6 +817,20 @@ int main(int argc, char** argv) {
     dj::SpectrumRenderer spectrumRenderer(spectrumOptions);
     bool showSpectrum = false;  // Toggle with 9 key
 
+    // Phase 37: Energy curve + mix quality analytics
+    dj::EnergyCurve energyCurve(30.0 * 60.0, 1.0);  // 30 minutes at 1Hz
+    dj::MixQualityAnalyzer mixQualityAnalyzer;
+    dj::EnergyCurveRenderOptions energyCurveOptions;
+    energyCurveOptions.width = 80;
+    energyCurveOptions.height = 15;
+    energyCurveOptions.timeWindow = 30.0 * 60.0;
+    energyCurveOptions.showGrid = true;
+    energyCurveOptions.showStats = true;
+    dj::EnergyCurveRenderer energyCurveRenderer(energyCurveOptions);
+    bool showEnergyCurve = false;
+    double lastEnergySampleTimeSeconds = -1.0;
+    double lastMixAnalysisTimeSeconds = -1.0;
+
     // Arc V: Career Mode Systems
     dj::UnlockSystem unlocks;
     dj::AchievementSystem achievements;
@@ -1325,6 +1343,10 @@ int main(int argc, char** argv) {
                 showSpectrum = !showSpectrum;
                 std::cout << (showSpectrum ? "Spectrum: ON\n" : "Spectrum: OFF\n");
                 break;
+            case dj::InputCommand::ToggleEnergyCurve:
+                showEnergyCurve = !showEnergyCurve;
+                std::cout << (showEnergyCurve ? "Energy Curve: ON\n" : "Energy Curve: OFF\n");
+                break;
             // Phase 36: Beat Grid Nudge Editor
             case dj::InputCommand::NudgeBeatGridLeft:
                 // Nudge all beats left by 10ms (both decks)
@@ -1458,6 +1480,28 @@ int main(int argc, char** argv) {
 
         // Phase 7: Update lighting rig and render graphics if available
         constexpr float blockDurationSeconds = framesPerBlock / 44100.0f;
+
+        // Phase 37: Update rolling energy curve + mix quality once per second
+        const double elapsedTimeSeconds = static_cast<double>(block) * blockDurationSeconds;
+        const bool bassClashProxy = (metrics.deckAEnergy > 0.7f) && (metrics.deckBEnergy > 0.7f);
+
+        if (lastEnergySampleTimeSeconds < 0.0 || (elapsedTimeSeconds - lastEnergySampleTimeSeconds) >= 1.0) {
+            energyCurve.addSample(crowdOut.energyMeter, elapsedTimeSeconds, metrics.rms);
+            lastEnergySampleTimeSeconds = elapsedTimeSeconds;
+        }
+
+        if (lastMixAnalysisTimeSeconds < 0.0 || (elapsedTimeSeconds - lastMixAnalysisTimeSeconds) >= 1.0) {
+            mixQualityAnalyzer.setAnalysisContext(
+                effectiveBpmA,
+                effectiveBpmB,
+                metrics.transitionSmoothness,
+                "8A",
+                "8B");
+            mixQualityAnalyzer.setBassClashState(bassClashProxy);
+            mixQualityAnalyzer.analyzeMix(&deckA, &deckB, &mixer);
+            lastMixAnalysisTimeSeconds = elapsedTimeSeconds;
+        }
+
         lighting.update(blendedBpm, crowdOut.energyMeter, blockDurationSeconds);
         
         int moodIndex = static_cast<int>(crowdOut.mood);
@@ -1482,9 +1526,9 @@ int main(int argc, char** argv) {
             
             // Phase 31: Display Camelot notation if track keys are detected
             dj::CamelotAnalyzer camelotAnalyzer;
-            std::string camelotA = "?";
-            std::string camelotB = "?";
-            float compatibilityScore = 0.0f;
+            std::string camelotA = "8A";
+            std::string camelotB = "8B";
+            float compatibilityScore = camelotAnalyzer.getCompatibilityScore(camelotA, camelotB);
             
             // Note: In a full implementation, we would get the detected key from the loaded tracks
             // For now, we display placeholder values. In production, integrate with KeyDetector output.
@@ -1550,6 +1594,16 @@ int main(int argc, char** argv) {
                     }
                     std::cout << "Beats:     " << markerLine << "\n";
                 }
+            }
+
+            // Phase 37: Render energy curve + mix quality analytics if enabled
+            if (showEnergyCurve) {
+                std::cout << "\n=== ENERGY CURVE ANALYTICS (Shift+E to toggle) ===\n";
+                std::cout << energyCurveRenderer.render(energyCurve, &mixQualityAnalyzer);
+                if (mixQualityAnalyzer.hasBassClash()) {
+                    std::cout << "Warning: Bass clash detected between active decks.\n";
+                }
+                std::cout << "====================================================\n";
             }
             
             // Phase 35: Render spectrum display if enabled

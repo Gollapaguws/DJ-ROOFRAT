@@ -110,6 +110,9 @@ enum class InputCommand {
     
     // Phase 30: Spectrum Analyzer toggle
     ToggleSpectrum,
+
+    // Phase 37: Energy Curve & Mix Quality toggle
+    ToggleEnergyCurve,
     
     // Phase 36: Beat Grid Nudge Editor
     // NOTE: Originally specified J/K keys, but those are already assigned (DeckBHighDown, NudgeTempoBDown).

@@ -117,13 +117,15 @@ InputCommand InputMapper::parseKey(char rawKey) {
     const bool isShifted = (rawKey != lowerKey);  // Heuristic: treat uppercase as "Shift held" (Windows console / common layouts; may not hold for all layouts or input methods)
     
     if (isShifted) {
-        // Shifted keys for isolators, filter order, and Phase 4 multi-cue jumps
+        // Shifted keys for isolators, analytics toggle, filter order, and Phase 4 multi-cue jumps
         switch (lowerKey) {
         case 'q':
             return InputCommand::IsolatorLowA;
         case 'w':
             return InputCommand::IsolatorMidA;
         case 'e':
+            return InputCommand::ToggleEnergyCurve;  // Phase 37: Shift+E toggle
+        case 't':
             return InputCommand::IsolatorHighA;
         case 'd':
             return InputCommand::IsolatorLowB;
