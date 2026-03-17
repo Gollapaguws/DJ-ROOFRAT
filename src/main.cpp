@@ -53,10 +53,14 @@
 #include "visuals/GraphicsContext.h"
 #include "visuals/LightingRig.h"
 #include "visuals/CamelotWheel.h"
+#include "visuals/SpectrumRenderer.h"
 #include "library/TrackLibrary.h"
 #include "library/LibraryScanner.h"
 #include "library/TrackBrowser.h"
 #include "audio/CamelotAnalyzer.h"
+#include "audio/BeatGridEditor.h"
+#include "audio/BeatGrid.h"
+#include "visuals/BeatMarkerOverlay.h"
 
 namespace {
 
@@ -256,6 +260,8 @@ void printLiveControls() {
     std::cout << "               Phase 4 - Tempo Ramp: Shift+R to toggle tempo ramping (both decks)\n";
     std::cout << "               Phase 14 - Recording: s toggle record | Shift+s save recording to WAV\n";
     std::cout << "               Phase 27 - Presets: F1-F12 load Deck A presets | Shift+F1-F12 load Deck B presets\n";
+    std::cout << "               Phase 35 - Spectrum: 9 toggle real-time spectrum analyzer (dual-deck view)\n";
+    std::cout << "               Phase 36 - Beat Grid: - nudge left | = nudge right | Shift+- first beat left | Shift+= first beat right | Ctrl+Z undo | Ctrl+Y redo\n";
 }
 
 std::vector<dj::InputCommand> pollKeyboardCommands() {
@@ -287,6 +293,19 @@ std::vector<dj::InputCommand> pollKeyboardCommands() {
             }
             // Other extended keys are ignored
             continue;
+        }
+        
+        // Phase 36: Handle Ctrl+Z and Ctrl+Y
+        bool ctrlPressed = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
+        if (ctrlPressed) {
+            if (first == 'z' || first == 'Z') {
+                commands.push_back(dj::InputCommand::UndoBeatGrid);
+                continue;
+            }
+            if (first == 'y' || first == 'Y') {
+                commands.push_back(dj::InputCommand::RedoBeatGrid);
+                continue;
+            }
         }
 
         const auto command = dj::InputMapper::parseKey(static_cast<char>(first));
@@ -689,6 +708,29 @@ int main(int argc, char** argv) {
     std::cout << "Beatmatch target for Deck B (manual, no auto-sync): " << beatmatchTargetB << "%\n";
     printLiveControls();
 
+    // Phase 36: Initialize beat grids and editors
+    dj::BeatGrid beatGridA;
+    dj::BeatGrid beatGridB;
+    
+    // Generate initial beat grids from detected BPM
+    double trackDurationA = 0.0;
+    double trackDurationB = 0.0;
+    if (const dj::AudioClip* clip = deckA.clip()) {
+        trackDurationA = static_cast<double>(clip->frameCount()) / static_cast<double>(clip->sampleRate);
+        beatGridA.generateFromBPM(static_cast<double>(bpmA), 0.0, trackDurationA);
+    }
+    if (const dj::AudioClip* clip = deckB.clip()) {
+        trackDurationB = static_cast<double>(clip->frameCount()) / static_cast<double>(clip->sampleRate);
+        beatGridB.generateFromBPM(static_cast<double>(bpmB), 0.0, trackDurationB);
+    }
+    
+    dj::BeatGridEditor beatGridEditorA(beatGridA, outputRate);
+    dj::BeatGridEditor beatGridEditorB(beatGridB, outputRate);
+    beatGridEditorA.setTrackDuration(trackDurationA);
+    beatGridEditorB.setTrackDuration(trackDurationB);
+    
+    dj::BeatMarkerOverlay beatMarkerOverlay;
+
     deckA.setSlipMode(true);
     deckB.setSlipMode(true);
     deckA.setVinylMode(true);
@@ -758,6 +800,18 @@ int main(int argc, char** argv) {
     dj::ScoringSystem scoring;
     dj::CareerProgression career;
     dj::WaveformRenderer waveform(68, 11);
+    
+    // Phase 35: Spectrum display
+    dj::SpectrumRenderer::RenderOptions spectrumOptions;
+    spectrumOptions.width = 80;
+    spectrumOptions.height = 10;
+    spectrumOptions.colorScheme = dj::SpectrumRenderer::ColorScheme::FrequencyBands;
+    spectrumOptions.showPeakHold = true;
+    spectrumOptions.peakDecayRate = 0.002f;  // 500ms decay @ 60 FPS
+    spectrumOptions.showFrequencyLabels = true;
+    spectrumOptions.sampleRate = outputRate;
+    dj::SpectrumRenderer spectrumRenderer(spectrumOptions);
+    bool showSpectrum = false;  // Toggle with 9 key
 
     // Arc V: Career Mode Systems
     dj::UnlockSystem unlocks;
@@ -1171,20 +1225,22 @@ int main(int argc, char** argv) {
                 break;
             case dj::InputCommand::SaveRecording:
                 if (recordingActive) {
-                    recorder.stop();
+                    recorderMix.stop();
+                    recorderDeckA.stop();
+                    recorderDeckB.stop();
                     recordingActive = false;
                 }
-                if (recorder.getDuration() > 0.0f) {
-                    // Export recorded session to WAV file
-                    const std::string filename = "session_recording.wav";
-                    const auto recordedData = recorder.getRecordedData();
+                if (recorderMix.getDuration() > 0.0f) {
+                    // Export recorded mix session to WAV file
+                    const std::string filename = "session_recording_mix.wav";
+                    const auto recordedData = recorderMix.getRecordedData();
                     if (!recordedData.empty()) {
                         dj::WAVExporter exporter(outputRate, 2, 16);
                         const std::size_t numFrames = recordedData.size() / 2;  // 2 channels
                         if (exporter.exportToFile(filename, recordedData.data(), numFrames)) {
-                            std::cout << "Recording saved to " << filename << "\n";
+                            std::cout << "Mix recording saved to " << filename << "\n";
                         } else {
-                            std::cout << "Failed to save recording to " << filename << "\n";
+                            std::cout << "Failed to save mix recording to " << filename << "\n";
                         }
                     }
                 } else {
@@ -1265,6 +1321,55 @@ int main(int argc, char** argv) {
             case dj::InputCommand::LoadPresetEQ_B_12:
                 applyEQPreset(presetManager, getPresetSlotName('B', 12), deckB, eqBLow, eqBMid, eqBHigh);
                 break;
+            case dj::InputCommand::ToggleSpectrum:
+                showSpectrum = !showSpectrum;
+                std::cout << (showSpectrum ? "Spectrum: ON\n" : "Spectrum: OFF\n");
+                break;
+            // Phase 36: Beat Grid Nudge Editor
+            case dj::InputCommand::NudgeBeatGridLeft:
+                // Nudge all beats left by 10ms (both decks)
+                beatGridEditorA.nudgeBeats(-10.0);
+                beatGridEditorB.nudgeBeats(-10.0);
+                std::cout << "Beat grid nudged left by 10ms\n";
+                break;
+            case dj::InputCommand::NudgeBeatGridRight:
+                // Nudge all beats right by 10ms (both decks)
+                beatGridEditorA.nudgeBeats(10.0);
+                beatGridEditorB.nudgeBeats(10.0);
+                std::cout << "Beat grid nudged right by 10ms\n";
+                break;
+            case dj::InputCommand::AdjustFirstBeatLeft:
+                // Adjust first beat offset left by 10ms (both decks)
+                beatGridEditorA.setFirstBeatOffset(-10.0);
+                beatGridEditorB.setFirstBeatOffset(-10.0);
+                std::cout << "First beat offset adjusted left by 10ms\n";
+                break;
+            case dj::InputCommand::AdjustFirstBeatRight:
+                // Adjust first beat offset right by 10ms (both decks)
+                beatGridEditorA.setFirstBeatOffset(10.0);
+                beatGridEditorB.setFirstBeatOffset(10.0);
+                std::cout << "First beat offset adjusted right by 10ms\n";
+                break;
+            case dj::InputCommand::UndoBeatGrid:
+                // Undo beat grid edits (both decks)
+                if (beatGridEditorA.canUndo()) {
+                    beatGridEditorA.undo();
+                    beatGridEditorB.undo();
+                    std::cout << "Beat grid edit undone\n";
+                } else {
+                    std::cout << "No beat grid edits to undo\n";
+                }
+                break;
+            case dj::InputCommand::RedoBeatGrid:
+                // Redo beat grid edits (both decks)
+                if (beatGridEditorA.canRedo()) {
+                    beatGridEditorA.redo();
+                    beatGridEditorB.redo();
+                    std::cout << "Beat grid edit redone\n";
+                } else {
+                    std::cout << "No beat grid edits to redo\n";
+                }
+                break;
             case dj::InputCommand::Quit:
                 quitRequested = true;
                 break;
@@ -1285,9 +1390,10 @@ int main(int argc, char** argv) {
         dj::MixMetrics metrics;
         const std::vector<float> mixed = mixer.mixBlock(deckA, deckB, framesPerBlock, metrics);
 
-        // Phase 14: Submit audio to recorder if recording is active
+        // Phase 29: Submit audio to multi-track recorders if recording is active
         if (recordingActive && !mixed.empty()) {
-            recorder.submitFrames(mixed.data(), framesPerBlock);
+            recorderMix.submitFrames(mixed.data(), framesPerBlock);
+            // Note: Individual deck recording would require separate audio capture
         }
 
         if (realtimeAudio) {
@@ -1403,6 +1509,60 @@ int main(int argc, char** argv) {
             }
             
             std::cout << waveform.render(mixed) << "\n";
+            
+            // Phase 36: Render beat markers overlay (show beats from Deck A as reference)
+            if (deckA.clip()) {
+                const auto& beatGrid = beatGridEditorA.getBeatGrid();
+                auto beats = beatGrid.getBeats();
+                
+                // Convert beat timestamps to sample positions
+                std::vector<size_t> beatPositions;
+                int sampleRate = deckA.clip()->sampleRate;
+                for (const auto& beat : beats) {
+                    size_t samplePos = static_cast<size_t>(beat.timestamp * sampleRate);
+                    beatPositions.push_back(samplePos);
+                }
+                
+                // Get current playback position
+                size_t currentPosA = deckA.currentFrame();
+                
+                // Calculate window range (show a window around current position)
+                size_t windowSize = static_cast<size_t>(sampleRate * 10.0);  // 10 second window
+                size_t windowStart = (currentPosA > windowSize / 2) ? (currentPosA - windowSize / 2) : 0;
+                size_t windowEnd = windowStart + windowSize;
+                
+                // Render beat markers (overlaying a simple representation)
+                // Note: This is a simplified version; full integration would overlay on actual waveform
+                if (!beatPositions.empty()) {
+                    std::string markerLine(68, ' ');
+                    for (size_t beatPos : beatPositions) {
+                        if (beatPos >= windowStart && beatPos <= windowEnd) {
+                            int col = static_cast<int>((beatPos - windowStart) * 68.0 / windowSize);
+                            if (col >= 0 && col < 68) {
+                                // Highlight current beat
+                                if (std::abs(static_cast<long long>(beatPos) - static_cast<long long>(currentPosA)) < sampleRate / 10) {
+                                    markerLine[col] = 'v';
+                                } else {
+                                    markerLine[col] = '|';
+                                }
+                            }
+                        }
+                    }
+                    std::cout << "Beats:     " << markerLine << "\n";
+                }
+            }
+            
+            // Phase 35: Render spectrum display if enabled
+            // NOTE: Currently disabled - requires Deck::getSpectrumAnalyzer() integration
+            /*
+            if (showSpectrum) {
+                auto spectrumA = deckA.getSpectrumAnalyzer().getFullSpectrum();
+                auto spectrumB = deckB.getSpectrumAnalyzer().getFullSpectrum();
+                std::cout << "\n=== SPECTRUM ANALYZER (Press '9' to toggle) ===\n";
+                std::cout << spectrumRenderer.renderDualDeck(spectrumA, spectrumB);
+                std::cout << "================================================\n";
+            }
+            */
         }
 
         if (!deckA.isPlaying() && !deckB.isPlaying()) {

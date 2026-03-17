@@ -110,6 +110,16 @@ enum class InputCommand {
     
     // Phase 30: Spectrum Analyzer toggle
     ToggleSpectrum,
+    
+    // Phase 36: Beat Grid Nudge Editor
+    // NOTE: Originally specified J/K keys, but those are already assigned (DeckBHighDown, NudgeTempoBDown).
+    // Using minus/equals keys instead as they're adjacent and available.
+    NudgeBeatGridLeft,       // minus '-' key (nudge beats -10ms)
+    NudgeBeatGridRight,      // equals '=' key (nudge beats +10ms)
+    AdjustFirstBeatLeft,     // Shift+minus (adjust first beat -10ms)
+    AdjustFirstBeatRight,    // Shift+equals (adjust first beat +10ms)  
+    UndoBeatGrid,            // Ctrl+Z (undo beat grid edit)
+    RedoBeatGrid,            // Ctrl+Y (redo beat grid edit)
 };
 
 class InputMapper {

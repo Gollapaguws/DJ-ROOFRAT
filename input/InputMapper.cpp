@@ -151,6 +151,10 @@ InputCommand InputMapper::parseKey(char rawKey) {
             return InputCommand::TempoRampToggle;
         case 's':
             return InputCommand::SaveRecording;
+        case '-':
+            return InputCommand::AdjustFirstBeatLeft;   // Shift+Minus: adjust first beat -10ms
+        case '=':
+            return InputCommand::AdjustFirstBeatRight;  // Shift+Equals: adjust first beat +10ms
         default:
             return InputCommand::None;
         }
@@ -173,6 +177,8 @@ InputCommand InputMapper::parseKey(char rawKey) {
         return InputCommand::SetCueB2;  // Phase 4: Multi-cue B2 set
     case '6':
         return InputCommand::SetCueB3;  // Phase 4: Multi-cue B3 set
+    case '9':
+        return InputCommand::ToggleSpectrum;  // Phase 35: Toggle spectrum display
     case '[':
         return InputCommand::CrossfadeLeft;
     case '\\':
@@ -235,6 +241,10 @@ InputCommand InputMapper::parseKey(char rawKey) {
         return InputCommand::DeckBFilterDown;
     case ',':
         return InputCommand::DeckBFilterUp;
+    case '-':
+        return InputCommand::NudgeBeatGridLeft;   // Minus: nudge beats -10ms
+    case '=':
+        return InputCommand::NudgeBeatGridRight;  // Equals: nudge beats +10ms
     default:
         return InputCommand::None;
     }

@@ -120,13 +120,17 @@ add_executable(${DJ_ROOFRAT_TARGET}
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
     audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/OnsetDetector.cpp
     audio/BeatGrid.cpp
+    audio/BeatGridEditor.cpp
     audio/EnergyAnalyzer.cpp
+    audio/CamelotAnalyzer.cpp
     crowdAI/CrowdStateMachine.cpp
     visuals/WaveformRenderer.cpp
     visuals/SpectrumRenderer.cpp
     visuals/BeatGridRenderer.cpp
+    visuals/BeatMarkerOverlay.cpp
     visuals/EnergyHistogram.cpp
     visuals/GraphicsContext.cpp
     visuals/LightingRig.cpp
@@ -1236,3 +1240,39 @@ else()
 endif()
 
 set_target_properties(fft_phase34_test PROPERTIES OUTPUT_NAME "FFT_Phase34_test")
+
+# Spectrum Display Phase 35 test (Real-time Spectrum Visualization)
+add_executable(spectrum_display_phase35_test
+    audio/SpectrumDisplay_Phase35_test.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
+    visuals/SpectrumRenderer.cpp
+)
+
+target_include_directories(spectrum_display_phase35_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(spectrum_display_phase35_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(spectrum_display_phase35_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(spectrum_display_phase35_test PROPERTIES OUTPUT_NAME "SpectrumDisplay_Phase35_test")
+
+# Beat Grid Editor Phase 36 test (Beat Grid Nudge Editor)
+add_executable(beatgrid_editor_phase36_test
+    audio/BeatGridEditor_Phase36_test.cpp
+    audio/BeatGridEditor.cpp
+    audio/BeatGrid.cpp
+    visuals/BeatMarkerOverlay.cpp
+)
+
+target_include_directories(beatgrid_editor_phase36_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(beatgrid_editor_phase36_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(beatgrid_editor_phase36_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(beatgrid_editor_phase36_test PROPERTIES OUTPUT_NAME "BeatGridEditor_Phase36_test")

@@ -1,5 +1,6 @@
 #include "audio/SpectrumAnalyzer.h"
 
+#include "audio/FFTEngine.h"
 #include <algorithm>
 #include <cmath>
 #include <numeric>
@@ -16,7 +17,18 @@ SpectrumAnalyzer::SpectrumAnalyzer(int sampleRate, int windowSize)
       frequencyBands_({}) {
     buffer_.resize(windowSize_, 0.0f);
     initializeWindow();
+
+    // Create FFTEngine if window size is power of 2
+    if (FFTEngine::isPowerOfTwo(windowSize_)) {
+        fftEngine_ = std::make_unique<FFTEngine>(
+            windowSize_, 
+            FFTEngine::WindowFunction::Hann
+        );
+        fullSpectrum_.resize(windowSize_ / 2 + 1, 0.0f);
+    }
 }
+
+SpectrumAnalyzer::~SpectrumAnalyzer() = default;
 
 void SpectrumAnalyzer::initializeWindow() {
     window_.resize(windowSize_);
@@ -30,64 +42,90 @@ float SpectrumAnalyzer::hannWindow(float n, float N) const {
     return 0.5f * (1.0f - std::cos(2.0f * PI * n / (N - 1.0f)));
 }
 
-void SpectrumAnalyzer::setSamples(const float* samples, std::size_t count) {
+void SpectrumAnalyzer::processSamples(const float* samples, std::size_t count) {
     if (!samples || count == 0) {
         return;
     }
 
-    // Fill buffer with new samples
+    // Fill buffer with new samples (circular)
     for (std::size_t i = 0; i < count; ++i) {
         buffer_[bufferPosition_] = samples[i];
         bufferPosition_ = (bufferPosition_ + 1) % windowSize_;
     }
 
     // Compute FFT and frequency bands
-    computeFFT();
+    computeSpectrum();
     aggregateFrequencyBands();
 }
 
-void SpectrumAnalyzer::computeFFT() {
-    // Create windowed input for FFT
-    std::vector<std::complex<double>> fftInput(windowSize_);
-    for (int i = 0; i < windowSize_; ++i) {
-        // Apply Hann window and read from circular buffer
-        int readPos = (bufferPosition_ + i) % windowSize_;
-        fftInput[i] = std::complex<double>(buffer_[readPos] * window_[i], 0.0);
-    }
+void SpectrumAnalyzer::setSamples(const float* samples, std::size_t count) {
+    processSamples(samples, count);
+}
 
-    // Perform FFT using naive DFT (O(N²), acceptable for N=1024)
-    // For better performance, could implement Cooley-Tukey, but this is simpler and reliable
-    std::vector<std::complex<double>> fftOutput(windowSize_);
-    for (int k = 0; k < windowSize_; ++k) {
-        std::complex<double> sum(0.0, 0.0);
-        for (int n = 0; n < windowSize_; ++n) {
-            double angle = -2.0 * PI * k * n / windowSize_;
-            std::complex<double> twiddle(std::cos(angle), std::sin(angle));
-            sum += fftInput[n] * twiddle;
+void SpectrumAnalyzer::computeSpectrum() {
+    if (fftEngine_) {
+        // Fast path: Use FFT (Cooley-Tukey, O(N log N))
+        auto fftSpectrum = fftEngine_->computePowerSpectrum(
+            buffer_.data(), 
+            buffer_.size()
+        );
+        
+        // Thread-safe update to fullSpectrum_
+        {
+            std::lock_guard<std::mutex> lock(spectrumMutex_);
+            fullSpectrum_ = std::move(fftSpectrum);
+            spectrum_ = fullSpectrum_;  // Keep legacy spectrum_ in sync
         }
-        fftOutput[k] = sum;
-    }
+    } else {
+        // Fallback: Use naive DFT (O(N²), for non-power-of-2 sizes)
+        // Create windowed input for FFT
+        std::vector<std::complex<double>> fftInput(windowSize_);
+        for (int i = 0; i < windowSize_; ++i) {
+            // Apply Hann window and read from circular buffer
+            int readPos = (bufferPosition_ + i) % windowSize_;
+            fftInput[i] = std::complex<double>(buffer_[readPos] * window_[i], 0.0);
+        }
 
-    // Compute power spectrum (only positive frequencies, 0 to Nyquist)
-    int numBins = windowSize_ / 2 + 1;
-    float maxMagnitude = 0.0f;
+        // Perform naive DFT
+        std::vector<std::complex<double>> fftOutput(windowSize_);
+        for (int k = 0; k < windowSize_; ++k) {
+            std::complex<double> sum(0.0, 0.0);
+            for (int n = 0; n < windowSize_; ++n) {
+                double angle = -2.0 * PI * k * n / windowSize_;
+                std::complex<double> twiddle(std::cos(angle), std::sin(angle));
+                sum += fftInput[n] * twiddle;
+            }
+            fftOutput[k] = sum;
+        }
 
-    for (int i = 0; i < numBins; ++i) {
-        double real = fftOutput[i].real();
-        double imag = fftOutput[i].imag();
-        double magnitude = std::sqrt(real * real + imag * imag);
-        
-        // Normalize by window sum
-        magnitude /= (windowSize_ / 2.0);
-        
-        spectrum_[i] = static_cast<float>(magnitude);
-        maxMagnitude = std::max(maxMagnitude, spectrum_[i]);
-    }
+        // Compute power spectrum (only positive frequencies, 0 to Nyquist)
+        int numBins = windowSize_ / 2 + 1;
+        float maxMagnitude = 0.0f;
 
-    // Normalize spectrum to 0.0-1.0 range
-    if (maxMagnitude > 0.0f) {
-        for (float& value : spectrum_) {
-            value /= maxMagnitude;
+        spectrum_.resize(numBins);
+        for (int i = 0; i < numBins; ++i) {
+            double real = fftOutput[i].real();
+            double imag = fftOutput[i].imag();
+            double magnitude = std::sqrt(real * real + imag * imag);
+            
+            // Normalize by window sum
+            magnitude /= (windowSize_ / 2.0);
+            
+            spectrum_[i] = static_cast<float>(magnitude);
+            maxMagnitude = std::max(maxMagnitude, spectrum_[i]);
+        }
+
+        // Normalize spectrum to 0.0-1.0 range
+        if (maxMagnitude > 0.0f) {
+            for (float& value : spectrum_) {
+                value /= maxMagnitude;
+            }
+        }
+
+        // Thread-safe update to fullSpectrum_
+        {
+            std::lock_guard<std::mutex> lock(spectrumMutex_);
+            fullSpectrum_ = spectrum_;
         }
     }
 }
@@ -98,7 +136,7 @@ void SpectrumAnalyzer::aggregateFrequencyBands() {
     
     const float nyquist = sampleRate_ / 2.0f;
 
-    for (int band = 0; band < 20; ++band) {
+    for (int band = 0; band < NUM_BANDS; ++band) {
         // Calculate frequency range for this band
         float freqLow = 20.0f * std::pow(1000.0f, (band - 0.5f) / 19.0f);
         float freqHigh = 20.0f * std::pow(1000.0f, (band + 0.5f) / 19.0f);
@@ -121,11 +159,12 @@ void SpectrumAnalyzer::aggregateFrequencyBands() {
     }
 }
 
-std::vector<float> SpectrumAnalyzer::getSpectrum() const {
-    return spectrum_;
+std::vector<float> SpectrumAnalyzer::getFullSpectrum() const {
+    std::lock_guard<std::mutex> lock(spectrumMutex_);
+    return fullSpectrum_;
 }
 
-std::array<float, 20> SpectrumAnalyzer::getFrequencyBands() const {
+std::array<float, SpectrumAnalyzer::NUM_BANDS> SpectrumAnalyzer::getFrequencyBands() const {
     return frequencyBands_;
 }
 
