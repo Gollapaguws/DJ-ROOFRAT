@@ -1,4 +1,5 @@
 #include "library/TrackBrowser.h"
+#include "audio/CamelotAnalyzer.h"
 
 #include <algorithm>
 #include <cmath>
@@ -216,6 +217,79 @@ std::vector<StoredTrack> TrackBrowser::filter(float minBpm,
             results.end());
     }
 
+    return results;
+}
+
+std::vector<StoredTrack> TrackBrowser::getHarmonicMatches(const std::string& camelotKey, 
+                                                           int maxTracks) const {
+    if (!library) {
+        return {};
+    }
+
+    CamelotAnalyzer analyzer;
+
+    // Get all tracks from library
+    auto allTracks = library->getAllTracks();
+    
+    // Container to hold tracks with their compatibility scores
+    std::vector<std::pair<StoredTrack, float>> tracksWithScores;
+
+    for (const auto& track : allTracks) {
+        // Skip tracks without a detected key
+        if (!track.key.has_value() || track.key.value().empty()) {
+            continue;
+        }
+
+        // Convert musical key to Camelot code
+        const std::string& musicalKey = track.key.value();
+        std::string trackCamelot = analyzer.keyToCamelot(musicalKey);
+
+        // Skip if key conversion fails
+        if (trackCamelot.empty()) {
+            continue;
+        }
+
+        // Calculate compatibility score
+        float score = analyzer.getCompatibilityScore(camelotKey, trackCamelot);
+
+        // Only include tracks that meet minimum threshold (0.7)
+        if (score >= 0.7f) {
+            tracksWithScores.push_back({track, score});
+        }
+    }
+
+    // Sort by compatibility score (highest first)
+    std::sort(tracksWithScores.begin(), tracksWithScores.end(),
+              [](const auto& a, const auto& b) { return a.second > b.second; });
+
+    // Extract just the tracks, limiting to maxTracks
+    std::vector<StoredTrack> results;
+    for (size_t i = 0; i < tracksWithScores.size() && static_cast<int>(i) < maxTracks; ++i) {
+        results.push_back(tracksWithScores[i].first);
+    }
+
+    return results;
+}
+
+std::vector<StoredTrack> TrackBrowser::filterByEnergyRange(int minEnergy, int maxEnergy, int maxTracks) const {
+    if (!library) {
+        return {};
+    }
+    
+    std::vector<StoredTrack> results;
+    
+    for (const auto& track : library->getAllTracks()) {
+        if (track.energyRating.has_value()) {
+            int energy = track.energyRating.value();
+            if (energy >= minEnergy && energy <= maxEnergy) {
+                results.push_back(track);
+                if (static_cast<int>(results.size()) >= maxTracks) {
+                    break;
+                }
+            }
+        }
+    }
+    
     return results;
 }
 

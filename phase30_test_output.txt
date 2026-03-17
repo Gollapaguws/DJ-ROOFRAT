@@ -1,0 +1,37 @@
+
+============================================================
+=== Running Spectrum Analyzer Phase 30 Tests ===
+============================================================
+Running test_SpectrumAnalyzer_FFTWindow...
+  ✓ FFT peak at 430.664 Hz (expected ~440 Hz)
+  ✓ test_SpectrumAnalyzer_FFTWindow passed
+Running test_SpectrumAnalyzer_FrequencyBands...
+  ✓ Verified 20 bands with logarithmic spacing
+  ✓ test_SpectrumAnalyzer_FrequencyBands passed
+Running test_SpectrumAnalyzer_RealTimeUpdate...
+  ✓ Processed 30 frames in 2460 ms
+  ✓ Average: 82 ms/frame
+  ✓ test_SpectrumAnalyzer_RealTimeUpdate passed
+Running test_SpectrumAnalyzer_PerDeckMode...
+  ✓ Deck A peaks at 430.664 Hz
+  ✓ Deck B peaks at 861.328 Hz
+  ✓ test_SpectrumAnalyzer_PerDeckMode passed
+Running test_SpectrumRenderer_TerminalBars...
+  ✓ Generated terminal bar chart with 11 lines
+  ✓ test_SpectrumRenderer_TerminalBars passed
+Running test_SpectrumRenderer_PeakHold...
+  ✓ Peak hold updated without crash
+  ✓ test_SpectrumRenderer_PeakHold passed
+Running test_SpectrumAnalyzer_SilenceHandling...
+  ✓ Silence handled correctly (max band: 0)
+  ✓ test_SpectrumAnalyzer_SilenceHandling passed
+Running test_SpectrumAnalyzer_Normalization...
+  ✓ Amplitude 0.1: max band = 1
+  ✓ Amplitude 0.5: max band = 1
+  ✓ Amplitude 1: max band = 1
+  ✓ All amplitudes normalized to 0.0-1.0 range
+  ✓ test_SpectrumAnalyzer_Normalization passed
+
+============================================================
+=== ALL 8 PHASE 30 TESTS PASSED ===
+============================================================

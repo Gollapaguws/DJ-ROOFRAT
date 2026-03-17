@@ -107,6 +107,9 @@ enum class InputCommand {
     LoadPresetEQ_B_10,
     LoadPresetEQ_B_11,
     LoadPresetEQ_B_12,
+    
+    // Phase 30: Spectrum Analyzer toggle
+    ToggleSpectrum,
 };
 
 class InputMapper {

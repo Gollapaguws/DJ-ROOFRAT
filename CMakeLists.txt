@@ -119,8 +119,15 @@ add_executable(${DJ_ROOFRAT_TARGET}
     audio/AutoFilter.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/OnsetDetector.cpp
+    audio/BeatGrid.cpp
+    audio/EnergyAnalyzer.cpp
     crowdAI/CrowdStateMachine.cpp
     visuals/WaveformRenderer.cpp
+    visuals/SpectrumRenderer.cpp
+    visuals/BeatGridRenderer.cpp
+    visuals/EnergyHistogram.cpp
     visuals/GraphicsContext.cpp
     visuals/LightingRig.cpp
     visuals/LaserController.cpp
@@ -1096,3 +1103,119 @@ else()
 endif()
 
 set_target_properties(enhanced_recording_phase29_test PROPERTIES OUTPUT_NAME "EnhancedRecording_Phase29_test")
+
+# Spectrum Analyzer Phase 30 test (Real-time FFT & Frequency Analysis)
+add_executable(spectrum_analyzer_phase30_test
+    audio/SpectrumAnalyzer_Phase30_test.cpp
+    audio/SpectrumAnalyzer.cpp
+    visuals/SpectrumRenderer.cpp
+)
+
+target_include_directories(spectrum_analyzer_phase30_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(spectrum_analyzer_phase30_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(spectrum_analyzer_phase30_test PRIVATE d3d11 dxgi d3dcompiler)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(spectrum_analyzer_phase30_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(spectrum_analyzer_phase30_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(spectrum_analyzer_phase30_test PROPERTIES OUTPUT_NAME "SpectrumAnalyzer_Phase30_test")
+
+# Camelot Analyzer Phase 31 test (Harmonic Mixing - Camelot Wheel)
+add_executable(camelot_analyzer_phase31_test
+    audio/CamelotAnalyzer_Phase31_test.cpp
+    audio/CamelotAnalyzer.cpp
+    visuals/CamelotWheel.cpp
+    library/TrackBrowser.cpp
+    library/TrackLibrary.cpp
+    library/LibraryScanner.cpp
+)
+
+target_include_directories(camelot_analyzer_phase31_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Link SQLite3 if available (TrackLibrary dependency)
+if(SQLite3_FOUND)
+    target_compile_definitions(camelot_analyzer_phase31_test PRIVATE DJ_SIM_USE_SQLITE3=1)
+    if(SQLITE3_TARGET)
+        target_link_libraries(camelot_analyzer_phase31_test PRIVATE ${SQLITE3_TARGET})
+    endif()
+    if(SQLITE3_INCLUDE_DIR)
+        target_include_directories(camelot_analyzer_phase31_test PRIVATE ${SQLITE3_INCLUDE_DIR})
+    elseif(SQLite3_INCLUDE_DIRS)
+        target_include_directories(camelot_analyzer_phase31_test PRIVATE ${SQLite3_INCLUDE_DIRS})
+    endif()
+endif()
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(camelot_analyzer_phase31_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(camelot_analyzer_phase31_test PRIVATE d3d11 dxgi d3dcompiler)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(camelot_analyzer_phase31_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(camelot_analyzer_phase31_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(camelot_analyzer_phase31_test PROPERTIES OUTPUT_NAME "CamelotAnalyzer_Phase31_test")
+
+# BeatGrid Phase 32 test (Phrase Detection & Beat Grid Editor)
+add_executable(beat_grid_phase32_test
+    audio/BeatGrid_Phase32_test.cpp
+    audio/OnsetDetector.cpp
+    audio/BeatGrid.cpp
+    visuals/BeatGridRenderer.cpp
+)
+
+target_include_directories(beat_grid_phase32_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(beat_grid_phase32_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(beat_grid_phase32_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(beat_grid_phase32_test PROPERTIES OUTPUT_NAME "BeatGrid_Phase32_test")
+
+# Energy Analyzer Phase 33 test (Track Energy Rating System)
+add_executable(energy_analyzer_phase33_test
+    audio/EnergyAnalyzer_Phase33_test.cpp
+    audio/EnergyAnalyzer.cpp
+    audio/CamelotAnalyzer.cpp
+    visuals/EnergyHistogram.cpp
+    library/TrackBrowser.cpp
+    library/TrackLibrary.cpp
+    library/LibraryScanner.cpp
+)
+
+target_include_directories(energy_analyzer_phase33_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Link SQLite3 if available (TrackLibrary dependency)
+if(SQLite3_FOUND)
+    target_compile_definitions(energy_analyzer_phase33_test PRIVATE DJ_SIM_USE_SQLITE3=1)
+    if(SQLITE3_TARGET)
+        target_link_libraries(energy_analyzer_phase33_test PRIVATE ${SQLITE3_TARGET})
+    endif()
+    if(SQLITE3_INCLUDE_DIR)
+        target_include_directories(energy_analyzer_phase33_test PRIVATE ${SQLITE3_INCLUDE_DIR})
+    elseif(SQLite3_INCLUDE_DIRS)
+        target_include_directories(energy_analyzer_phase33_test PRIVATE ${SQLite3_INCLUDE_DIRS})
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(energy_analyzer_phase33_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(energy_analyzer_phase33_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(energy_analyzer_phase33_test PROPERTIES OUTPUT_NAME "EnergyAnalyzer_Phase33_test")

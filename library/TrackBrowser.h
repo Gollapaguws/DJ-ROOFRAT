@@ -48,6 +48,15 @@ public:
                                      const std::string& artist = "",
                                      const std::string& genre = "") const;
 
+    // Get harmonically compatible tracks using Camelot Wheel system
+    // Returns tracks with compatible musical keys sorted by compatibility score (highest first)
+    // Minimum compatibility threshold: 0.7
+    std::vector<StoredTrack> getHarmonicMatches(const std::string& camelotKey, int maxTracks = 20) const;
+
+    // Filter tracks by energy range (1-10 scale)
+    // Returns tracks with energy ratings within minEnergy to maxEnergy (inclusive)
+    std::vector<StoredTrack> filterByEnergyRange(int minEnergy, int maxEnergy, int maxTracks = 999) const;
+
 private:
     std::shared_ptr<TrackLibrary> library;
 

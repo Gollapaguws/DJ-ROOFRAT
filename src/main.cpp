@@ -52,9 +52,11 @@
 #include "visuals/WaveformRenderer.h"
 #include "visuals/GraphicsContext.h"
 #include "visuals/LightingRig.h"
+#include "visuals/CamelotWheel.h"
 #include "library/TrackLibrary.h"
 #include "library/LibraryScanner.h"
 #include "library/TrackBrowser.h"
+#include "audio/CamelotAnalyzer.h"
 
 namespace {
 
@@ -1371,6 +1373,21 @@ int main(int argc, char** argv) {
                       << " | Cue A/B: " << cueA << "/" << cueB << "\n";
             std::cout << "Tone A L/M/H/F: " << eqALow << "/" << eqAMid << "/" << eqAHigh << "/" << filterA
                       << " | Tone B L/M/H/F: " << eqBLow << "/" << eqBMid << "/" << eqBHigh << "/" << filterB << "\n";
+            
+            // Phase 31: Display Camelot notation if track keys are detected
+            dj::CamelotAnalyzer camelotAnalyzer;
+            std::string camelotA = "?";
+            std::string camelotB = "?";
+            float compatibilityScore = 0.0f;
+            
+            // Note: In a full implementation, we would get the detected key from the loaded tracks
+            // For now, we display placeholder values. In production, integrate with KeyDetector output.
+            // Example: if (auto keyA = track metadata) camelotA = camelotAnalyzer.keyToCamelot(keyA);
+            
+            std::cout << "Harmonic: A " << camelotA << " | B " << camelotB 
+                      << " | Compatibility: " << std::fixed << std::setprecision(1) 
+                      << (compatibilityScore * 100.0f) << "%\n";
+            
             std::cout << "Crowd: " << moodLabel(crowdOut.mood)
                       << " | " << crowdOut.reaction
                       << " | Energy " << meterBar(crowdOut.energyMeter)

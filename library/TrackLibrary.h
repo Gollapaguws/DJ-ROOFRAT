@@ -18,6 +18,11 @@ struct StoredTrack {
     std::optional<std::string> key;
     float durationSeconds;
     std::string genre;
+    
+    // Phase 33: Energy rating
+    std::optional<int> energyRating;
+    std::optional<float> rmsEnergy;      // Optional: store RMS for reference
+    std::optional<float> peakAmplitude;  // Optional: store peak amplitude
 };
 
 class TrackLibrary {
