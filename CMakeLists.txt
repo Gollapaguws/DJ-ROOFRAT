@@ -990,3 +990,109 @@ else()
 endif()
 
 set_target_properties(config_system_phase25_test PROPERTIES OUTPUT_NAME "ConfigSystem_Phase25_test")
+
+# SessionAutoSave Phase 26 test (Session Auto-Save & Recovery)
+add_executable(session_autosave_phase26_test
+    core/SessionAutoSave_Phase26_test.cpp
+    core/SessionState.cpp
+    core/ConfigManager.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/Mixer.cpp
+    audio/BPMDetector.cpp
+    audio/TrackLoader.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/Flanger.cpp
+    audio/Phaser.cpp
+    audio/Bitcrusher.cpp
+    audio/RingModulator.cpp
+    audio/AutoFilter.cpp
+    gameplay/GameModes.cpp
+    gameplay/ProgressTracker.cpp
+    gameplay/Venue.cpp
+)
+
+target_include_directories(session_autosave_phase26_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(session_autosave_phase26_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(session_autosave_phase26_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(session_autosave_phase26_test PROPERTIES OUTPUT_NAME "SessionAutoSave_Phase26_test")
+
+# PresetHotkeys Phase 27 test (F1-F12 Preset Hotkey System)
+add_executable(preset_hotkeys_phase27_test
+    input/PresetHotkeys_Phase27_test.cpp
+    input/InputMapper.cpp
+    core/PresetManager.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/BPMDetector.cpp
+    audio/TrackLoader.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/Flanger.cpp
+    audio/Phaser.cpp
+    audio/Bitcrusher.cpp
+    audio/RingModulator.cpp
+    audio/AutoFilter.cpp
+)
+
+target_include_directories(preset_hotkeys_phase27_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(preset_hotkeys_phase27_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(preset_hotkeys_phase27_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(preset_hotkeys_phase27_test PROPERTIES OUTPUT_NAME "PresetHotkeys_Phase27_test")
+
+# Enhanced Recording Phase 29 test (Multi-track Recording with Cue Markers)
+add_executable(enhanced_recording_phase29_test
+    audio/EnhancedRecording_Phase29_test.cpp
+    audio/Recorder.cpp
+    audio/WAVExporter.cpp
+    audio/SessionMetadata.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/BPMDetector.cpp
+    audio/TrackLoader.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/Mixer.cpp
+)
+
+target_include_directories(enhanced_recording_phase29_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(enhanced_recording_phase29_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(enhanced_recording_phase29_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(enhanced_recording_phase29_test PROPERTIES OUTPUT_NAME "EnhancedRecording_Phase29_test")

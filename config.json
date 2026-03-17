@@ -1,0 +1,12 @@
+{
+  "sampleRate": 44100,
+  "bufferSize": 2048,
+  "masterVolume": 0.8,
+  "enableGraphics": true,
+  "graphicsWidth": 1920,
+  "graphicsHeight": 1080,
+  "fullscreen": false,
+  "defaultCrossfader": 0,
+  "autoGainEnabled": true,
+  "autosaveIntervalSeconds": 120
+}

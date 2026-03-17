@@ -18,6 +18,13 @@ struct TransitionMarker {
     std::string type;  // "crossfade_smooth", "crossfade_tight", etc.
 };
 
+struct CueMarker {
+    double timestamp;  // seconds from start
+    char deck;         // 'A' or 'B'
+    int bank;          // 0, 1, or 2 (banks A, B, C)
+    std::size_t frame; // frame position in audio
+};
+
 class SessionMetadata {
 public:
     SessionMetadata();
@@ -35,6 +42,9 @@ public:
     
     // Add transition marker
     void addTransition(float timestamp, const std::string& type);
+    
+    // Add cue marker (Phase 29)
+    void addCueMarker(double timestamp, char deck, int bank, std::size_t frame);
     
     // Get metadata as JSON string
     std::string toJSON() const;
@@ -54,6 +64,7 @@ private:
     
     std::vector<TrackEntry> tracks_;
     std::vector<TransitionMarker> transitions_;
+    std::vector<CueMarker> cueMarkers_;  // Phase 29: Cue point tracking
 };
 
 } // namespace dj

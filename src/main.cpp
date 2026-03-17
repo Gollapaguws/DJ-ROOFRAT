@@ -10,9 +10,11 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <filesystem>
 
 #if defined(_WIN32)
 #include <conio.h>
+#include <Windows.h>  // For GetKeyState(VK_SHIFT)
 #endif
 
 #include "audio/AudioClip.h"
@@ -21,9 +23,11 @@
 #include "audio/Mixer.h"
 #include "audio/PortAudioPlayer.h"
 #include "audio/Recorder.h"
+#include "audio/SessionMetadata.h"
 #include "audio/WAVExporter.h"
 #include "core/ConfigManager.h"
 #include "core/SessionState.h"
+#include "core/PresetManager.h"
 #include "crowdAI/CrowdStateMachine.h"
 #include "gameplay/GameModes.h"
 #include "gameplay/TutorialSystem.h"
@@ -53,6 +57,151 @@
 #include "library/TrackBrowser.h"
 
 namespace {
+
+// Phase 29: Get current timestamp for recording filenames
+std::string getCurrentTimestamp() {
+    auto now = std::chrono::system_clock::now();
+    auto time_t_now = std::chrono::system_clock::to_time_t(now);
+    std::tm tm_now;
+    #if defined(_WIN32)
+        localtime_s(&tm_now, &time_t_now);
+    #else
+        localtime_r(&time_t_now, &tm_now);
+    #endif
+    
+    std::ostringstream oss;
+    oss << std::put_time(&tm_now, "%Y-%m-%d_%H-%M-%S");
+    return oss.str();
+}
+
+// Phase 29: Export recording to WAV file
+bool exportRecording(const dj::Recorder& recorder, const std::string& filename, int sampleRate) {
+    if (recorder.getDuration() <= 0.0f) {
+        return false;
+    }
+    
+    const auto& data = recorder.getRecordedData();
+    if (data.empty()) {
+        return false;
+    }
+    
+    dj::WAVExporter exporter(sampleRate, 2, 16);
+    return exporter.exportToFile(filename, data.data(), data.size() / 2);
+}
+
+// Phase 26: Helper to capture current session state
+dj::SessionState captureCurrentState(
+    const dj::Deck& deckA, 
+    const dj::Deck& deckB, 
+    float crossfaderPosition,
+    const dj::CareerProgression& career,
+    float crowdEnergy,
+    const std::string& pathA,
+    const std::string& pathB,
+    float tempoA,
+    float tempoB,
+    float eqALow, float eqAMid, float eqAHigh,
+    float eqBLow, float eqBMid, float eqBHigh)
+{
+    dj::SessionState state;
+    
+    // Capture deck A
+    state.deckA.trackPath = pathA;
+    state.deckA.playbackPosition = static_cast<double>(deckA.currentFrame()) / 44100.0;
+    state.deckA.tempoBend = tempoA / 100.0f;  // Convert percent to ratio
+    state.deckA.isPlaying = deckA.isPlaying();
+    state.deckA.lowGain = eqALow;
+    state.deckA.midGain = eqAMid;
+    state.deckA.highGain = eqAHigh;
+    
+    // Capture deck B
+    state.deckB.trackPath = pathB;
+    state.deckB.playbackPosition = static_cast<double>(deckB.currentFrame()) / 44100.0;
+    state.deckB.tempoBend = tempoB / 100.0f;
+    state.deckB.isPlaying = deckB.isPlaying();
+    state.deckB.lowGain = eqBLow;
+    state.deckB.midGain = eqBMid;
+    state.deckB.highGain = eqBHigh;
+    
+    // Capture session state
+    state.crossfader = crossfaderPosition;
+    state.currentCareerTier = career.tier();
+    state.crowdEnergy = crowdEnergy;
+    state.venueId = career.currentVenueName();
+    
+    return state;
+}
+
+// Phase 26: Helper to apply session state to live objects
+void applySessionState(
+    const dj::SessionState& state,
+    dj::Deck& deckA,
+    dj::Deck& deckB,
+    dj::Mixer& mixer,
+    float& tempoA,
+    float& tempoB,
+    float& eqALow, float& eqAMid, float& eqAHigh,
+    float& eqBLow, float& eqBMid, float& eqBHigh,
+    float& crossfaderPosition)
+{
+    // Apply deck A state
+    tempoA = state.deckA.tempoBend * 100.0f;  // Convert ratio to percent
+    deckA.setTempoPercent(tempoA);
+    eqALow = state.deckA.lowGain;
+    eqAMid = state.deckA.midGain;
+    eqAHigh = state.deckA.highGain;
+    deckA.setEQ(eqALow, eqAMid, eqAHigh);
+    
+    if (state.deckA.isPlaying) {
+        deckA.play();
+    } else {
+        deckA.pause();
+    }
+    
+    // Apply deck B state
+    tempoB = state.deckB.tempoBend * 100.0f;
+    deckB.setTempoPercent(tempoB);
+    eqBLow = state.deckB.lowGain;
+    eqBMid = state.deckB.midGain;
+    eqBHigh = state.deckB.highGain;
+    deckB.setEQ(eqBLow, eqBMid, eqBHigh);
+    
+    if (state.deckB.isPlaying) {
+        deckB.play();
+    } else {
+        deckB.pause();
+    }
+    
+    // Apply mixer state
+    crossfaderPosition = state.crossfader;
+    mixer.setCrossfader(crossfaderPosition);
+}
+
+// Phase 27: Helper to generate preset slot name
+std::string getPresetSlotName(char deck, int slot) {
+    return std::string(1, deck) + "_Slot" + std::to_string(slot);
+}
+
+// Phase 27: Helper to apply EQ preset from PresetManager
+void applyEQPreset(
+    dj::PresetManager& manager,
+    const std::string& slotName,
+    dj::Deck& deck,
+    float& lowVar,
+    float& midVar,
+    float& highVar)
+{
+    auto preset = manager.loadEQPreset(slotName);
+    if (preset.has_value()) {
+        lowVar = preset->lowGain;
+        midVar = preset->midGain;
+        highVar = preset->highGain;
+        deck.setEQ(lowVar, midVar, highVar);
+        std::cout << "Loaded preset: " << preset->name << " (L:" << lowVar << " M:" << midVar << " H:" << highVar << ")\n";
+    } else {
+        std::cout << "Preset " << slotName << " not found (slot empty)\n";
+    }
+}
 
 std::string meterBar(float value, std::size_t width = 24) {
     const float v = std::clamp(value, 0.0f, 1.0f);
@@ -104,19 +253,41 @@ void printLiveControls() {
     std::cout << "               Phase 4 - Cue Jump: Shift+1/2/3 jump cueA1/A2/A3, Shift+4/5/6 jump cueB1/B2/B3\n";
     std::cout << "               Phase 4 - Tempo Ramp: Shift+R to toggle tempo ramping (both decks)\n";
     std::cout << "               Phase 14 - Recording: s toggle record | Shift+s save recording to WAV\n";
+    std::cout << "               Phase 27 - Presets: F1-F12 load Deck A presets | Shift+F1-F12 load Deck B presets\n";
 }
 
 std::vector<dj::InputCommand> pollKeyboardCommands() {
     std::vector<dj::InputCommand> commands;
 #if defined(_WIN32)
     while (_kbhit() != 0) {
-        const int raw = _getch();
-        if (raw == 0 || raw == 224) {
-            (void)_getch();
+        const int first = _getch();
+        if (first == 0 || first == 224) {
+            const int scanCode = _getch();  // Get the scan code
+            
+            // F1-F12 scan codes: 0x3B to 0x46
+            if (scanCode >= 0x3B && scanCode <= 0x46) {
+                int fKeyNumber = (scanCode - 0x3B) + 1;  // F1=1, F2=2, etc.
+                
+                // Check Shift state
+                bool shiftPressed = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+                
+                if (shiftPressed) {
+                    // Shift+F1-F12: Deck B presets
+                    dj::InputCommand cmd = static_cast<dj::InputCommand>(
+                        static_cast<int>(dj::InputCommand::LoadPresetEQ_B_1) + (fKeyNumber - 1));
+                    commands.push_back(cmd);
+                } else {
+                    // F1-F12: Deck A presets
+                    dj::InputCommand cmd = static_cast<dj::InputCommand>(
+                        static_cast<int>(dj::InputCommand::LoadPresetEQ_A_1) + (fKeyNumber - 1));
+                    commands.push_back(cmd);
+                }
+            }
+            // Other extended keys are ignored
             continue;
         }
 
-        const auto command = dj::InputMapper::parseKey(static_cast<char>(raw));
+        const auto command = dj::InputMapper::parseKey(static_cast<char>(first));
         if (command != dj::InputCommand::None) {
             commands.push_back(command);
         }
@@ -436,6 +607,37 @@ int main(int argc, char** argv) {
         std::cout << "Using default configuration (config.json not found)\n";
     }
 
+    // Phase 26: Initialize SessionManager with auto-save
+    dj::SessionManager sessionManager;
+    sessionManager.enableAutoSave(true);
+    sessionManager.setAutoSaveInterval(configManager.getConfig().autosaveIntervalSeconds);
+    
+    // Phase 27: Initialize PresetManager and load presets
+    dj::PresetManager presetManager;
+    if (presetManager.loadFromFile("presets.json")) {
+        std::cout << "Presets loaded from presets.json\n";
+    } else {
+        std::cout << "No presets file found (presets.json), starting with empty preset library\n";
+    }
+    
+    // Phase 26: Check for autosave recovery (will be applied after decks are initialized)
+    std::optional<dj::SessionState> recoveredSession;
+    if (std::filesystem::exists("autosave.json")) {
+        std::cout << "\n=== AUTOSAVE RECOVERY ===\n";
+        std::cout << "Previous session found (autosave.json)\n";
+        auto recovered = sessionManager.loadSession("autosave.json");
+        if (recovered.has_value()) {
+            std::cout << "  Deck A: " << (recovered->deckA.trackPath.empty() ? "(no track)" : recovered->deckA.trackPath) << "\n";
+            std::cout << "  Deck B: " << (recovered->deckB.trackPath.empty() ? "(no track)" : recovered->deckB.trackPath) << "\n";
+            std::cout << "  Career Tier: " << recovered->currentCareerTier << "\n";
+            std::cout << "Session will be restored after initialization.\n";
+            recoveredSession = recovered;
+        } else {
+            std::cout << "Failed to load autosave (corrupted?), starting fresh\n";
+        }
+        std::cout << "=========================\n\n";
+    }
+
     // Arc V & VI Integration: Mode dispatcher
     if (tutorialMode) {
         return runTutorialMode();
@@ -520,9 +722,16 @@ int main(int argc, char** argv) {
     dj::Mixer mixer;
     mixer.setMasterGain(configManager.getMasterVolume());
 
-    // Phase 14: Initialize Recorder for session recording (stereo, 44.1kHz, 10 minute capacity)
-    dj::Recorder recorder(outputRate, 2, 600);  // 10 minutes of recording capacity
+    // Phase 29: Initialize three Recorders for multi-track recording (mix, deck A, deck B)
+    dj::Recorder recorderMix(outputRate, 2, 600);  // 10 minutes capacity
+    dj::Recorder recorderDeckA(outputRate, 2, 600);
+    dj::Recorder recorderDeckB(outputRate, 2, 600);
     bool recordingActive = false;
+    
+    // Phase 29: Session metadata for cue markers and track info
+    dj::SessionMetadata sessionMetadata;
+    sessionMetadata.setRecordingName("DJ Session");
+    sessionMetadata.setStartTime(std::time(nullptr));
 
     float crossfaderPosition = -1.0f;
     mixer.setCrossfader(crossfaderPosition);
@@ -563,6 +772,20 @@ int main(int argc, char** argv) {
         }
         std::cout << "\n=== CAREER MODE ENABLED ===\n";
         printCareerStatus(career, unlocks, achievements);
+    }
+
+    // Phase 26: Apply recovered session state if available
+    if (recoveredSession.has_value()) {
+        std::cout << "Applying recovered session state...\n";
+        applySessionState(
+            recoveredSession.value(),
+            deckA, deckB, mixer,
+            tempoA, tempoB,
+            eqALow, eqAMid, eqAHigh,
+            eqBLow, eqBMid, eqBHigh,
+            crossfaderPosition
+        );
+        std::cout << "Session state restored.\n";
     }
 
     // Phase 7: Initialize graphics context and lighting rig
@@ -612,6 +835,10 @@ int main(int argc, char** argv) {
 
     constexpr std::size_t framesPerBlock = 512;
     constexpr int totalBlocks = 1200;
+
+    // Phase 26: Auto-save timer initialization
+    auto lastAutoSaveTime = std::chrono::steady_clock::now();
+    const int autoSaveIntervalSeconds = configManager.getConfig().autosaveIntervalSeconds;
 
     for (int block = 0; block < totalBlocks; ++block) {
         const float progress = static_cast<float>(block) / static_cast<float>(totalBlocks - 1);
@@ -921,15 +1148,23 @@ int main(int argc, char** argv) {
                     deckB.setTempoRampRate(0.01f);  // Moderate ramp rate
                 }
                 break;
-            // Phase 14: Recording control
+            // Phase 29: Multi-track recording control
             case dj::InputCommand::RecordToggle:
                 if (!recordingActive) {
-                    recorder.clear();
-                    recorder.start();
+                    recorderMix.clear();
+                    recorderDeckA.clear();
+                    recorderDeckB.clear();
+                    recorderMix.start();
+                    recorderDeckA.start();
+                    recorderDeckB.start();
                     recordingActive = true;
+                    sessionMetadata.setStartTime(std::time(nullptr));
                 } else {
-                    recorder.stop();
+                    recorderMix.stop();
+                    recorderDeckA.stop();
+                    recorderDeckB.stop();
                     recordingActive = false;
+                    sessionMetadata.setDuration(recorderMix.getDuration());
                 }
                 break;
             case dj::InputCommand::SaveRecording:
@@ -953,6 +1188,80 @@ int main(int argc, char** argv) {
                 } else {
                     std::cout << "No recording data to save.\n";
                 }
+                break;
+            // Phase 27: Preset hotkeys - F1-F12 for Deck A
+            case dj::InputCommand::LoadPresetEQ_A_1:
+                applyEQPreset(presetManager, getPresetSlotName('A', 1), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_A_2:
+                applyEQPreset(presetManager, getPresetSlotName('A', 2), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_A_3:
+                applyEQPreset(presetManager, getPresetSlotName('A', 3), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_A_4:
+                applyEQPreset(presetManager, getPresetSlotName('A', 4), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_A_5:
+                applyEQPreset(presetManager, getPresetSlotName('A', 5), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_A_6:
+                applyEQPreset(presetManager, getPresetSlotName('A', 6), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_A_7:
+                applyEQPreset(presetManager, getPresetSlotName('A', 7), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_A_8:
+                applyEQPreset(presetManager, getPresetSlotName('A', 8), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_A_9:
+                applyEQPreset(presetManager, getPresetSlotName('A', 9), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_A_10:
+                applyEQPreset(presetManager, getPresetSlotName('A', 10), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_A_11:
+                applyEQPreset(presetManager, getPresetSlotName('A', 11), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_A_12:
+                applyEQPreset(presetManager, getPresetSlotName('A', 12), deckA, eqALow, eqAMid, eqAHigh);
+                break;
+            // Phase 27: Preset hotkeys - Shift+F1-F12 for Deck B
+            case dj::InputCommand::LoadPresetEQ_B_1:
+                applyEQPreset(presetManager, getPresetSlotName('B', 1), deckB, eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_B_2:
+                applyEQPreset(presetManager, getPresetSlotName('B', 2), deckB, eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_B_3:
+                applyEQPreset(presetManager, getPresetSlotName('B', 3), deckB, eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_B_4:
+                applyEQPreset(presetManager, getPresetSlotName('B', 4), deckB, eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_B_5:
+                applyEQPreset(presetManager, getPresetSlotName('B', 5), deckB, eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_B_6:
+                applyEQPreset(presetManager, getPresetSlotName('B', 6), deckB, eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_B_7:
+                applyEQPreset(presetManager, getPresetSlotName('B', 7), deckB, eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_B_8:
+                applyEQPreset(presetManager, getPresetSlotName('B', 8), deckB, eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_B_9:
+                applyEQPreset(presetManager, getPresetSlotName('B', 9), deckB, eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_B_10:
+                applyEQPreset(presetManager, getPresetSlotName('B', 10), deckB, eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_B_11:
+                applyEQPreset(presetManager, getPresetSlotName('B', 11), deckB, eqBLow, eqBMid, eqBHigh);
+                break;
+            case dj::InputCommand::LoadPresetEQ_B_12:
+                applyEQPreset(presetManager, getPresetSlotName('B', 12), deckB, eqBLow, eqBMid, eqBHigh);
                 break;
             case dj::InputCommand::Quit:
                 quitRequested = true;
@@ -1001,6 +1310,21 @@ int main(int argc, char** argv) {
 
         const int score = scoring.update(crowdOut.energyMeter, metrics.transitionSmoothness);
         career.update(crowdOut.energyMeter);
+        
+        // Phase 26: Check for auto-save trigger
+        auto currentTime = std::chrono::steady_clock::now();
+        auto elapsedSeconds = std::chrono::duration_cast<std::chrono::seconds>(currentTime - lastAutoSaveTime).count();
+        if (elapsedSeconds >= autoSaveIntervalSeconds) {
+            dj::SessionState currentState = captureCurrentState(
+                deckA, deckB, crossfaderPosition, career, 
+                crowdOut.energyMeter, pathA, pathB, tempoA, tempoB,
+                eqALow, eqAMid, eqAHigh, eqBLow, eqBMid, eqBHigh
+            );
+            
+            if (sessionManager.saveSession("autosave.json", currentState)) {
+                lastAutoSaveTime = currentTime;
+            }
+        }
 
         // Arc V: Career mode achievement tracking
         if (careerMode) {

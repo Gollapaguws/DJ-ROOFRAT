@@ -1,0 +1,23 @@
+{
+  "eqPresets": [
+    {
+      "name": "A_Slot1",
+      "lowGain": 1.5,
+      "midGain": 0.8,
+      "highGain": 0.6
+    },
+    {
+      "name": "A_Slot3",
+      "lowGain": 0.8,
+      "midGain": 1.2,
+      "highGain": 1.4
+    },
+    {
+      "name": "B_Slot1",
+      "lowGain": 0.7,
+      "midGain": 1.2,
+      "highGain": 1.3
+    }
+  ],
+  "effectPresets": []
+}

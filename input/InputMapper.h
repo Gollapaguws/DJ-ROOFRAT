@@ -80,6 +80,33 @@ enum class InputCommand {
     Player2PlayPauseB,
     Player2PlayB,
     Player2PauseB,
+    
+    // Phase 27: Preset Hotkey System (F1-F12 for Deck A, Shift+F1-F12 for Deck B)
+    LoadPresetEQ_A_1,
+    LoadPresetEQ_A_2,
+    LoadPresetEQ_A_3,
+    LoadPresetEQ_A_4,
+    LoadPresetEQ_A_5,
+    LoadPresetEQ_A_6,
+    LoadPresetEQ_A_7,
+    LoadPresetEQ_A_8,
+    LoadPresetEQ_A_9,
+    LoadPresetEQ_A_10,
+    LoadPresetEQ_A_11,
+    LoadPresetEQ_A_12,
+    
+    LoadPresetEQ_B_1,
+    LoadPresetEQ_B_2,
+    LoadPresetEQ_B_3,
+    LoadPresetEQ_B_4,
+    LoadPresetEQ_B_5,
+    LoadPresetEQ_B_6,
+    LoadPresetEQ_B_7,
+    LoadPresetEQ_B_8,
+    LoadPresetEQ_B_9,
+    LoadPresetEQ_B_10,
+    LoadPresetEQ_B_11,
+    LoadPresetEQ_B_12,
 };
 
 class InputMapper {

@@ -1,0 +1,24 @@
+{
+  "deckA": {
+    "trackPath": "test_track_a.wav",
+    "playbackPosition": 45.3,
+    "tempoBend": 0.02,
+    "isPlaying": true,
+    "lowGain": 1.0,
+    "midGain": 0.8,
+    "highGain": 1.2
+  },
+  "deckB": {
+    "trackPath": "test_track_b.wav",
+    "playbackPosition": 12.1,
+    "tempoBend": -0.01,
+    "isPlaying": false,
+    "lowGain": 1.0,
+    "midGain": 1.0,
+    "highGain": 1.0
+  },
+  "crossfader": 0.3,
+  "currentCareerTier": 2,
+  "crowdEnergy": 0.75,
+  "venueId": "warehouse"
+}

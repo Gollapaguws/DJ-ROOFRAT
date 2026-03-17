@@ -42,6 +42,10 @@ void SessionMetadata::addTransition(float timestamp, const std::string& type) {
     transitions_.push_back({timestamp, type});
 }
 
+void SessionMetadata::addCueMarker(double timestamp, char deck, int bank, std::size_t frame) {
+    cueMarkers_.push_back({timestamp, deck, bank, frame});
+}
+
 std::string SessionMetadata::toJSON() const {
     std::ostringstream json;
     
@@ -98,6 +102,21 @@ std::string SessionMetadata::toJSON() const {
         json << "      \"type\": \"" << trans.type << "\"\n";
         json << "    }";
         if (i < transitions_.size() - 1) {
+            json << ",";
+        }
+        json << "\n";
+    }
+    json << "  ],\n";
+    
+    // Cue markers (Phase 29)
+    json << "  \"cue_markers\": [\n";
+    for (std::size_t i = 0; i < cueMarkers_.size(); ++i) {
+        const auto& cue = cueMarkers_[i];
+        json << "    {\n";
+        json << "      \"timestamp\": " << cue.timestamp << ",\n";
+        json << "      \"description\": \"Cue " << cue.deck << (cue.bank + 1) << " set at frame " << cue.frame << "\"\n";
+        json << "    }";
+        if (i < cueMarkers_.size() - 1) {
             json << ",";
         }
         json << "\n";
