@@ -285,8 +285,10 @@ void test_FFT_DCComponent() {
     // Create signal with DC offset (all samples = 0.5)
     std::vector<float> signal(windowSize, 0.5f);
     
-    auto windowed = applyHannWindow(signal);
-    auto dftResult = naiveDFT(windowed);
+    // Use rectangular window here to verify pure-DC behavior.
+    // Hann window introduces adjacent-bin energy for constant signals,
+    // which makes a very large DC/non-DC ratio expectation invalid.
+    auto dftResult = naiveDFT(signal);
     
     double dc_real = dftResult[0].real();
     double dc_imag = dftResult[0].imag();
@@ -328,8 +330,9 @@ void test_FFT_NyquistFrequency() {
         signal[i] = (i % 2 == 0) ? 1.0f : -1.0f;
     }
     
-    auto windowed = applyHannWindow(signal);
-    auto dftResult = naiveDFT(windowed);
+    // Use rectangular window here for pure Nyquist-bin dominance.
+    // Hann window spreads energy into neighboring bins for alternating signals.
+    auto dftResult = naiveDFT(signal);
     
     // Nyquist bin is at index windowSize/2
     int nyquistBin = windowSize / 2;
@@ -368,29 +371,19 @@ void test_FFT_PhaseAccuracy() {
     
     int windowSize = 1024;
     int sampleRate = 44100;
-    double testFreq = 440.0;
+    int targetBin = 10;
+    double testFreq = static_cast<double>(targetBin) * static_cast<double>(sampleRate) /
+                      static_cast<double>(windowSize);
     
-    // Generate sine wave (phase = -90 degrees or -π/2)
+    // Generate an exact-bin sine wave (phase = -90 degrees at positive-frequency bin)
+    // and measure phase directly on the target positive bin.
     auto signal = generateSineWave(testFreq, sampleRate, windowSize);
-    auto windowed = applyHannWindow(signal);
+    auto dftResult = naiveDFT(signal);
     
-    auto dftResult = naiveDFT(windowed);
-    
-    // Find peak bin
-    double maxMag = 0.0;
-    int peakBin = 0;
-    for (int k = 0; k < windowSize; ++k) {
-        double mag = std::abs(dftResult[k]);
-        if (mag > maxMag) {
-            maxMag = mag;
-            peakBin = k;
-        }
-    }
-    
-    double phase_rad = std::atan2(dftResult[peakBin].imag(), dftResult[peakBin].real());
+    double phase_rad = std::atan2(dftResult[targetBin].imag(), dftResult[targetBin].real());
     double phase_deg = phase_rad * 180.0 / PI;
     
-    std::cout << "  Peak bin: " << peakBin << "\n";
+    std::cout << "  Target bin: " << targetBin << "\n";
     std::cout << "  Phase (radians): " << phase_rad << "\n";
     std::cout << "  Phase (degrees): " << phase_deg << "\n";
     
@@ -411,7 +404,7 @@ void test_FFT_PhaseAccuracy() {
     
     std::cout << "  Error from expected (-90°): " << errorFromExpected << "°\n";
     
-    assert(errorFromExpected < 10.0 && "Phase should be within ±5° of expected");
+    assert(errorFromExpected < 10.0 && "Phase should be within ±10° of expected");
     
     std::cout << "Test 7 PASSED\n";
 }
