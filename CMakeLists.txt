@@ -1454,3 +1454,172 @@ else()
 endif()
 
 set_target_properties(beatjump_phase41_test PROPERTIES OUTPUT_NAME "BeatJump_Phase41_test")
+
+# ===== Integration Tests (Phase 1: Polish & Optimization) =====
+
+# Integration Smoke Tests
+add_executable(smoke_test_main
+    tests/integration/SmokeTest_main.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/Mixer.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    input/InputMapper.cpp
+    crowdAI/CrowdStateMachine.cpp
+)
+
+target_include_directories(smoke_test_main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(smoke_test_main PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(smoke_test_main PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(smoke_test_main PROPERTIES OUTPUT_NAME "SmokeTest_main")
+
+# Integration E2E: Load, Mix, Record Test
+add_executable(e2e_load_mix_record_test
+    tests/integration/E2E_LoadMixRecord_test.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/Mixer.cpp
+    audio/Recorder.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+)
+
+target_include_directories(e2e_load_mix_record_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(e2e_load_mix_record_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(e2e_load_mix_record_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(e2e_load_mix_record_test PROPERTIES OUTPUT_NAME "E2E_LoadMixRecord_test")
+
+# Integration E2E: Session Round Trip Test
+add_executable(e2e_session_roundtrip_test
+    tests/integration/E2E_SessionRoundTrip_test.cpp
+    audio/SessionMetadata.cpp
+)
+
+target_include_directories(e2e_session_roundtrip_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(e2e_session_roundtrip_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(e2e_session_roundtrip_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(e2e_session_roundtrip_test PROPERTIES OUTPUT_NAME "E2E_SessionRoundTrip_test")
+
+# Integration E2E: Auto-Sync Test
+add_executable(e2e_autosync_test
+    tests/integration/E2E_AutoSync_test.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/BeatGrid.cpp
+    visuals/SyncIndicator.cpp
+)
+
+target_include_directories(e2e_autosync_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(e2e_autosync_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(e2e_autosync_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(e2e_autosync_test PROPERTIES OUTPUT_NAME "E2E_AutoSync_test")
+
+# Integration E2E: Battle Mode Test
+add_executable(e2e_battlemode_test
+    tests/integration/E2E_BattleMode_test.cpp
+    multiplayer/BattleMode.cpp
+    multiplayer/BattleRules.cpp
+    multiplayer/Judge.cpp
+)
+
+target_include_directories(e2e_battlemode_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(e2e_battlemode_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(e2e_battlemode_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(e2e_battlemode_test PROPERTIES OUTPUT_NAME "E2E_BattleMode_test")
+
+# Integration E2E: MIDI Effects Test
+add_executable(e2e_midi_effects_test
+    tests/integration/E2E_MIDIEffects_test.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    input/MIDIDevice.cpp
+    input/MIDIMessage.cpp
+    input/MIDIController.cpp
+)
+
+target_include_directories(e2e_midi_effects_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Link Windows Multimedia API for MIDI
+if(WIN32)
+    target_link_libraries(e2e_midi_effects_test PRIVATE winmm)
+endif()
+
+if(MSVC)
+    target_compile_options(e2e_midi_effects_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(e2e_midi_effects_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(e2e_midi_effects_test PROPERTIES OUTPUT_NAME "E2E_MIDIEffects_test")

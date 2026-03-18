@@ -7,13 +7,13 @@
 
 #include "audio/AudioClip.h"
 #include "audio/ThreeBandEQ.h"
+#include "audio/SyncController.h"
 
 namespace dj {
 
 class EffectChain;
 class VinylSimulator;
 class ScratchDetector;
-class SyncController;
 
 class Deck {
 public:
