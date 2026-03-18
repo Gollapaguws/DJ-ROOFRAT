@@ -132,6 +132,22 @@ enum class InputCommand {
     BeatJumpForwardB,        // ''' key (+4 beats on Deck B)
     BeatJumpBackwardB,       // ';' key (-4 beats on Deck B)
     
+    // Phase 41: Beat Jump, Warp Grid & Polish
+    BeatJump1ForwardA,       // '1' key (+1 beat on Deck A)
+    BeatJump1BackwardA,      // '!' key (-1 beat on Deck A)
+    BeatJump8ForwardA,       // '8' key (+8 beats on Deck A)
+    BeatJump8BackwardA,      // '*' key (-8 beats on Deck A)
+    BeatJump1ForwardB,       // '1' key (+1 beat on Deck B) - combined with Player2 parsing
+    BeatJump1BackwardB,      // '!' key (-1 beat on Deck B)
+    BeatJump8ForwardB,       // '8' key (+8 beats on Deck B)
+    BeatJump8BackwardB,      // '*' key (-8 beats on Deck B)
+    WarpUpA,                 // '+' or '=' key (warp +0.01% on Deck A)
+    WarpDownA,               // '-' or '_' key (warp -0.01% on Deck A)
+    WarpUpB,                 // '+' or '=' key (warp +0.01% on Deck B)
+    WarpDownB,               // '-' or '_' key (warp -0.01% on Deck B)
+    SyncUndoA,               // Ctrl+Z (undo sync on Deck A)
+    SyncUndoB,               // Ctrl+Z (undo sync on Deck B)
+    
     // Phase 40: Transition Coaching & Phrasing
     ToggleCoaching,          // 'C' key (toggle coaching overlay)
 };

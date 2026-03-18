@@ -126,6 +126,7 @@ add_executable(${DJ_ROOFRAT_TARGET}
     audio/BeatGridEditor.cpp
     audio/PhaseAligner.cpp
     audio/SyncController.cpp
+    audio/SyncUndoStack.cpp
     audio/EnergyAnalyzer.cpp
     audio/CamelotAnalyzer.cpp
     crowdAI/CrowdStateMachine.cpp
@@ -155,7 +156,10 @@ add_executable(${DJ_ROOFRAT_TARGET}
     gameplay/missions/TransitionMission.cpp
     gameplay/EnergyCurve.cpp
     gameplay/MixQualityAnalyzer.cpp
+    gameplay/TransitionCoach.cpp
     visuals/EnergyCurveRenderer.cpp
+    visuals/CoachingHUD.cpp
+    visuals/SyncIndicator.cpp
     multiplayer/BattleMode.cpp
     multiplayer/BattleRules.cpp
     multiplayer/Judge.cpp
@@ -1410,3 +1414,43 @@ else()
 endif()
 
 set_target_properties(transitioncoach_phase40_test PROPERTIES OUTPUT_NAME "TransitionCoach_Phase40_test")
+
+# Beat Jump, Warp Grid & Polish Phase 41 test (Final Arc X Phase)
+add_executable(beatjump_phase41_test
+    audio/BeatJump_Phase41_test.cpp
+    audio/SyncUndoStack.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/CamelotAnalyzer.cpp
+    audio/EnergyAnalyzer.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/Flanger.cpp
+    audio/Phaser.cpp
+    audio/Bitcrusher.cpp
+    audio/RingModulator.cpp
+    audio/AutoFilter.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/BeatGrid.cpp
+    audio/SyncController.cpp
+    audio/PhaseAligner.cpp
+    visuals/SyncIndicator.cpp
+)
+
+target_include_directories(beatjump_phase41_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(beatjump_phase41_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(beatjump_phase41_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(beatjump_phase41_test PROPERTIES OUTPUT_NAME "BeatJump_Phase41_test")

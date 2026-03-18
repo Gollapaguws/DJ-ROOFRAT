@@ -78,6 +78,11 @@ public:
     bool isSyncEnabled() const;
     void beatJump(int beats);
 
+    // Phase 41: BPM warp (micro-tune)
+    void setWarp(float warpPercent);
+    float getWarp() const;
+    void clearWarp();
+
     std::array<float, 2> nextFrame();
     float recentEnergy() const;
     std::size_t currentFrame() const;
@@ -153,6 +158,9 @@ private:
     std::shared_ptr<SyncController> syncController_;
     Deck* autoSyncTarget_ = nullptr;
     bool syncEnabled_ = false;
+
+    // Phase 41: BPM warp (micro-adjustment)
+    float warpAmount_ = 0.0f;  // Temporary BPM micro-adjustment (±0.05% max)
 };
 
 } // namespace dj

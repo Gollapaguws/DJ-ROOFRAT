@@ -249,6 +249,14 @@ InputCommand InputMapper::parseKey(char rawKey) {
         return InputCommand::NudgeBeatGridLeft;   // Minus: nudge beats -10ms
     case '=':
         return InputCommand::NudgeBeatGridRight;  // Equals: nudge beats +10ms
+    case '<':
+        return InputCommand::BeatJump1ForwardA;   // Phase 41: +1 beat jump on Deck A
+    case '>':
+        return InputCommand::BeatJump8ForwardA;   // Phase 41: +8 beats jump on Deck A
+    case '?':
+        return InputCommand::WarpUpA;             // Phase 41: Warp +0.01% on Deck A
+    case '/':
+        return InputCommand::WarpDownA;           // Phase 41: Warp -0.01% on Deck A
     default:
         return InputCommand::None;
     }

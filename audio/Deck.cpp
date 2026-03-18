@@ -451,6 +451,19 @@ void Deck::beatJump(int beats) {
     }
 }
 
+// Phase 41: BPM warp (micro-tune)
+void Deck::setWarp(float warpPercent) {
+    warpAmount_ = std::clamp(warpPercent, -0.05f, +0.05f);
+}
+
+float Deck::getWarp() const {
+    return warpAmount_;
+}
+
+void Deck::clearWarp() {
+    warpAmount_ = 0.0f;
+}
+
 std::array<float, 2> Deck::nextFrame() {
     if (!playing_ || !hasClip()) {
         return {0.0f, 0.0f};
@@ -494,7 +507,7 @@ std::array<float, 2> Deck::nextFrame() {
     }
 
     const double sourceToOutputRate = static_cast<double>(clip_.sampleRate) / static_cast<double>(outputSampleRate_);
-    double tempoScale = std::max(0.05, 1.0 + static_cast<double>(tempoPercent_) / 100.0);
+    double tempoScale = std::max(0.05, 1.0 + static_cast<double>(tempoPercent_ + warpAmount_) / 100.0);
 
     // Phase 17: Vinyl mode uses platter velocity instead of fixed tempoScale
     if (vinylMode_) {
