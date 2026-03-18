@@ -38,13 +38,13 @@ void test_E2E_MIDIEffects_Pipeline() {
         // Simulate MIDI ControlChange message:
         // - Status: 0xB0 (CC on channel 0)
         // - Controller: 20 (Filter Cutoff)
-        // - Value: 255 (Maximum cutoff, fully open)
-        unsigned char midiCC[] = {0xB0, 20, 255};
+        // - Value: 127 (Maximum 7-bit MIDI CC value, fully open)
+        unsigned char midiCC[] = {0xB0, 20, 127};
         midi::MIDIMessage msg = midi::MIDIMessage::parseRawBytes(midiCC, 3);
         
         assert(msg.getStatus() == midi::MIDIStatus::ControlChange && "Should parse as ControlChange");
         assert(msg.getController() == 20 && "Should parse CC#20");
-        assert(msg.getValue() == 255 && "Should parse value 255");
+        assert(msg.getValue() == 127 && "Should parse maximum 7-bit MIDI CC value");
         
         std::cout << "  ✓ MIDI CC message parsed successfully\n";
         
@@ -74,6 +74,7 @@ void test_E2E_MIDIEffects_Pipeline() {
         assert(msg2.getStatus() == midi::MIDIStatus::ControlChange && "Should parse as ControlChange");
         
         float eqValue = msg2.getValue() / 127.0f;
+        (void)eqValue;
         // Apply EQ with boosted high frequency
         deck.setEQ(0.8f, 1.0f, 1.2f);
         

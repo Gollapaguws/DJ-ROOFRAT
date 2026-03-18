@@ -1121,6 +1121,7 @@ set_target_properties(enhanced_recording_phase29_test PROPERTIES OUTPUT_NAME "En
 add_executable(spectrum_analyzer_phase30_test
     audio/SpectrumAnalyzer_Phase30_test.cpp
     audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     visuals/SpectrumRenderer.cpp
 )
 
@@ -1455,6 +1456,58 @@ endif()
 
 set_target_properties(beatjump_phase41_test PROPERTIES OUTPUT_NAME "BeatJump_Phase41_test")
 
+# ===== Benchmarks (Phase 2: Performance Profiling & Optimization) =====
+
+# Benchmark: SpectrumAnalyzer Performance
+add_executable(benchmark_spectrum_analyzer
+    tests/benchmarks/Benchmark_SpectrumAnalyzer.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
+)
+
+target_include_directories(benchmark_spectrum_analyzer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(benchmark_spectrum_analyzer PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(benchmark_spectrum_analyzer PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(benchmark_spectrum_analyzer PROPERTIES OUTPUT_NAME "Benchmark_SpectrumAnalyzer")
+
+# Benchmark: BPMDetector Performance
+add_executable(benchmark_bpm_detector
+    tests/benchmarks/Benchmark_BPMDetector.cpp
+    audio/BPMDetector.cpp
+    audio/AudioClip.cpp
+)
+
+target_include_directories(benchmark_bpm_detector PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(benchmark_bpm_detector PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(benchmark_bpm_detector PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(benchmark_bpm_detector PROPERTIES OUTPUT_NAME "Benchmark_BPMDetector")
+
+# Benchmark: Main Audio Loop Performance (Mixer & Recorder hot paths)
+add_executable(benchmark_main_loop_audio
+    tests/benchmarks/Benchmark_MainLoopAudioPath.cpp
+    audio/Recorder.cpp
+)
+
+target_include_directories(benchmark_main_loop_audio PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(benchmark_main_loop_audio PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(benchmark_main_loop_audio PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(benchmark_main_loop_audio PROPERTIES OUTPUT_NAME "Benchmark_MainLoopAudioPath")
+
 # ===== Integration Tests (Phase 1: Polish & Optimization) =====
 
 # Integration Smoke Tests
@@ -1525,7 +1578,7 @@ set_target_properties(e2e_load_mix_record_test PROPERTIES OUTPUT_NAME "E2E_LoadM
 # Integration E2E: Session Round Trip Test
 add_executable(e2e_session_roundtrip_test
     tests/integration/E2E_SessionRoundTrip_test.cpp
-    audio/SessionMetadata.cpp
+    core/SessionState.cpp
 )
 
 target_include_directories(e2e_session_roundtrip_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -1604,6 +1657,8 @@ add_executable(e2e_midi_effects_test
     audio/Delay.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
     input/MIDIDevice.cpp
     input/MIDIMessage.cpp
     input/MIDIController.cpp

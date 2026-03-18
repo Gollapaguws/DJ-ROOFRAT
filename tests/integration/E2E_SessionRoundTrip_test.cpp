@@ -48,35 +48,52 @@ void test_E2E_SessionRoundTrip_SaveLoad() {
         session.venueId = "underground_club";
         
         // Step 2: Save session to file
-        bool saved = session.saveToFile(testSessionPath);
+        bool saved = sessionMgr.saveSession(testSessionPath, session);
         assert(saved && "Failed to save session to file");
         assert(fs::exists(testSessionPath) && "Session file was not created");
         
         // Step 3: Load session from file
-        SessionMetadata loadedSession;
-        bool loaded = loadedSession.loadFromFile(testSessionPath);
-        assert(loaded && "Failed to load session from file");
+        auto loadedSessionOpt = sessionMgr.loadSession(testSessionPath);
+        assert(loadedSessionOpt.has_value() && "Failed to load session from file");
+        SessionState loadedSession = loadedSessionOpt.value();
         
         // Step 4: Verify all fields match
-        assert(loadedSession.deckAClip == session.deckAClip && "deckAClip mismatch");
-        assert(loadedSession.deckBClip == session.deckBClip && "deckBClip mismatch");
+        std::cout << "  Verifying deck A fields...\n";
+        assert(loadedSession.deckA.trackPath == session.deckA.trackPath && "deckA.trackPath mismatch");
+        assert(std::abs(loadedSession.deckA.playbackPosition - session.deckA.playbackPosition) < 0.001 && 
+               "deckA.playbackPosition mismatch");
+        assert(std::abs(loadedSession.deckA.tempoBend - session.deckA.tempoBend) < 0.001f && 
+               "deckA.tempoBend mismatch");
+        assert(loadedSession.deckA.isPlaying == session.deckA.isPlaying && "deckA.isPlaying mismatch");
+        assert(std::abs(loadedSession.deckA.lowGain - session.deckA.lowGain) < 0.001f && 
+               "deckA.lowGain mismatch");
+        assert(std::abs(loadedSession.deckA.midGain - session.deckA.midGain) < 0.001f && 
+               "deckA.midGain mismatch");
+        assert(std::abs(loadedSession.deckA.highGain - session.deckA.highGain) < 0.001f && 
+               "deckA.highGain mismatch");
         
-        // Use approximate comparison for floats (within 0.001f)
-        auto floatEqual = [](float a, float b, float tolerance = 0.001f) {
-            return std::abs(a - b) < tolerance;
-        };
+        std::cout << "  Verifying deck B fields...\n";
+        assert(loadedSession.deckB.trackPath == session.deckB.trackPath && "deckB.trackPath mismatch");
+        assert(std::abs(loadedSession.deckB.playbackPosition - session.deckB.playbackPosition) < 0.001 && 
+               "deckB.playbackPosition mismatch");
+        assert(std::abs(loadedSession.deckB.tempoBend - session.deckB.tempoBend) < 0.001f && 
+               "deckB.tempoBend mismatch");
+        assert(loadedSession.deckB.isPlaying == session.deckB.isPlaying && "deckB.isPlaying mismatch");
+        assert(std::abs(loadedSession.deckB.lowGain - session.deckB.lowGain) < 0.001f && 
+               "deckB.lowGain mismatch");
+        assert(std::abs(loadedSession.deckB.midGain - session.deckB.midGain) < 0.001f && 
+               "deckB.midGain mismatch");
+        assert(std::abs(loadedSession.deckB.highGain - session.deckB.highGain) < 0.001f && 
+               "deckB.highGain mismatch");
         
-        assert(floatEqual(loadedSession.bpmA, session.bpmA) && "bpmA mismatch");
-        assert(floatEqual(loadedSession.bpmB, session.bpmB) && "bpmB mismatch");
-        assert(floatEqual(loadedSession.crossfaderPos, session.crossfaderPos) && "crossfaderPos mismatch");
-        assert(floatEqual(loadedSession.eqALow, session.eqALow) && "eqALow mismatch");
-        assert(floatEqual(loadedSession.eqAMid, session.eqAMid) && "eqAMid mismatch");
-        assert(floatEqual(loadedSession.eqAHigh, session.eqAHigh) && "eqAHigh mismatch");
-        assert(floatEqual(loadedSession.eqBLow, session.eqBLow) && "eqBLow mismatch");
-        assert(floatEqual(loadedSession.eqBMid, session.eqBMid) && "eqBMid mismatch");
-        assert(floatEqual(loadedSession.eqBHigh, session.eqBHigh) && "eqBHigh mismatch");
-        assert(floatEqual(loadedSession.masterGain, session.masterGain) && "masterGain mismatch");
-        assert(loadedSession.sessionName == session.sessionName && "sessionName mismatch");
+        std::cout << "  Verifying global session fields...\n";
+        assert(std::abs(loadedSession.crossfader - session.crossfader) < 0.001f && 
+               "crossfader mismatch");
+        assert(loadedSession.currentCareerTier == session.currentCareerTier && 
+               "currentCareerTier mismatch");
+        assert(std::abs(loadedSession.crowdEnergy - session.crowdEnergy) < 0.001f && 
+               "crowdEnergy mismatch");
+        assert(loadedSession.venueId == session.venueId && "venueId mismatch");
         
         // Clean up
         if (fs::exists(testSessionPath)) {
