@@ -14,6 +14,7 @@ Recorder::Recorder(std::size_t sampleRate, std::size_t channels, std::size_t cap
     , hasWrapped_(false)
     , isRecording_(false)
     , isPaused_(false)
+    , exportFilename_()
 {
 }
 
@@ -143,6 +144,24 @@ float Recorder::getDuration() const {
     }
     
     return static_cast<float>(totalSamples) / (static_cast<float>(sampleRate_) * static_cast<float>(channels_));
+}
+
+void Recorder::setExportFilename(const std::string& filename) {
+    std::lock_guard<std::mutex> lock(bufferMutex_);
+    exportFilename_ = filename;
+}
+
+std::string Recorder::getExportFilename() const {
+    std::lock_guard<std::mutex> lock(bufferMutex_);
+    return exportFilename_;
+}
+
+std::string Recorder::getExportFilenameOrDefault(const std::string& fallbackFilename) const {
+    std::lock_guard<std::mutex> lock(bufferMutex_);
+    if (!exportFilename_.empty()) {
+        return exportFilename_;
+    }
+    return fallbackFilename;
 }
 
 } // namespace dj

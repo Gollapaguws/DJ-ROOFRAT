@@ -108,6 +108,12 @@ InputCommand InputMapper::parse(const std::string& rawCommand) {
     if (command == "tempo ramp toggle") {
         return InputCommand::TempoRampToggle;
     }
+    if (command == "record save" || command == "save recording") {
+        return InputCommand::SaveRecording;
+    }
+    if (command == "record name" || command == "record filename" || command == "set recording filename") {
+        return InputCommand::SetRecordingFilename;
+    }
 
     return InputCommand::None;
 }
@@ -155,6 +161,10 @@ InputCommand InputMapper::parseKey(char rawKey) {
             return InputCommand::TempoRampToggle;
         case 's':
             return InputCommand::ToggleSyncDeckA;  // Phase 39: Shift+S toggle sync on Deck A
+        case 'v':
+            return InputCommand::SaveRecording;
+        case 'n':
+            return InputCommand::SetRecordingFilename;
         case '-':
             return InputCommand::AdjustFirstBeatLeft;   // Shift+Minus: adjust first beat -10ms
         case '=':

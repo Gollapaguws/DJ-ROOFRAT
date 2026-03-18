@@ -10,6 +10,7 @@
 #include "audio/PhaseAligner.h"
 #include "audio/SyncController.h"
 #include "audio/BeatGrid.h"
+#include "audio/SpectrumAnalyzer.h"
 
 namespace dj {
 
@@ -61,6 +62,11 @@ bool Deck::loadClip(const AudioClip& clip) {
     }
     scratchDetector_->setSampleRate(clip_.sampleRate);
     scratchDetector_->reset();
+    
+    // Phase 3: Initialize spectrum analyzer
+    if (!spectrumAnalyzer_) {
+        spectrumAnalyzer_ = std::make_unique<SpectrumAnalyzer>(clip_.sampleRate, 1024);
+    }
     
     return true;
 }
@@ -505,6 +511,12 @@ std::array<float, 2> Deck::nextFrame() {
     const float instantEnergy = 0.5f * ((eqOut[0] * eqOut[0]) + (eqOut[1] * eqOut[1]));
     recentEnergy_ = (recentEnergy_ * 0.92f) + (instantEnergy * 0.08f);
 
+    // Phase 3: Feed samples to spectrum analyzer
+    if (spectrumAnalyzer_) {
+        float monoSample = (eqOut[0] + eqOut[1]) * 0.5f;
+        spectrumAnalyzer_->processSamples(&monoSample, 1);
+    }
+
     // Phase 15: Apply effect chain if configured
     if (effectChain_ && effectSendLevel_ > 0.0f) {
         std::array<float, 2> effected = effectChain_->process(eqOut);
@@ -687,6 +699,11 @@ void Deck::setEffectChain(std::shared_ptr<EffectChain> effectChain) {
 
 void Deck::setEffectSendLevel(float sendLevel) {
     effectSendLevel_ = std::clamp(sendLevel, 0.0f, 1.0f);
+}
+
+// Phase 3: Spectrum analyzer access for bass clash detection
+const SpectrumAnalyzer* Deck::getSpectrumAnalyzer() const {
+    return spectrumAnalyzer_.get();
 }
 
 } // namespace dj

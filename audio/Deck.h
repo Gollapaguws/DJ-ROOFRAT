@@ -8,6 +8,7 @@
 #include "audio/AudioClip.h"
 #include "audio/ThreeBandEQ.h"
 #include "audio/SyncController.h"
+#include "audio/SpectrumAnalyzer.h"
 
 namespace dj {
 
@@ -92,6 +93,9 @@ public:
     std::size_t currentFrame() const;
     float getBPM() const;
 
+    // Phase 3: Spectrum analyzer access for bass clash detection
+    const SpectrumAnalyzer* getSpectrumAnalyzer() const;
+
 private:
     void advanceHeads(double step);
     std::array<float, 2> applyFilter(const std::array<float, 2>& input);
@@ -165,6 +169,9 @@ private:
 
     // Phase 41: BPM warp (micro-adjustment)
     float warpAmount_ = 0.0f;  // Temporary BPM micro-adjustment (±0.05% max)
+
+    // Phase 3: Spectrum analyzer for bass clash detection
+    std::unique_ptr<SpectrumAnalyzer> spectrumAnalyzer_;
 };
 
 } // namespace dj

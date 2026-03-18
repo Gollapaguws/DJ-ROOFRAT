@@ -59,27 +59,41 @@ void MixQualityAnalyzer::setBassClashState(bool clashDetected) {
 
 bool MixQualityAnalyzer::detectBassClash(const float* spectrumA, const float* spectrumB, 
                                          size_t numBins) const {
-    // Bass clash detection: Check if both decks have strong bass simultaneously
-    // Bass range: bins 0-20 (roughly 0-440 Hz for 44.1kHz sample rate)
-    // Threshold: Sum of bass bins > 0.7 indicates strong bass presence
-    
-    const size_t bassBinEnd = std::min<size_t>(21, numBins);
-    const float threshold = 0.7f;
-    
-    // Calculate average bass level for each spectrum
-    float bassA = 0.0f;
-    float bassB = 0.0f;
-    
-    for (size_t i = 0; i < bassBinEnd; ++i) {
-        bassA += spectrumA[i];
-        bassB += spectrumB[i];
+    if (spectrumA == nullptr || spectrumB == nullptr || numBins == 0) {
+        return false;
     }
-    
-    bassA /= static_cast<float>(bassBinEnd);
-    bassB /= static_cast<float>(bassBinEnd);
-    
-    // Clash occurs if both spectrums have bass above threshold
-    return (bassA > threshold) && (bassB > threshold);
+
+    // Bass clash detection: Check if both decks have strong low-frequency energy.
+    // Bass range: bins 0-20 (~0-430 Hz with 44.1kHz and 1024 FFT window).
+    const size_t bassBinEnd = std::min<size_t>(21, numBins);
+    if (bassBinEnd == 0) {
+        return false;
+    }
+
+    float bassSumA = 0.0f;
+    float bassSumB = 0.0f;
+    float bassPeakA = 0.0f;
+    float bassPeakB = 0.0f;
+
+    for (size_t i = 0; i < bassBinEnd; ++i) {
+        bassSumA += spectrumA[i];
+        bassSumB += spectrumB[i];
+        bassPeakA = std::max(bassPeakA, spectrumA[i]);
+        bassPeakB = std::max(bassPeakB, spectrumB[i]);
+    }
+
+    const float bassAverageA = bassSumA / static_cast<float>(bassBinEnd);
+    const float bassAverageB = bassSumB / static_cast<float>(bassBinEnd);
+
+    // Use both average and peak thresholds to detect narrow-band bass tones as well
+    // as broader low-end content.
+    constexpr float averageThreshold = 0.08f;
+    constexpr float peakThreshold = 0.30f;
+
+    const bool deckAHasBass = (bassAverageA >= averageThreshold) || (bassPeakA >= peakThreshold);
+    const bool deckBHasBass = (bassAverageB >= averageThreshold) || (bassPeakB >= peakThreshold);
+
+    return deckAHasBass && deckBHasBass;
 }
 
 float MixQualityAnalyzer::applyCamelotBonus(const std::string& keyA, const std::string& keyB,

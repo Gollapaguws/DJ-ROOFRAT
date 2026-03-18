@@ -97,10 +97,51 @@ void test_E2E_LoadMixRecord_FullWorkflow() {
     }
 }
 
+// E2E Test 2: Recording filename customization and auto fallback
+void test_E2E_Recording_CustomFilename() {
+    std::cout << "[TEST 2] E2E_Recording_CustomFilename...\n";
+
+    try {
+        const int sampleRate = 44100;
+        const std::size_t framesPerBlock = 512;
+
+        Recorder recorder(sampleRate, 2, 60);
+
+        // Verify custom filename path is used when set
+        recorder.setExportFilename("phase3_custom_mix.wav");
+        assert(recorder.getExportFilename() == "phase3_custom_mix.wav" &&
+               "Custom export filename not stored correctly");
+        assert(recorder.getExportFilenameOrDefault("auto_fallback.wav") == "phase3_custom_mix.wav" &&
+               "Custom export filename should override fallback");
+
+        // Verify fallback path is used when custom filename is cleared
+        recorder.setExportFilename("");
+        assert(recorder.getExportFilename().empty() && "Custom export filename should be cleared");
+        assert(recorder.getExportFilenameOrDefault("auto_fallback.wav") == "auto_fallback.wav" &&
+               "Fallback filename should be used when no custom filename is set");
+
+        // Ensure recording pipeline remains functional with filename operations
+        recorder.start();
+        std::vector<float> block(framesPerBlock * 2, 0.15f);
+        recorder.submitFrames(block.data(), framesPerBlock);
+        recorder.stop();
+
+        assert(recorder.getDuration() > 0.0f && "Recorder duration should be > 0 after capture");
+
+        std::cout << "  ✓ Custom recording filename path works\n";
+        std::cout << "  ✓ Auto fallback filename path works\n";
+        std::cout << "PASS\n";
+    } catch (const std::exception& e) {
+        std::cout << "  ✗ Exception during custom filename test: " << e.what() << "\n";
+        assert(false && "Custom filename test failed");
+    }
+}
+
 void runAllE2ELoadMixRecordTests() {
     std::cout << "\n=== Running E2E Load/Mix/Record Tests ===\n";
     try {
         test_E2E_LoadMixRecord_FullWorkflow();
+        test_E2E_Recording_CustomFilename();
     } catch (const std::exception& e) {
         std::cerr << "E2E test failed with exception: " << e.what() << "\n";
     }

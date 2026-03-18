@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <vector>
 #include <mutex>
+#include <string>
 
 namespace dj {
 
@@ -35,6 +36,11 @@ public:
     
     // Get duration of recorded audio in seconds
     float getDuration() const;
+
+    // Configure/export filename handling
+    void setExportFilename(const std::string& filename);
+    std::string getExportFilename() const;
+    std::string getExportFilenameOrDefault(const std::string& fallbackFilename) const;
     
 private:
     std::size_t sampleRate_;
@@ -46,6 +52,7 @@ private:
     bool hasWrapped_;
     bool isRecording_;
     bool isPaused_;
+    std::string exportFilename_;
     
     mutable std::mutex bufferMutex_;
 };

@@ -6,6 +6,96 @@
 
 namespace dj {
 
+namespace {
+
+std::string escapeJSONString(const std::string& input) {
+    std::string escaped;
+    escaped.reserve(input.size());
+
+    for (char ch : input) {
+        switch (ch) {
+        case '\\':
+            escaped += "\\\\";
+            break;
+        case '"':
+            escaped += "\\\"";
+            break;
+        case '\n':
+            escaped += "\\n";
+            break;
+        case '\r':
+            escaped += "\\r";
+            break;
+        case '\t':
+            escaped += "\\t";
+            break;
+        default:
+            escaped.push_back(ch);
+            break;
+        }
+    }
+
+    return escaped;
+}
+
+std::optional<std::string> parseJSONStringField(const std::string& json,
+                                                const std::string& fieldPrefix,
+                                                size_t searchFrom = 0) {
+    const size_t prefixPos = json.find(fieldPrefix, searchFrom);
+    if (prefixPos == std::string::npos) {
+        return std::nullopt;
+    }
+
+    const size_t valueStart = prefixPos + fieldPrefix.size();
+    std::string value;
+    value.reserve(64);
+
+    bool escaping = false;
+    for (size_t i = valueStart; i < json.size(); ++i) {
+        const char ch = json[i];
+
+        if (escaping) {
+            switch (ch) {
+            case '\\':
+                value.push_back('\\');
+                break;
+            case '"':
+                value.push_back('"');
+                break;
+            case 'n':
+                value.push_back('\n');
+                break;
+            case 'r':
+                value.push_back('\r');
+                break;
+            case 't':
+                value.push_back('\t');
+                break;
+            default:
+                value.push_back(ch);
+                break;
+            }
+            escaping = false;
+            continue;
+        }
+
+        if (ch == '\\') {
+            escaping = true;
+            continue;
+        }
+
+        if (ch == '"') {
+            return value;
+        }
+
+        value.push_back(ch);
+    }
+
+    return std::nullopt;
+}
+
+} // namespace
+
 SessionManager::SessionManager()
     : autoSaveEnabled_(false)
     , autoSaveIntervalSeconds_(120)
@@ -56,7 +146,7 @@ std::string SessionManager::serializeToJSON(const SessionState& state) const {
     
     // Deck A
     oss << "  \"deckA\": {\n";
-    oss << "    \"trackPath\": \"" << state.deckA.trackPath << "\",\n";
+    oss << "    \"trackPath\": \"" << escapeJSONString(state.deckA.trackPath) << "\",\n";
     oss << "    \"playbackPosition\": " << state.deckA.playbackPosition << ",\n";
     oss << "    \"tempoBend\": " << state.deckA.tempoBend << ",\n";
     oss << "    \"isPlaying\": " << (state.deckA.isPlaying ? "true" : "false") << ",\n";
@@ -67,7 +157,7 @@ std::string SessionManager::serializeToJSON(const SessionState& state) const {
     
     // Deck B
     oss << "  \"deckB\": {\n";
-    oss << "    \"trackPath\": \"" << state.deckB.trackPath << "\",\n";
+    oss << "    \"trackPath\": \"" << escapeJSONString(state.deckB.trackPath) << "\",\n";
     oss << "    \"playbackPosition\": " << state.deckB.playbackPosition << ",\n";
     oss << "    \"tempoBend\": " << state.deckB.tempoBend << ",\n";
     oss << "    \"isPlaying\": " << (state.deckB.isPlaying ? "true" : "false") << ",\n";
@@ -80,7 +170,7 @@ std::string SessionManager::serializeToJSON(const SessionState& state) const {
     oss << "  \"crossfader\": " << state.crossfader << ",\n";
     oss << "  \"currentCareerTier\": " << state.currentCareerTier << ",\n";
     oss << "  \"crowdEnergy\": " << state.crowdEnergy << ",\n";
-    oss << "  \"venueId\": \"" << state.venueId << "\"\n";
+    oss << "  \"venueId\": \"" << escapeJSONString(state.venueId) << "\"\n";
     
     oss << "}\n";
     
@@ -93,13 +183,9 @@ std::optional<SessionState> SessionManager::deserializeFromJSON(const std::strin
         
         // Parse deckA.trackPath
         {
-            size_t pos = json.find("\"trackPath\": \"");
-            if (pos != std::string::npos) {
-                size_t valueStart = pos + 14;  // Right after opening quote
-                size_t quoteEnd = json.find("\"", valueStart);
-                if (quoteEnd != std::string::npos) {
-                    state.deckA.trackPath = json.substr(valueStart, quoteEnd - valueStart);
-                }
+            auto trackPath = parseJSONStringField(json, "\"trackPath\": \"");
+            if (trackPath.has_value()) {
+                state.deckA.trackPath = *trackPath;
             }
         }
         
@@ -221,13 +307,9 @@ std::optional<SessionState> SessionManager::deserializeFromJSON(const std::strin
         {
             size_t deckBStart = json.find("\"deckB\":");
             if (deckBStart != std::string::npos) {
-                size_t pos = json.find("\"trackPath\": \"", deckBStart);
-                if (pos != std::string::npos) {
-                    size_t valueStart = pos + 14;
-                    size_t quoteEnd = json.find("\"", valueStart);
-                    if (quoteEnd != std::string::npos) {
-                        state.deckB.trackPath = json.substr(valueStart, quoteEnd - valueStart);
-                    }
+                auto trackPath = parseJSONStringField(json, "\"trackPath\": \"", deckBStart);
+                if (trackPath.has_value()) {
+                    state.deckB.trackPath = *trackPath;
                 }
             }
         }
@@ -417,13 +499,9 @@ std::optional<SessionState> SessionManager::deserializeFromJSON(const std::strin
         
         // Parse venueId
         {
-            size_t pos = json.find("\"venueId\": \"");
-            if (pos != std::string::npos) {
-                size_t valueStart = pos + 12;  // "venueId": " = 12 characters
-                size_t quoteEnd = json.find("\"", valueStart);
-                if (quoteEnd != std::string::npos) {
-                    state.venueId = json.substr(valueStart, quoteEnd - valueStart);
-                }
+            auto venueId = parseJSONStringField(json, "\"venueId\": \"");
+            if (venueId.has_value()) {
+                state.venueId = *venueId;
             }
         }
         

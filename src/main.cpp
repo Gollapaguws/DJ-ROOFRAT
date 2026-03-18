@@ -3,6 +3,7 @@
 #endif
 
 #include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <cmath>
 #include <iomanip>
@@ -85,6 +86,45 @@ std::string getCurrentTimestamp() {
     std::ostringstream oss;
     oss << std::put_time(&tm_now, "%Y-%m-%d_%H-%M-%S");
     return oss.str();
+}
+
+std::string sanitizeFilenameBase(const std::string& rawName) {
+    std::string sanitized;
+    sanitized.reserve(rawName.size());
+
+    for (char ch : rawName) {
+        switch (ch) {
+        case '<':
+        case '>':
+        case ':':
+        case '"':
+        case '/':
+        case '\\':
+        case '|':
+        case '?':
+        case '*':
+            sanitized.push_back('_');
+            break;
+        default:
+            sanitized.push_back(ch);
+            break;
+        }
+    }
+
+    const auto firstNonSpace = sanitized.find_first_not_of(" \t\n\r");
+    if (firstNonSpace == std::string::npos) {
+        return std::string();
+    }
+
+    const auto lastNonSpace = sanitized.find_last_not_of(" \t\n\r");
+    return sanitized.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
+}
+
+std::string buildRecordingFilename(const std::string& customBaseName) {
+    if (!customBaseName.empty()) {
+        return customBaseName + ".wav";
+    }
+    return "session_recording_" + getCurrentTimestamp() + ".wav";
 }
 
 // Phase 29: Export recording to WAV file
@@ -265,7 +305,7 @@ void printLiveControls() {
     std::cout << "               Phase 4 - Multi-Cue Banks: 1/2/3 set cueA1/A2/A3, 4/5/6 set cueB1/B2/B3\n";
     std::cout << "               Phase 4 - Cue Jump: Shift+1/2/3 jump cueA1/A2/A3, Shift+4/5/6 jump cueB1/B2/B3\n";
     std::cout << "               Phase 4 - Tempo Ramp: Shift+R to toggle tempo ramping (both decks)\n";
-    std::cout << "               Phase 14 - Recording: s toggle record | Shift+s save recording to WAV\n";
+    std::cout << "               Phase 14 - Recording: s toggle record | Shift+v save WAV | Shift+n set recording filename\n";
     std::cout << "               Phase 27 - Presets: F1-F12 load Deck A presets | Shift+F1-F12 load Deck B presets\n";
     std::cout << "               Phase 35 - Spectrum: 9 toggle real-time spectrum analyzer (dual-deck view)\n";
     std::cout << "               Phase 36 - Beat Grid: - nudge left | = nudge right | Shift+- first beat left | Shift+= first beat right | Ctrl+Z undo | Ctrl+Y redo\n";
@@ -791,6 +831,7 @@ int main(int argc, char** argv) {
     dj::SessionMetadata sessionMetadata;
     sessionMetadata.setRecordingName("DJ Session");
     sessionMetadata.setStartTime(std::time(nullptr));
+    std::string customRecordingFilenameBase;
 
     float crossfaderPosition = -1.0f;
     mixer.setCrossfader(crossfaderPosition);
@@ -1252,6 +1293,25 @@ int main(int argc, char** argv) {
                     sessionMetadata.setDuration(recorderMix.getDuration());
                 }
                 break;
+            case dj::InputCommand::SetRecordingFilename:
+            {
+                std::cout << "Enter recording filename (without extension, empty to reset auto): ";
+                std::string requestedName;
+                std::getline(std::cin >> std::ws, requestedName);
+
+                customRecordingFilenameBase = sanitizeFilenameBase(requestedName);
+                if (customRecordingFilenameBase.empty()) {
+                    recorderMix.setExportFilename(std::string());
+                    sessionMetadata.setRecordingName("DJ Session");
+                    std::cout << "Recording filename reset to auto-generated timestamp mode.\n";
+                } else {
+                    recorderMix.setExportFilename(customRecordingFilenameBase + ".wav");
+                    sessionMetadata.setRecordingName(customRecordingFilenameBase);
+                    std::cout << "Recording filename set to: "
+                              << recorderMix.getExportFilename() << "\n";
+                }
+                break;
+            }
             case dj::InputCommand::SaveRecording:
                 if (recordingActive) {
                     recorderMix.stop();
@@ -1261,16 +1321,12 @@ int main(int argc, char** argv) {
                 }
                 if (recorderMix.getDuration() > 0.0f) {
                     // Export recorded mix session to WAV file
-                    const std::string filename = "session_recording_mix.wav";
-                    const auto recordedData = recorderMix.getRecordedData();
-                    if (!recordedData.empty()) {
-                        dj::WAVExporter exporter(outputRate, 2, 16);
-                        const std::size_t numFrames = recordedData.size() / 2;  // 2 channels
-                        if (exporter.exportToFile(filename, recordedData.data(), numFrames)) {
-                            std::cout << "Mix recording saved to " << filename << "\n";
-                        } else {
-                            std::cout << "Failed to save mix recording to " << filename << "\n";
-                        }
+                    const std::string fallbackFilename = buildRecordingFilename(customRecordingFilenameBase);
+                    const std::string filename = recorderMix.getExportFilenameOrDefault(fallbackFilename);
+                    if (exportRecording(recorderMix, filename, outputRate)) {
+                        std::cout << "Mix recording saved to " << filename << "\n";
+                    } else {
+                        std::cout << "Failed to save mix recording to " << filename << "\n";
                     }
                 } else {
                     std::cout << "No recording data to save.\n";
@@ -1613,7 +1669,18 @@ int main(int argc, char** argv) {
 
         // Phase 37: Update rolling energy curve + mix quality once per second
         const double elapsedTimeSeconds = static_cast<double>(block) * blockDurationSeconds;
-        const bool bassClashProxy = (metrics.deckAEnergy > 0.7f) && (metrics.deckBEnergy > 0.7f);
+        bool bassClashDetected = false;
+        const dj::SpectrumAnalyzer* analyzerA = deckA.getSpectrumAnalyzer();
+        const dj::SpectrumAnalyzer* analyzerB = deckB.getSpectrumAnalyzer();
+        if (analyzerA != nullptr && analyzerB != nullptr) {
+            const auto spectrumA = analyzerA->getFullSpectrum();
+            const auto spectrumB = analyzerB->getFullSpectrum();
+            const std::size_t numBins = std::min(spectrumA.size(), spectrumB.size());
+            if (numBins > 0) {
+                bassClashDetected = mixQualityAnalyzer.detectBassClash(
+                    spectrumA.data(), spectrumB.data(), numBins);
+            }
+        }
 
         if (lastEnergySampleTimeSeconds < 0.0 || (elapsedTimeSeconds - lastEnergySampleTimeSeconds) >= 1.0) {
             energyCurve.addSample(crowdOut.energyMeter, elapsedTimeSeconds, metrics.rms);
@@ -1627,7 +1694,7 @@ int main(int argc, char** argv) {
                 metrics.transitionSmoothness,
                 "8A",
                 "8B");
-            mixQualityAnalyzer.setBassClashState(bassClashProxy);
+            mixQualityAnalyzer.setBassClashState(bassClashDetected);
             mixQualityAnalyzer.analyzeMix(&deckA, &deckB, &mixer);
             lastMixAnalysisTimeSeconds = elapsedTimeSeconds;
         }
@@ -1737,16 +1804,24 @@ int main(int argc, char** argv) {
             }
             
             // Phase 35: Render spectrum display if enabled
-            // NOTE: Currently disabled - requires Deck::getSpectrumAnalyzer() integration
-            /*
             if (showSpectrum) {
-                auto spectrumA = deckA.getSpectrumAnalyzer().getFullSpectrum();
-                auto spectrumB = deckB.getSpectrumAnalyzer().getFullSpectrum();
+                const dj::SpectrumAnalyzer* analyzerA = deckA.getSpectrumAnalyzer();
+                const dj::SpectrumAnalyzer* analyzerB = deckB.getSpectrumAnalyzer();
+
                 std::cout << "\n=== SPECTRUM ANALYZER (Press '9' to toggle) ===\n";
-                std::cout << spectrumRenderer.renderDualDeck(spectrumA, spectrumB);
+                if (analyzerA != nullptr && analyzerB != nullptr) {
+                    const auto spectrumA = analyzerA->getFullSpectrum();
+                    const auto spectrumB = analyzerB->getFullSpectrum();
+                    if (!spectrumA.empty() && !spectrumB.empty()) {
+                        std::cout << spectrumRenderer.renderDualDeck(spectrumA, spectrumB);
+                    } else {
+                        std::cout << "Spectrum data warming up...\n";
+                    }
+                } else {
+                    std::cout << "Spectrum analyzer unavailable for one or both decks.\n";
+                }
                 std::cout << "================================================\n";
             }
-            */
             
             // Arc X Phase 40: Render coaching HUD if enabled
             if (coachingEnabled && deckA.clip() && deckB.clip()) {

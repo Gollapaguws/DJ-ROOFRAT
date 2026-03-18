@@ -68,6 +68,7 @@ enum class InputCommand {
     TempoRampToggle,
     RecordToggle,
     SaveRecording,
+    SetRecordingFilename,
     Quit,
     
     // Phase 24: Player 2 commands for multiplayer battles

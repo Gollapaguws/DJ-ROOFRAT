@@ -33,6 +33,19 @@
 - Do not mix generators in the same build directory. Use `build-vs` for Visual Studio builds.
 - Windows keyboard polling is guarded with `#if defined(_WIN32)` and `_kbhit/_getch`.
 
+## Agent Rate-Limit Resilience
+- Use subagents only when the task clearly requires multi-step delegation (research/review/parallel exploration).
+- Prefer direct implementation with local tools for focused single-phase changes to reduce API pressure.
+- Avoid repeated immediate retries after a `rate_limited` error; wait before retrying.
+- Retry delegated subagent calls at most once after cooldown. If still rate-limited, continue in direct implementation mode.
+- Keep work moving by preserving progress in TODO state and switching to scoped file/grep reads.
+
+If a retry is needed, use a short cooldown first:
+
+```powershell
+Start-Sleep -Seconds 30
+```
+
 ## Imported Instruction Packs
 - `.github/instructions/cpp-programming-guidelines.instructions.md` is adapted from `awesome-copilot-instructions/rules-copilot-instructions/cpp-programming-guidelines`.
 - `.github/instructions/general-code-practices.instructions.md` is adapted from `awesome-copilot-instructions/rules-copilot-instructions/github`.

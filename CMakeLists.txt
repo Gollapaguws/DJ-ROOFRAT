@@ -1591,6 +1591,40 @@ endif()
 
 set_target_properties(e2e_session_roundtrip_test PROPERTIES OUTPUT_NAME "E2E_SessionRoundTrip_test")
 
+# Integration E2E: Bass Clash Detection Test
+add_executable(e2e_bassclash_detection_test
+    tests/integration/E2E_BassClashDetection_test.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
+    audio/CamelotAnalyzer.cpp
+    gameplay/MixQualityAnalyzer.cpp
+)
+
+target_include_directories(e2e_bassclash_detection_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(e2e_bassclash_detection_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(e2e_bassclash_detection_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(e2e_bassclash_detection_test PROPERTIES OUTPUT_NAME "E2E_BassClashDetection_test")
+
 # Integration E2E: Auto-Sync Test
 add_executable(e2e_autosync_test
     tests/integration/E2E_AutoSync_test.cpp
