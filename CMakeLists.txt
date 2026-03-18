@@ -273,6 +273,10 @@ add_executable(deck_phase2_test
     audio/Delay.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
 )
 
 target_include_directories(deck_phase2_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -317,6 +321,10 @@ add_executable(deck_phase3_test
     audio/Delay.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
 )
 
 target_include_directories(deck_phase3_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -361,6 +369,10 @@ add_executable(deck_phase4_test
     audio/Delay.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
 )
 
 target_include_directories(deck_phase4_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -840,6 +852,10 @@ add_executable(effects_phase15_test
     audio/WaveformCache.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
 )
 
 target_include_directories(effects_phase15_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -888,6 +904,10 @@ add_executable(vinyl_phase17_test
     audio/EffectChain.cpp
     audio/Reverb.cpp
     audio/Delay.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
 )
 
 target_include_directories(vinyl_phase17_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -922,6 +942,10 @@ add_executable(gameplay_phase21_test
     audio/Delay.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
 )
 
 target_include_directories(gameplay_phase21_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -1028,6 +1052,10 @@ add_executable(session_autosave_phase26_test
     audio/EffectChain.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/Reverb.cpp
     audio/Delay.cpp
     audio/Flanger.cpp
@@ -1066,6 +1094,10 @@ add_executable(preset_hotkeys_phase27_test
     audio/EffectChain.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/Reverb.cpp
     audio/Delay.cpp
     audio/Flanger.cpp
@@ -1102,6 +1134,10 @@ add_executable(enhanced_recording_phase29_test
     audio/EffectChain.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/Reverb.cpp
     audio/Delay.cpp
     audio/Mixer.cpp
@@ -1325,6 +1361,9 @@ add_executable(phasealigner_phase38_test
     audio/AutoFilter.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/BPMDetector.cpp
     audio/KeyDetector.cpp
     audio/MetadataParser.cpp
@@ -1360,6 +1399,8 @@ add_executable(synccontroller_phase39_test
     audio/AutoFilter.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/BPMDetector.cpp
     audio/KeyDetector.cpp
     audio/MetadataParser.cpp
@@ -1402,6 +1443,8 @@ add_executable(transitioncoach_phase40_test
     audio/AutoFilter.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/PhaseAligner.cpp
     audio/SyncController.cpp
 )
@@ -1440,6 +1483,8 @@ add_executable(beatjump_phase41_test
     audio/AutoFilter.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/BeatGrid.cpp
     audio/SyncController.cpp
     audio/PhaseAligner.cpp
@@ -1527,6 +1572,8 @@ add_executable(smoke_test_main
     audio/Delay.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/PhaseAligner.cpp
     audio/SyncController.cpp
     input/InputMapper.cpp
@@ -1561,6 +1608,8 @@ add_executable(e2e_load_mix_record_test
     audio/Delay.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/PhaseAligner.cpp
     audio/SyncController.cpp
 )
@@ -1641,6 +1690,8 @@ add_executable(e2e_autosync_test
     audio/Delay.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/PhaseAligner.cpp
     audio/SyncController.cpp
     audio/BeatGrid.cpp
@@ -1691,6 +1742,8 @@ add_executable(e2e_midi_effects_test
     audio/Delay.cpp
     audio/VinylSimulator.cpp
     audio/ScratchDetector.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
     audio/PhaseAligner.cpp
     audio/SyncController.cpp
     input/MIDIDevice.cpp

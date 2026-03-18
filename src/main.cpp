@@ -1805,13 +1805,13 @@ int main(int argc, char** argv) {
             
             // Phase 35: Render spectrum display if enabled
             if (showSpectrum) {
-                const dj::SpectrumAnalyzer* analyzerA = deckA.getSpectrumAnalyzer();
-                const dj::SpectrumAnalyzer* analyzerB = deckB.getSpectrumAnalyzer();
+                const dj::SpectrumAnalyzer* displayAnalyzerA = deckA.getSpectrumAnalyzer();
+                const dj::SpectrumAnalyzer* displayAnalyzerB = deckB.getSpectrumAnalyzer();
 
                 std::cout << "\n=== SPECTRUM ANALYZER (Press '9' to toggle) ===\n";
-                if (analyzerA != nullptr && analyzerB != nullptr) {
-                    const auto spectrumA = analyzerA->getFullSpectrum();
-                    const auto spectrumB = analyzerB->getFullSpectrum();
+                if (displayAnalyzerA != nullptr && displayAnalyzerB != nullptr) {
+                    const auto spectrumA = displayAnalyzerA->getFullSpectrum();
+                    const auto spectrumB = displayAnalyzerB->getFullSpectrum();
                     if (!spectrumA.empty() && !spectrumB.empty()) {
                         std::cout << spectrumRenderer.renderDualDeck(spectrumA, spectrumB);
                     } else {
@@ -1825,39 +1825,43 @@ int main(int argc, char** argv) {
             
             // Arc X Phase 40: Render coaching HUD if enabled
             if (coachingEnabled && deckA.clip() && deckB.clip()) {
-                const auto& beatGridA = beatGridEditorA.getBeatGrid();
-                const auto& beatGridB = beatGridEditorB.getBeatGrid();
+                const auto& currentBeatGridB = beatGridEditorB.getBeatGrid();
                 
-                // Detect phrases on both decks
-                auto phrasesA = coach.detectPhrases(beatGridA.getBeats());
-                auto phrasesB = coach.detectPhrases(beatGridB.getBeats());
+                // Detect phrases on the incoming deck for countdown timing.
+                auto phrasesB = coach.detectPhrases(currentBeatGridB);
                 
-                // Get current playback time
-                float currentTimeA = static_cast<float>(deckA.currentFrame()) / static_cast<float>(deckA.clip()->sampleRate);
-                float currentTimeB = static_cast<float>(deckB.currentFrame()) / static_cast<float>(deckB.clip()->sampleRate);
+                // Get current playback time on the incoming deck to compute countdown
+                const double currentTimeB = static_cast<double>(deckB.currentFrame()) /
+                    static_cast<double>(deckB.clip()->sampleRate);
                 
-                // Suggest next transition from A to B
-                auto suggestion = coach.suggestNextTransition(
-                    phrasesA, phrasesB, currentTimeA, currentTimeB,
-                    camelotA, camelotB, 0.0f  // energyDelta placeholder
-                );
-                
-                if (suggestion.has_value()) {
-                    int countdown = coach.calculateCountdown(
-                        suggestion->targetTime, currentTimeB, 
-                        effectiveBpmB
-                    );
-                    
-                    std::string hudOutput = coachingHud.render(
-                        suggestion->suggestion, 
-                        suggestion->confidence, 
-                        countdown,
-                        0.0f,  // energyDelta placeholder
-                        compatibilityScore
-                    );
-                    
-                    std::cout << "\n" << hudOutput << "\n";
+                // Suggest next transition from A to B using live deck/energy context.
+                dj::TransitionCoach::Suggestion suggestion = coach.suggestNextTransition(
+                    deckA, deckB, energyCurve, camelotAnalyzer);
+
+                double nextPhraseB = currentTimeB;
+                for (double phrase : phrasesB) {
+                    if (phrase > currentTimeB) {
+                        nextPhraseB = phrase;
+                        break;
+                    }
                 }
+
+                if (nextPhraseB <= currentTimeB) {
+                    const double fallbackPhraseDuration = (effectiveBpmB > 0.0f)
+                        ? ((16.0 * 60.0) / static_cast<double>(effectiveBpmB))
+                        : 8.0;
+                    nextPhraseB = currentTimeB + fallbackPhraseDuration;
+                }
+
+                suggestion.timestamp = nextPhraseB;
+                const double countdown = std::max(0.0, coach.calculateCountdown(
+                    currentTimeB,
+                    nextPhraseB,
+                    static_cast<double>(effectiveBpmB)));
+                suggestion.urgency = countdown <= 8.0;
+                
+                const std::string hudOutput = coachingHud.render(suggestion, countdown);
+                std::cout << "\n" << hudOutput << "\n";
             }
             
             // Arc X Phase 41: Render sync indicators
