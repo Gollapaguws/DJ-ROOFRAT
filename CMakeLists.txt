@@ -1369,3 +1369,44 @@ else()
 endif()
 
 set_target_properties(synccontroller_phase39_test PROPERTIES OUTPUT_NAME "SyncController_Phase39_test")
+
+# TransitionCoach Phase 40 test (Transition Coaching & Phrasing)
+add_executable(transitioncoach_phase40_test
+    gameplay/TransitionCoach_Phase40_test.cpp
+    gameplay/TransitionCoach.cpp
+    gameplay/EnergyCurve.cpp
+    visuals/CoachingHUD.cpp
+    audio/BeatGrid.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/CamelotAnalyzer.cpp
+    audio/EnergyAnalyzer.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/Flanger.cpp
+    audio/Phaser.cpp
+    audio/Bitcrusher.cpp
+    audio/RingModulator.cpp
+    audio/AutoFilter.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+)
+
+target_include_directories(transitioncoach_phase40_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(transitioncoach_phase40_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(transitioncoach_phase40_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(transitioncoach_phase40_test PROPERTIES OUTPUT_NAME "TransitionCoach_Phase40_test")

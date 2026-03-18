@@ -127,6 +127,8 @@ InputCommand InputMapper::parseKey(char rawKey) {
             return InputCommand::ToggleEnergyCurve;  // Phase 37: Shift+E toggle
         case 't':
             return InputCommand::IsolatorHighA;
+        case 'c':
+            return InputCommand::ToggleCoaching;  // Phase 40: Shift+C toggle coaching overlay
         case 'd':
             return InputCommand::ToggleSyncDeckB;  // Phase 39: Shift+D toggle sync on Deck B
         case 'f':

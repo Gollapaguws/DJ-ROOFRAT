@@ -131,6 +131,9 @@ enum class InputCommand {
     BeatJumpBackwardA,       // '[' key (-4 beats on Deck A)
     BeatJumpForwardB,        // ''' key (+4 beats on Deck B)
     BeatJumpBackwardB,       // ';' key (-4 beats on Deck B)
+    
+    // Phase 40: Transition Coaching & Phrasing
+    ToggleCoaching,          // 'C' key (toggle coaching overlay)
 };
 
 class InputMapper {
