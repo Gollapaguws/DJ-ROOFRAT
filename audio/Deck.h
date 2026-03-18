@@ -13,6 +13,7 @@ namespace dj {
 class EffectChain;
 class VinylSimulator;
 class ScratchDetector;
+class SyncController;
 
 class Deck {
 public:
@@ -71,9 +72,16 @@ public:
     // Phase 38: Phase alignment for auto-sync
     void alignPhaseWithDeck(const Deck& targetDeck, double bpmA, double bpmB);
 
+    // Phase 39: Auto-sync control
+    void setAutoSyncTarget(Deck* target);
+    void disableAutoSync();
+    bool isSyncEnabled() const;
+    void beatJump(int beats);
+
     std::array<float, 2> nextFrame();
     float recentEnergy() const;
     std::size_t currentFrame() const;
+    float getBPM() const;
 
 private:
     void advanceHeads(double step);
@@ -140,6 +148,11 @@ private:
     std::shared_ptr<VinylSimulator> vinylSimulator_;
     std::shared_ptr<ScratchDetector> scratchDetector_;
     float scratchVelocity_ = 0.0f;  // Current scratch velocity from user input
+
+    // Phase 39: Auto-sync control
+    std::shared_ptr<SyncController> syncController_;
+    Deck* autoSyncTarget_ = nullptr;
+    bool syncEnabled_ = false;
 };
 
 } // namespace dj

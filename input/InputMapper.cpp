@@ -128,7 +128,7 @@ InputCommand InputMapper::parseKey(char rawKey) {
         case 't':
             return InputCommand::IsolatorHighA;
         case 'd':
-            return InputCommand::IsolatorLowB;
+            return InputCommand::ToggleSyncDeckB;  // Phase 39: Shift+D toggle sync on Deck B
         case 'f':
             return InputCommand::IsolatorMidB;
         case 'g':
@@ -152,7 +152,7 @@ InputCommand InputMapper::parseKey(char rawKey) {
         case 'r':
             return InputCommand::TempoRampToggle;
         case 's':
-            return InputCommand::SaveRecording;
+            return InputCommand::ToggleSyncDeckA;  // Phase 39: Shift+S toggle sync on Deck A
         case '-':
             return InputCommand::AdjustFirstBeatLeft;   // Shift+Minus: adjust first beat -10ms
         case '=':
@@ -182,11 +182,11 @@ InputCommand InputMapper::parseKey(char rawKey) {
     case '9':
         return InputCommand::ToggleSpectrum;  // Phase 35: Toggle spectrum display
     case '[':
-        return InputCommand::CrossfadeLeft;
+        return InputCommand::BeatJumpBackwardA;  // Phase 39: Jump -4 beats on Deck A
     case '\\':
         return InputCommand::CrossfadeCenter;
     case ']':
-        return InputCommand::CrossfadeRight;
+        return InputCommand::BeatJumpForwardA;  // Phase 39: Jump +4 beats on Deck A
     case 'a':
         return InputCommand::PlayPauseA;
     case 'b':
@@ -208,9 +208,9 @@ InputCommand InputMapper::parseKey(char rawKey) {
     case 'v':
         return InputCommand::JumpCueB;
     case ';':
-        return InputCommand::LoopBeatsToggleA;
+        return InputCommand::BeatJumpBackwardB;  // Phase 39: Jump -4 beats on Deck B
     case '\'':
-        return InputCommand::LoopBeatsToggleB;
+        return InputCommand::BeatJumpForwardB;  // Phase 39: Jump +4 beats on Deck B
     case 'q':
         return InputCommand::DeckALowDown;
     case 'w':

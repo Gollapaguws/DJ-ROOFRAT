@@ -1392,6 +1392,46 @@ int main(int argc, char** argv) {
                     std::cout << "No beat grid edits to redo\n";
                 }
                 break;
+            case dj::InputCommand::ToggleSyncDeckA:
+                // Toggle sync on Deck A targeting Deck B
+                if (deckA.isSyncEnabled()) {
+                    deckA.disableAutoSync();
+                    std::cout << "Sync disabled on Deck A\n";
+                } else {
+                    deckA.setAutoSyncTarget(&deckB);
+                    std::cout << "Sync enabled on Deck A (targeting Deck B)\n";
+                }
+                break;
+            case dj::InputCommand::ToggleSyncDeckB:
+                // Toggle sync on Deck B targeting Deck A
+                if (deckB.isSyncEnabled()) {
+                    deckB.disableAutoSync();
+                    std::cout << "Sync disabled on Deck B\n";
+                } else {
+                    deckB.setAutoSyncTarget(&deckA);
+                    std::cout << "Sync enabled on Deck B (targeting Deck A)\n";
+                }
+                break;
+            case dj::InputCommand::BeatJumpForwardA:
+                // Jump +4 beats on Deck A
+                deckA.beatJump(4);
+                std::cout << "Deck A beat jump +4\n";
+                break;
+            case dj::InputCommand::BeatJumpBackwardA:
+                // Jump -4 beats on Deck A
+                deckA.beatJump(-4);
+                std::cout << "Deck A beat jump -4\n";
+                break;
+            case dj::InputCommand::BeatJumpForwardB:
+                // Jump +4 beats on Deck B
+                deckB.beatJump(4);
+                std::cout << "Deck B beat jump +4\n";
+                break;
+            case dj::InputCommand::BeatJumpBackwardB:
+                // Jump -4 beats on Deck B
+                deckB.beatJump(-4);
+                std::cout << "Deck B beat jump -4\n";
+                break;
             case dj::InputCommand::Quit:
                 quitRequested = true;
                 break;

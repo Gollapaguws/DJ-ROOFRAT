@@ -8,6 +8,8 @@
 #include "audio/VinylSimulator.h"
 #include "audio/ScratchDetector.h"
 #include "audio/PhaseAligner.h"
+#include "audio/SyncController.h"
+#include "audio/BeatGrid.h"
 
 namespace dj {
 
@@ -379,6 +381,76 @@ void Deck::alignPhaseWithDeck(const Deck& targetDeck, double bpmA, double bpmB) 
     playbackHead_ = newPosition;
 }
 
+// Phase 39: Auto-sync control
+void Deck::setAutoSyncTarget(Deck* target) {
+    if (!syncController_) {
+        syncController_ = std::make_shared<SyncController>();
+    }
+    
+    autoSyncTarget_ = target;
+    syncEnabled_ = (target != nullptr);
+    
+    if (target) {
+        syncController_->enableSync(*this, target);
+    }
+}
+
+void Deck::disableAutoSync() {
+    syncEnabled_ = false;
+    autoSyncTarget_ = nullptr;
+    
+    if (syncController_) {
+        syncController_->disableSync();
+    }
+    
+    // Disable tempo ramping on manual disable
+    tempoRampEnabled_ = false;
+}
+
+bool Deck::isSyncEnabled() const {
+    return syncEnabled_;
+}
+
+float Deck::getBPM() const {
+    // Try to get BPM from clip metadata
+    if (!clip_.empty()) {
+        const TrackMetadata* meta = clip_.metadata();
+        if (meta && meta->bpm.has_value()) {
+            return meta->bpm.value();
+        }
+    }
+    
+    // Default to 120 BPM if no metadata
+    return 120.0f;
+}
+
+void Deck::beatJump(int beats) {
+    if (!hasClip()) {
+        return;
+    }
+    
+    // Calculate samples per beat at current track's BPM
+    // Adjust for current tempo
+    double effectiveBpm = static_cast<double>(getBPM()) * (1.0 + (tempoPercent_ / 100.0));
+    double beatDurationSamples = (60.0 / effectiveBpm) * static_cast<double>(outputSampleRate_);
+    double jumpSamples = static_cast<double>(beats) * beatDurationSamples;
+    
+    playbackHead_ += jumpSamples;
+    
+    // Clamp to valid range
+    if (playbackHead_ < 0.0) {
+        playbackHead_ = 0.0;
+    }
+    if (playbackHead_ >= static_cast<double>(clip_.frameCount())) {
+        playbackHead_ = static_cast<double>(clip_.frameCount() - 1);
+    }
+    
+    // If slip mode not enabled, sync the slip head
+    if (!slipMode_) {
+        slipHead_ = playbackHead_;
+    }
+}
+
 std::array<float, 2> Deck::nextFrame() {
     if (!playing_ || !hasClip()) {
         return {0.0f, 0.0f};
@@ -412,6 +484,13 @@ std::array<float, 2> Deck::nextFrame() {
         tempoPercent_ += (targetTempo_ - tempoPercent_) * tempoRampRate_;
         // Clamp to valid range to prevent drift
         tempoPercent_ = std::clamp(tempoPercent_, -50.0f, 50.0f);
+    }
+
+    // Phase 39: Apply auto-sync if enabled
+    if (syncEnabled_ && syncController_ && autoSyncTarget_) {
+        double bpmThis = static_cast<double>(getBPM());
+        double bpmTarget = static_cast<double>(autoSyncTarget_->getBPM());
+        syncController_->update(*this, *autoSyncTarget_, bpmTarget, bpmThis);
     }
 
     const double sourceToOutputRate = static_cast<double>(clip_.sampleRate) / static_cast<double>(outputSampleRate_);

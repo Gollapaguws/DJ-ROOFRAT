@@ -123,6 +123,14 @@ enum class InputCommand {
     AdjustFirstBeatRight,    // Shift+equals (adjust first beat +10ms)  
     UndoBeatGrid,            // Ctrl+Z (undo beat grid edit)
     RedoBeatGrid,            // Ctrl+Y (redo beat grid edit)
+
+    // Phase 39: Auto-Tempo Matching & Sync Lock
+    ToggleSyncDeckA,         // 'S' key (toggle sync on Deck A)
+    ToggleSyncDeckB,         // 'D' key (toggle sync on Deck B)
+    BeatJumpForwardA,        // ']' key (+4 beats on Deck A)
+    BeatJumpBackwardA,       // '[' key (-4 beats on Deck A)
+    BeatJumpForwardB,        // ''' key (+4 beats on Deck B)
+    BeatJumpBackwardB,       // ';' key (-4 beats on Deck B)
 };
 
 class InputMapper {

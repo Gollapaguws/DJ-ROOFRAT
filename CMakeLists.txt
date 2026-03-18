@@ -125,6 +125,7 @@ add_executable(${DJ_ROOFRAT_TARGET}
     audio/BeatGrid.cpp
     audio/BeatGridEditor.cpp
     audio/PhaseAligner.cpp
+    audio/SyncController.cpp
     audio/EnergyAnalyzer.cpp
     audio/CamelotAnalyzer.cpp
     crowdAI/CrowdStateMachine.cpp
@@ -1333,3 +1334,38 @@ else()
 endif()
 
 set_target_properties(phasealigner_phase38_test PROPERTIES OUTPUT_NAME "PhaseAligner_Phase38_test")
+
+# Auto-Tempo Matching & Sync Lock Phase 39 test (Arc X Phase 2)
+add_executable(synccontroller_phase39_test
+    audio/SyncController_Phase39_test.cpp
+    audio/SyncController.cpp
+    audio/PhaseAligner.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BeatGrid.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/Flanger.cpp
+    audio/Phaser.cpp
+    audio/Bitcrusher.cpp
+    audio/RingModulator.cpp
+    audio/AutoFilter.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/BPMDetector.cpp
+    audio/KeyDetector.cpp
+    audio/MetadataParser.cpp
+)
+
+target_include_directories(synccontroller_phase39_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(synccontroller_phase39_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(synccontroller_phase39_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(synccontroller_phase39_test PROPERTIES OUTPUT_NAME "SyncController_Phase39_test")
