@@ -464,6 +464,27 @@ void Deck::clearWarp() {
     warpAmount_ = 0.0f;
 }
 
+// Phase 41: Sync state introspection
+SyncState Deck::getSyncState() const {
+    if (!syncEnabled_ || !syncController_) {
+        return SyncState::Off;
+    }
+    return syncController_->getState();
+}
+
+double Deck::getPhaseOffset() const {
+    if (!syncEnabled_ || !syncController_ || !autoSyncTarget_) {
+        return 0.0;
+    }
+    
+    // Calculate phase offset using PhaseAligner
+    double bpmThis = static_cast<double>(getBPM());
+    double bpmTarget = static_cast<double>(autoSyncTarget_->getBPM());
+    
+    PhaseAligner aligner;
+    return aligner.calculatePhaseOffsetBeats(*this, *autoSyncTarget_, bpmThis, bpmTarget);
+}
+
 std::array<float, 2> Deck::nextFrame() {
     if (!playing_ || !hasClip()) {
         return {0.0f, 0.0f};

@@ -77,6 +77,10 @@ public:
     void disableAutoSync();
     bool isSyncEnabled() const;
     void beatJump(int beats);
+    
+    // Phase 41: Sync state introspection
+    SyncState getSyncState() const;
+    double getPhaseOffset() const;
 
     // Phase 41: BPM warp (micro-tune)
     void setWarp(float warpPercent);

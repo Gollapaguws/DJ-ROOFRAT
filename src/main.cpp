@@ -62,8 +62,12 @@
 #include "audio/BeatGrid.h"
 #include "gameplay/EnergyCurve.h"
 #include "gameplay/MixQualityAnalyzer.h"
+#include "gameplay/TransitionCoach.h"
 #include "visuals/BeatMarkerOverlay.h"
 #include "visuals/EnergyCurveRenderer.h"
+#include "visuals/CoachingHUD.h"
+#include "visuals/SyncIndicator.h"
+#include "audio/SyncUndoStack.h"
 
 namespace {
 
@@ -769,6 +773,13 @@ int main(int argc, char** argv) {
 
     dj::Mixer mixer;
     mixer.setMasterGain(configManager.getMasterVolume());
+    
+    // Arc X: Initialize coaching and sync systems
+    dj::TransitionCoach coach;
+    dj::CoachingHUD coachingHud;
+    dj::SyncIndicator syncIndicator;
+    dj::SyncUndoStack undoStackA, undoStackB;
+    bool coachingEnabled = false;
 
     // Phase 29: Initialize three Recorders for multi-track recording (mix, deck A, deck B)
     dj::Recorder recorderMix(outputRate, 2, 600);  // 10 minutes capacity
@@ -1393,6 +1404,8 @@ int main(int argc, char** argv) {
                 }
                 break;
             case dj::InputCommand::ToggleSyncDeckA:
+                // Arc X Phase 41: Capture state before sync
+                undoStackA.captureState(deckA);
                 // Toggle sync on Deck A targeting Deck B
                 if (deckA.isSyncEnabled()) {
                     deckA.disableAutoSync();
@@ -1403,6 +1416,8 @@ int main(int argc, char** argv) {
                 }
                 break;
             case dj::InputCommand::ToggleSyncDeckB:
+                // Arc X Phase 41: Capture state before sync
+                undoStackB.captureState(deckB);
                 // Toggle sync on Deck B targeting Deck A
                 if (deckB.isSyncEnabled()) {
                     deckB.disableAutoSync();
@@ -1432,6 +1447,81 @@ int main(int argc, char** argv) {
                 deckB.beatJump(-4);
                 std::cout << "Deck B beat jump -4\n";
                 break;
+            
+            // Arc X Phase 41: Extended beat jump controls
+            case dj::InputCommand::BeatJump1ForwardA:
+                deckA.beatJump(1);
+                std::cout << "Deck A beat jump +1\n";
+                break;
+            case dj::InputCommand::BeatJump1BackwardA:
+                deckA.beatJump(-1);
+                std::cout << "Deck A beat jump -1\n";
+                break;
+            case dj::InputCommand::BeatJump1ForwardB:
+                deckB.beatJump(1);
+                std::cout << "Deck B beat jump +1\n";
+                break;
+            case dj::InputCommand::BeatJump1BackwardB:
+                deckB.beatJump(-1);
+                std::cout << "Deck B beat jump -1\n";
+                break;
+            case dj::InputCommand::BeatJump8ForwardA:
+                deckA.beatJump(8);
+                std::cout << "Deck A beat jump +8\n";
+                break;
+            case dj::InputCommand::BeatJump8BackwardA:
+                deckA.beatJump(-8);
+                std::cout << "Deck A beat jump -8\n";
+                break;
+            case dj::InputCommand::BeatJump8ForwardB:
+                deckB.beatJump(8);
+                std::cout << "Deck B beat jump +8\n";
+                break;
+            case dj::InputCommand::BeatJump8BackwardB:
+                deckB.beatJump(-8);
+                std::cout << "Deck B beat jump -8\n";
+                break;
+            
+            // Arc X Phase 41: Warp controls
+            case dj::InputCommand::WarpUpA:
+                deckA.setWarp(deckA.getWarp() + 0.01f);
+                std::cout << "Deck A warp: " << std::fixed << std::setprecision(2) << (deckA.getWarp() * 100.0f) << "%\n";
+                break;
+            case dj::InputCommand::WarpDownA:
+                deckA.setWarp(deckA.getWarp() - 0.01f);
+                std::cout << "Deck A warp: " << std::fixed << std::setprecision(2) << (deckA.getWarp() * 100.0f) << "%\n";
+                break;
+            case dj::InputCommand::WarpUpB:
+                deckB.setWarp(deckB.getWarp() + 0.01f);
+                std::cout << "Deck B warp: " << std::fixed << std::setprecision(2) << (deckB.getWarp() * 100.0f) << "%\n";
+                break;
+            case dj::InputCommand::WarpDownB:
+                deckB.setWarp(deckB.getWarp() - 0.01f);
+                std::cout << "Deck B warp: " << std::fixed << std::setprecision(2) << (deckB.getWarp() * 100.0f) << "%\n";
+                break;
+            
+            // Arc X Phase 41: Sync undo
+            case dj::InputCommand::SyncUndoA:
+                if (undoStackA.undo(deckA)) {
+                    std::cout << "Deck A sync undo successful\n";
+                } else {
+                    std::cout << "Deck A undo stack empty\n";
+                }
+                break;
+            case dj::InputCommand::SyncUndoB:
+                if (undoStackB.undo(deckB)) {
+                    std::cout << "Deck B sync undo successful\n";
+                } else {
+                    std::cout << "Deck B undo stack empty\n";
+                }
+                break;
+            
+            // Arc X Phase 40: Coaching toggle
+            case dj::InputCommand::ToggleCoaching:
+                coachingEnabled = !coachingEnabled;
+                std::cout << "Coaching " << (coachingEnabled ? "enabled" : "disabled") << "\n";
+                break;
+            
             case dj::InputCommand::Quit:
                 quitRequested = true;
                 break;
@@ -1657,6 +1747,57 @@ int main(int argc, char** argv) {
                 std::cout << "================================================\n";
             }
             */
+            
+            // Arc X Phase 40: Render coaching HUD if enabled
+            if (coachingEnabled && deckA.clip() && deckB.clip()) {
+                const auto& beatGridA = beatGridEditorA.getBeatGrid();
+                const auto& beatGridB = beatGridEditorB.getBeatGrid();
+                
+                // Detect phrases on both decks
+                auto phrasesA = coach.detectPhrases(beatGridA.getBeats());
+                auto phrasesB = coach.detectPhrases(beatGridB.getBeats());
+                
+                // Get current playback time
+                float currentTimeA = static_cast<float>(deckA.currentFrame()) / static_cast<float>(deckA.clip()->sampleRate);
+                float currentTimeB = static_cast<float>(deckB.currentFrame()) / static_cast<float>(deckB.clip()->sampleRate);
+                
+                // Suggest next transition from A to B
+                auto suggestion = coach.suggestNextTransition(
+                    phrasesA, phrasesB, currentTimeA, currentTimeB,
+                    camelotA, camelotB, 0.0f  // energyDelta placeholder
+                );
+                
+                if (suggestion.has_value()) {
+                    int countdown = coach.calculateCountdown(
+                        suggestion->targetTime, currentTimeB, 
+                        effectiveBpmB
+                    );
+                    
+                    std::string hudOutput = coachingHud.render(
+                        suggestion->suggestion, 
+                        suggestion->confidence, 
+                        countdown,
+                        0.0f,  // energyDelta placeholder
+                        compatibilityScore
+                    );
+                    
+                    std::cout << "\n" << hudOutput << "\n";
+                }
+            }
+            
+            // Arc X Phase 41: Render sync indicators
+            if (deckA.isSyncEnabled()) {
+                auto stateA = deckA.getSyncState();
+                double phaseOffsetA = deckA.getPhaseOffset();
+                std::string indicatorA = syncIndicator.render(true, stateA, phaseOffsetA);
+                std::cout << "Deck A: " << indicatorA << "\n";
+            }
+            if (deckB.isSyncEnabled()) {
+                auto stateB = deckB.getSyncState();
+                double phaseOffsetB = deckB.getPhaseOffset();
+                std::string indicatorB = syncIndicator.render(true, stateB, phaseOffsetB);
+                std::cout << "Deck B: " << indicatorB << "\n";
+            }
         }
 
         if (!deckA.isPlaying() && !deckB.isPlaying()) {
