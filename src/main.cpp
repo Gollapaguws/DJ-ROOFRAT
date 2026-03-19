@@ -1010,7 +1010,9 @@ int main(int argc, char** argv) {
     // Phase 11: Track Library & Browser initialization
     auto library = std::make_shared<dj::library::TrackLibrary>();
     std::string libError;
-    library->initialize(":memory:", &libError);  // In-memory database for development
+    if (!library->initialize(":memory:", &libError)) {
+        std::cout << "Track Library init failed: " << libError << "\n";
+    }
     auto browser = std::make_shared<dj::library::TrackBrowser>(library);
     std::cout << "Track Library initialized with browser support.\n";
 
@@ -1045,6 +1047,9 @@ int main(int argc, char** argv) {
                     quitRequested = true;
                 }
                 TranslateMessage(&msg);
+                if (imguiEnabled) {
+                    ImGui_ImplWin32_WndProcHandler((HWND)msg.hwnd, msg.message, msg.wParam, msg.lParam);
+                }
                 DispatchMessage(&msg);
             }
         }
@@ -1787,7 +1792,7 @@ int main(int argc, char** argv) {
         
         int moodIndex = static_cast<int>(crowdOut.mood);
         if (graphicsEnabled) {
-            graphics.renderFrame(blendedBpm, crowdOut.energyMeter, moodIndex, mixer.crossfader());
+            [[maybe_unused]] bool rendered = graphics.renderFrame(blendedBpm, crowdOut.energyMeter, moodIndex, mixer.crossfader());
         }
 
         if ((block % 60) == 0) {

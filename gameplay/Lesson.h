@@ -15,19 +15,19 @@ public:
     virtual ~Lesson() = default;
     
     // Setup the lesson with initial state
-    virtual void setup(float baselineBpmA, float baselineBpmB) {}
+    virtual void setup(float /*baselineBpmA*/, float /*baselineBpmB*/) {}
     
     // Setup for EQ mixing lesson with deck references
-    virtual void setup(Deck& deckA, Deck& deckB, Mixer& mixer) {}
+    virtual void setup(Deck& /*deckA*/, Deck& /*deckB*/, Mixer& /*mixer*/) {}
     
     // Validate the current state (block-based progress)
     // Returns true when lesson is complete
-    virtual bool validate(float bpmA, float bpmB, int blockNumber) {
+    virtual bool validate(float /*bpmA*/, float /*bpmB*/, int /*blockNumber*/) {
         return false;
     }
     
     // Validate for EQ mixing lesson
-    virtual bool validate(Deck& deckA, Deck& deckB, Mixer& mixer, int blockNumber) {
+    virtual bool validate(Deck& /*deckA*/, Deck& /*deckB*/, Mixer& /*mixer*/, int /*blockNumber*/) {
         return false;
     }
     

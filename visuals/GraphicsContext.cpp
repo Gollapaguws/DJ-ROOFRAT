@@ -19,6 +19,16 @@
 #include "visuals/StageGeometry.h"
 
 using Microsoft::WRL::ComPtr;
+
+// Custom window procedure: handles WM_DESTROY to trigger WM_QUIT,
+// and falls back to DefWindowProcA for all other messages.
+static LRESULT CALLBACK DJRoofratWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    if (msg == WM_DESTROY) {
+        PostQuitMessage(0);
+        return 0;
+    }
+    return DefWindowProcA(hwnd, msg, wParam, lParam);
+}
 #endif
 
 namespace dj {
@@ -108,7 +118,7 @@ bool GraphicsContext::initialize(int width, int height, std::string* errorOut) {
 
         // Create a window for the swap chain
         WNDCLASSA wndClass = {};
-        wndClass.lpfnWndProc = DefWindowProcA;
+        wndClass.lpfnWndProc = DJRoofratWndProc;
         wndClass.lpszClassName = "DJ_ROOFRAT_Graphics_Window";
         wndClass.hInstance = GetModuleHandleA(nullptr);
         
@@ -406,9 +416,8 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
         context_->DrawIndexed(indexBuffer_->getIndexCount(), 0, 0);
     }
 
-    // Present frame
-    swapChain_->Present(1, 0);
-
+    // Note: presentation (Present) is handled by the caller via graphics.present()
+    // to allow overlaying ImGui on top of the 3D scene in a single frame.
     return true;
 #else
     // Suppress unreferenced parameter warnings

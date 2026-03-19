@@ -758,6 +758,7 @@ add_executable(tracklibrary_phase11_test
     library/TrackLibrary.cpp
     library/LibraryScanner.cpp
     library/TrackBrowser.cpp
+    audio/CamelotAnalyzer.cpp
     # vendor/sqlite3_stub.cpp  # Using std::map implementation instead
 )
 
