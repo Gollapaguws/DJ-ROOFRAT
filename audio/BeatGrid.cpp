@@ -41,7 +41,10 @@ BeatGridData BeatGridData::deserialize(const std::string& data) {
         return result;
     try {
         result.firstBeatOffset = std::stod(token);
-    } catch (...) {
+    } catch (const std::invalid_argument&) {
+        // Invalid number format, keep default value
+    } catch (const std::out_of_range&) {
+        // Value out of range, keep default value
     }
 
     // Read bpm
@@ -49,7 +52,10 @@ BeatGridData BeatGridData::deserialize(const std::string& data) {
         return result;
     try {
         result.bpm = std::stod(token);
-    } catch (...) {
+    } catch (const std::invalid_argument&) {
+        // Invalid number format, keep default value
+    } catch (const std::out_of_range&) {
+        // Value out of range, keep default value
     }
 
     // Read barsPerPhrase
@@ -57,7 +63,10 @@ BeatGridData BeatGridData::deserialize(const std::string& data) {
         return result;
     try {
         result.barsPerPhrase = std::stoi(token);
-    } catch (...) {
+    } catch (const std::invalid_argument&) {
+        // Invalid number format, keep default value
+    } catch (const std::out_of_range&) {
+        // Value out of range, keep default value
     }
 
     // Read nudges count
@@ -66,7 +75,10 @@ BeatGridData BeatGridData::deserialize(const std::string& data) {
     std::size_t nudgeCount = 0;
     try {
         nudgeCount = std::stoul(token);
-    } catch (...) {
+    } catch (const std::invalid_argument&) {
+        // Invalid number format, keep default value
+    } catch (const std::out_of_range&) {
+        // Value out of range, keep default value
     }
 
     // Read nudges
@@ -77,6 +89,10 @@ BeatGridData BeatGridData::deserialize(const std::string& data) {
             if (!nudgeVal.empty()) {
                 try {
                     result.manualNudges.push_back(std::stod(nudgeVal));
+                } catch (const std::invalid_argument&) {
+                    // Invalid number format, skip this nudge
+                } catch (const std::out_of_range&) {
+                    // Value out of range, skip this nudge
                 } catch (...) {
                 }
             }

@@ -31,12 +31,12 @@ public:
     ~TrackLibrary();
 
     // Initialize database (creates tables if needed)
-    bool initialize(const std::string& dbPath, std::string* errorOut = nullptr);
+    [[nodiscard]] bool initialize(const std::string& dbPath, std::string* errorOut = nullptr);
 
     // CRUD Operations
-    bool addTrack(const std::string& path, const TrackMetadata& metadata, int* outId = nullptr, std::string* errorOut = nullptr);
-    std::optional<StoredTrack> getTrack(int id, std::string* errorOut = nullptr);
-    bool removeTrack(int id, std::string* errorOut = nullptr);
+    [[nodiscard]] bool addTrack(const std::string& path, const TrackMetadata& metadata, int* outId = nullptr, std::string* errorOut = nullptr);
+    [[nodiscard]] std::optional<StoredTrack> getTrack(int id, std::string* errorOut = nullptr);
+    [[nodiscard]] bool removeTrack(int id, std::string* errorOut = nullptr);
 
     // Query Operations
     std::vector<StoredTrack> queryByBpm(float minBpm, float maxBpm, std::string* errorOut = nullptr);
@@ -46,8 +46,8 @@ public:
     std::vector<StoredTrack> getAllTracks(std::string* errorOut = nullptr);
 
     // Utility
-    int getTrackCount(std::string* errorOut = nullptr);
-    bool clearDatabase(std::string* errorOut = nullptr);
+    [[nodiscard]] int getTrackCount(std::string* errorOut = nullptr);
+    [[nodiscard]] bool clearDatabase(std::string* errorOut = nullptr);
 
 private:
     class Impl;

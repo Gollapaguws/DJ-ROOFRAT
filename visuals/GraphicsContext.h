@@ -38,15 +38,15 @@ public:
     ~GraphicsContext();
 
     // Initialize graphics context. Returns true if graphics are available after init.
-    bool initialize(int width, int height, std::string* errorOut = nullptr);
+    [[nodiscard]] bool initialize(int width, int height, std::string* errorOut = nullptr);
 
     // Check if graphics are currently available
-    bool isAvailable() const;
+    [[nodiscard]] bool isAvailable() const;
 
     // Render a frame with current playback state.
     // Returns true if render succeeded; false if graphics unavailable.
     // Parameters: BPM, crowd energy [0,1], mood (0-3), crossfader [-1,1]
-    bool renderFrame(float bpm, float energy, int mood, float crossfader);
+    [[nodiscard]] bool renderFrame(float bpm, float energy, int mood, float crossfader);
 
     // Clean up graphics resources
     void shutdown();
@@ -72,6 +72,18 @@ public:
 
     // Get current FPS
     float getFPS() const { return fps_; }
+
+    // Get window handle for ImGui integration
+    void* getWindowHandle() const { return hwnd_; }
+
+    // Show the window (call after ImGui initialization)
+    void showWindow();
+
+    // Present the swap chain (flip buffers)
+    void present();
+
+    // Clear render target to a background color
+    void clearRenderTarget(float r, float g, float b, float a);
 
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)

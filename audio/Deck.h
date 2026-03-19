@@ -30,7 +30,7 @@ public:
      * @param errorOut Optional pointer to receive error description on failure.
      * @return true on success, false on error.
      */
-    bool loadFromFile(const std::string& path, std::string* errorOut = nullptr);
+    [[nodiscard]] bool loadFromFile(const std::string& path, std::string* errorOut = nullptr);
 
     /**
      * @brief Check if a clip is currently loaded.

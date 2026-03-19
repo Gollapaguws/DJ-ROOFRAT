@@ -35,7 +35,7 @@ std::string BeatGridRenderer::renderBeatMarkers(const BeatGrid& grid, int width)
 
     std::string line(width, ' ');
 
-    // Determine time range
+    // Determine time range (safe: already checked beats.empty())
     double minTime = beats[0].timestamp;
     double maxTime = beats[beats.size() - 1].timestamp;
     if (maxTime <= minTime) {
@@ -65,7 +65,7 @@ std::string BeatGridRenderer::renderBarNumbers(const BeatGrid& grid, int width) 
 
     std::string line(width, ' ');
 
-    // Determine time range
+    // Determine time range (safe: already checked beats.empty())
     double minTime = beats[0].timestamp;
     double maxTime = beats[beats.size() - 1].timestamp;
     if (maxTime <= minTime) {
@@ -97,7 +97,7 @@ std::string BeatGridRenderer::renderPhraseMarkers(const BeatGrid& grid, int widt
 
     std::string line(width, ' ');
 
-    // Determine time range
+    // Determine time range (safe: already checked beats.empty())
     double minTime = beats[0].timestamp;
     double maxTime = beats[beats.size() - 1].timestamp;
     if (maxTime <= minTime) {

@@ -21,7 +21,7 @@ public:
 
 private:
     void computeSpectralFlux();
-    void pickPeaks();
+    void pickPeaks() const;
     std::vector<float> computePowerSpectrum(const std::vector<float>& audioBuffer);
     void performFFT(const std::vector<float>& input, std::vector<float>& output);
 
@@ -31,9 +31,9 @@ private:
     
     std::vector<float> audioBuffer_;           // Accumulating audio buffer
     std::vector<float> previousSpectrum_;      // Previous FFT result for flux calculation
-    std::vector<double> onsets_;               // Detected onset timestamps
-    std::vector<float> fluxCurve_;             // Spectral flux values over time
-    bool peaksPickedFlag_;                     // Track if peaks have been picked
+    mutable std::vector<double> onsets_;       // Detected onset timestamps (mutable for lazy eval)
+    mutable std::vector<float> fluxCurve_;     // Spectral flux values over time
+    mutable bool peaksPickedFlag_;             // Track if peaks have been picked (mutable for lazy eval)
 };
 
 } // namespace dj

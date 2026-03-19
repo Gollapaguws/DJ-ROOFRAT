@@ -1,24 +1,24 @@
 {
   "deckA": {
-    "trackPath": "test_track_a.wav",
-    "playbackPosition": 45.3,
+    "trackPath": "",
+    "playbackPosition": 13.4738,
     "tempoBend": 0.02,
     "isPlaying": true,
-    "lowGain": 1.0,
+    "lowGain": 1,
     "midGain": 0.8,
     "highGain": 1.2
   },
   "deckB": {
-    "trackPath": "test_track_b.wav",
-    "playbackPosition": 12.1,
+    "trackPath": "",
+    "playbackPosition": 0,
     "tempoBend": -0.01,
     "isPlaying": false,
-    "lowGain": 1.0,
-    "midGain": 1.0,
-    "highGain": 1.0
+    "lowGain": 1,
+    "midGain": 1,
+    "highGain": 1
   },
-  "crossfader": 0.3,
-  "currentCareerTier": 2,
-  "crowdEnergy": 0.75,
-  "venueId": "warehouse"
+  "crossfader": 0.944954,
+  "currentCareerTier": 0,
+  "crowdEnergy": 0,
+  "venueId": "Basement Bar"
 }

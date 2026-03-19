@@ -21,7 +21,7 @@ public:
      * @param maxBpm Maximum BPM to detect (default 180).
      * @return Detected BPM, or std::nullopt if detection failed.
      */
-    static std::optional<float> estimate(const AudioClip& clip, float minBpm = 70.0f, float maxBpm = 180.0f);
+    [[nodiscard]] static std::optional<float> estimate(const AudioClip& clip, float minBpm = 70.0f, float maxBpm = 180.0f);
 };
 
 } // namespace dj

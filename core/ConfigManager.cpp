@@ -268,7 +268,17 @@ bool ConfigManager::deserializeFromJSON(const std::string& json) {
         }
         
         return true;
+    } catch (const std::invalid_argument& e) {
+        // Failed to parse configuration value
+        return false;
+    } catch (const std::out_of_range& e) {
+        // Configuration value out of valid range
+        return false;
+    } catch (const std::exception& e) {
+        // Other parsing errors
+        return false;
     } catch (...) {
+        // Unknown error
         return false;
     }
 }

@@ -10,10 +10,41 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Enable parallel PDB writes for MSVC
+if(MSVC)
+    add_compile_options(/FS)
+endif()
+
 include(FetchContent)
 
+# Fetch ImGui for GUI
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG v1.90.1
+)
+FetchContent_MakeAvailable(imgui)
+
+# Create ImGui library with DirectX 11 and Win32 backends
+if(WIN32)
+    add_library(imgui_impl STATIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_dx11.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_win32.cpp
+    )
+    target_include_directories(imgui_impl PUBLIC
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
+    )
+    target_link_libraries(imgui_impl PUBLIC d3d11 dxgi)
+endif()
+
 option(DJ_SIM_ENABLE_AUDIO_BACKEND "Enable PortAudio and libsndfile when available" ON)
-option(DJROOFRAT_ENABLE_GRAPHICS "Enable DirectX 11 visuals" OFF)
+option(DJROOFRAT_ENABLE_GRAPHICS "Enable DirectX 11 visuals" ON)
 
 set(DJ_SIM_USE_PORTAUDIO OFF)
 set(DJ_SIM_USE_SNDFILE OFF)
@@ -222,7 +253,8 @@ endif()
 if(DJROOFRAT_ENABLE_GRAPHICS)
     target_compile_definitions(${DJ_ROOFRAT_TARGET} PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
     if(WIN32)
-        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE d3d11 dxgi d3dcompiler)
+        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE d3d11 dxgi d3dcompiler imgui_impl)
+        target_include_directories(${DJ_ROOFRAT_TARGET} PRIVATE ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
     endif()
 endif()
 

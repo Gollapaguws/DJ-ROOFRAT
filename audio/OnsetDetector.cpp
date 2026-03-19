@@ -37,9 +37,9 @@ void OnsetDetector::processSamples(const float* samples, std::size_t count) {
 }
 
 std::vector<double> OnsetDetector::getOnsets() const {
-    // Call peak picking if not already done
+    // Call peak picking if not already done (lazy evaluation pattern)
     if (!peaksPickedFlag_ && !fluxCurve_.empty()) {
-        const_cast<OnsetDetector*>(this)->pickPeaks();
+        pickPeaks();
     }
     return onsets_;
 }
@@ -128,7 +128,7 @@ void OnsetDetector::performFFT(const std::vector<float>& input, std::vector<floa
     output = computePowerSpectrum(input);
 }
 
-void OnsetDetector::pickPeaks() {
+void OnsetDetector::pickPeaks() const {
     if (fluxCurve_.empty() || peaksPickedFlag_) {
         return;
     }

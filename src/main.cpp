@@ -18,6 +18,16 @@
 #include <Windows.h>  // For GetKeyState(VK_SHIFT)
 #endif
 
+// ImGui headers
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+#include <d3d11.h>  // For ID3D11Device, ID3D11DeviceContext
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx11.h"
+// Forward declare ImGui Win32 handler
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
+
 #include "audio/AudioClip.h"
 #include "audio/BPMDetector.h"
 #include "audio/Deck.h"
@@ -363,6 +373,24 @@ std::vector<dj::InputCommand> pollKeyboardCommands() {
     }
 #endif
     return commands;
+}
+
+bool shouldPollKeyboardCommands(bool graphicsEnabled, bool imguiEnabled) {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (!graphicsEnabled || !imguiEnabled) {
+        return true;
+    }
+
+    if (ImGui::GetCurrentContext() == nullptr) {
+        return true;
+    }
+
+    return !ImGui::GetIO().WantCaptureKeyboard;
+#else
+    (void)graphicsEnabled;
+    (void)imguiEnabled;
+    return true;
+#endif
 }
 
 bool configurePerformanceLoop(dj::Deck& deck, float effectiveBpm) {
@@ -918,11 +946,50 @@ int main(int argc, char** argv) {
     dj::GraphicsContext graphics;
     dj::LightingRig lighting;
     const auto& config = configManager.getConfig();
-    bool graphicsEnabled = config.enableGraphics ? graphics.initialize(config.graphicsWidth, config.graphicsHeight) : false;
+    std::string graphicsError;
+    bool graphicsEnabled = config.enableGraphics ? graphics.initialize(config.graphicsWidth, config.graphicsHeight, &graphicsError) : false;
+    bool imguiEnabled = false;
     if (graphicsEnabled) {
         std::cout << "DirectX 11 graphics initialized.\n";
+        
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+        // Validate graphics resources before ImGui initialization
+        HWND windowHandle = (HWND)graphics.getWindowHandle();
+        ID3D11Device* device = (ID3D11Device*)graphics.getD3D11Device();
+        ID3D11DeviceContext* deviceContext = (ID3D11DeviceContext*)graphics.getD3D11DeviceContext();
+        
+        if (windowHandle && device && deviceContext) {
+            // Initialize ImGui
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            ImGuiIO& io = ImGui::GetIO();
+            io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+            
+            // Initialize ImGui backends with error checking
+            if (ImGui_ImplWin32_Init(windowHandle) && 
+                ImGui_ImplDX11_Init(device, deviceContext)) {
+                
+                // Setup style
+                ImGui::StyleColorsDark();
+                imguiEnabled = true;
+                std::cout << "ImGui interface initialized.\n";
+            } else {
+                std::cout << "Warning: ImGui backend initialization failed\n";
+                ImGui::DestroyContext();
+            }
+        } else {
+            std::cout << "Warning: Invalid graphics resources, skipping ImGui initialization\n";
+        }
+
+        // Show the window after graphics and optional ImGui setup are complete.
+        graphics.showWindow();
+#endif
     } else {
-        std::cout << "Graphics unavailable; using ASCII waveform fallback.\n";
+        std::cout << "Graphics unavailable";
+        if (!graphicsError.empty()) {
+            std::cout << " (" << graphicsError << ")";
+        }
+        std::cout << "; using ASCII waveform fallback.\n";
     }
 
     dj::PortAudioPlayer player;
@@ -969,7 +1036,24 @@ int main(int argc, char** argv) {
     for (int block = 0; block < totalBlocks; ++block) {
         const float progress = static_cast<float>(block) / static_cast<float>(totalBlocks - 1);
 
-        const auto commands = pollKeyboardCommands();
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+        // Process Windows messages to keep window alive and responsive
+        if (graphicsEnabled) {
+            MSG msg;
+            while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+                if (msg.message == WM_QUIT) {
+                    quitRequested = true;
+                }
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+        }
+#endif
+
+        std::vector<dj::InputCommand> commands;
+        if (shouldPollKeyboardCommands(graphicsEnabled, imguiEnabled)) {
+            commands = pollKeyboardCommands();
+        }
         if (!commands.empty()) {
             manualMixMode = true;
         }
@@ -1879,6 +1963,114 @@ int main(int argc, char** argv) {
             }
         }
 
+#if defined(DJROOFRAT_ENABLE_GRAPHICS)
+        // Render ImGui interface
+        if (graphicsEnabled && imguiEnabled && graphics.isAvailable()) {
+            ImGui_ImplDX11_NewFrame();
+            ImGui_ImplWin32_NewFrame();
+            ImGui::NewFrame();
+            
+            // Deck and mixer control panel
+            ImGui::Begin("DJ-ROOFRAT Control Panel");
+            ImGui::Text("Live GUI Controls");
+            ImGui::Separator();
+            ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+            ImGui::Text("Block: %d / %d", block, totalBlocks);
+            ImGui::Text("Audio: %s", realtimeAudio ? "REALTIME" : "SILENT");
+            ImGui::Separator();
+
+            if (ImGui::Checkbox("Manual Mix Mode", &manualMixMode)) {
+                if (!manualMixMode) {
+                    // Keep current fader position when returning to autopilot.
+                    mixer.setCrossfader(crossfaderPosition);
+                }
+            }
+
+            float guiCrossfader = crossfaderPosition;
+            if (ImGui::SliderFloat("Crossfader", &guiCrossfader, -1.0f, 1.0f, "%.2f")) {
+                crossfaderPosition = guiCrossfader;
+                mixer.setCrossfader(crossfaderPosition);
+                manualMixMode = true;
+            }
+
+            ImGui::Separator();
+            ImGui::Text("Deck A");
+            ImGui::Text("State: %s | BPM: %.2f | Frame: %llu",
+                        deckA.isPlaying() ? "PLAYING" : "PAUSED",
+                        deckA.getBPM(),
+                        static_cast<unsigned long long>(deckA.currentFrame()));
+            if (ImGui::Button(deckA.isPlaying() ? "Pause A" : "Play A")) {
+                if (deckA.isPlaying()) {
+                    deckA.pause();
+                } else {
+                    deckA.play();
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cue A")) {
+                deckA.jumpToCue(activeCueBankA);
+            }
+            if (ImGui::SliderFloat("Tempo A (%)", &tempoA, -50.0f, 50.0f, "%.2f")) {
+                deckA.setTempoPercent(tempoA);
+            }
+            if (ImGui::SliderFloat("A Low", &eqALow, 0.0f, 2.0f, "%.2f")) {
+                deckA.setEQ(eqALow, eqAMid, eqAHigh);
+            }
+            if (ImGui::SliderFloat("A Mid", &eqAMid, 0.0f, 2.0f, "%.2f")) {
+                deckA.setEQ(eqALow, eqAMid, eqAHigh);
+            }
+            if (ImGui::SliderFloat("A High", &eqAHigh, 0.0f, 2.0f, "%.2f")) {
+                deckA.setEQ(eqALow, eqAMid, eqAHigh);
+            }
+            if (ImGui::SliderFloat("A Filter", &filterA, 0.0f, 1.0f, "%.2f")) {
+                deckA.setFilter(filterA);
+            }
+
+            ImGui::Separator();
+            ImGui::Text("Deck B");
+            ImGui::Text("State: %s | BPM: %.2f | Frame: %llu",
+                        deckB.isPlaying() ? "PLAYING" : "PAUSED",
+                        deckB.getBPM(),
+                        static_cast<unsigned long long>(deckB.currentFrame()));
+            if (ImGui::Button(deckB.isPlaying() ? "Pause B" : "Play B")) {
+                if (deckB.isPlaying()) {
+                    deckB.pause();
+                } else {
+                    deckB.play();
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cue B")) {
+                deckB.jumpToCue(activeCueBankB);
+            }
+            if (ImGui::SliderFloat("Tempo B (%)", &tempoB, -50.0f, 50.0f, "%.2f")) {
+                deckB.setTempoPercent(tempoB);
+            }
+            if (ImGui::SliderFloat("B Low", &eqBLow, 0.0f, 2.0f, "%.2f")) {
+                deckB.setEQ(eqBLow, eqBMid, eqBHigh);
+            }
+            if (ImGui::SliderFloat("B Mid", &eqBMid, 0.0f, 2.0f, "%.2f")) {
+                deckB.setEQ(eqBLow, eqBMid, eqBHigh);
+            }
+            if (ImGui::SliderFloat("B High", &eqBHigh, 0.0f, 2.0f, "%.2f")) {
+                deckB.setEQ(eqBLow, eqBMid, eqBHigh);
+            }
+            if (ImGui::SliderFloat("B Filter", &filterB, 0.0f, 1.0f, "%.2f")) {
+                deckB.setFilter(filterB);
+            }
+
+            ImGui::Separator();
+            ImGui::Checkbox("Show Spectrum", &showSpectrum);
+            ImGui::Checkbox("Show Energy Curve", &showEnergyCurve);
+            ImGui::End();
+            
+            ImGui::Render();
+            graphics.clearRenderTarget(0.1f, 0.1f, 0.15f, 1.0f);
+            ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+            graphics.present();
+        }
+#endif
+
         if (!deckA.isPlaying() && !deckB.isPlaying()) {
             break;
         }
@@ -1886,6 +2078,14 @@ int main(int argc, char** argv) {
 
     // Phase 7: Clean up graphics
     if (graphicsEnabled) {
+#if defined(DJROOFRAT_ENABLE_GRAPHICS)
+        // Shutdown ImGui (only if context exists)
+        if (imguiEnabled && ImGui::GetCurrentContext()) {
+            ImGui_ImplDX11_Shutdown();
+            ImGui_ImplWin32_Shutdown();
+            ImGui::DestroyContext();
+        }
+#endif
         graphics.shutdown();
     }
 

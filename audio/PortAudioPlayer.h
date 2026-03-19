@@ -12,10 +12,11 @@ public:
 
     bool available() const;
     bool open(int sampleRate, unsigned long framesPerBuffer, std::string* errorOut = nullptr);
-    bool write(const std::vector<float>& interleavedStereo, std::string* errorOut = nullptr);
+    [[nodiscard]] bool open(int sampleRate, int framesPerBuffer, std::string* errorOut = nullptr);
+    [[nodiscard]] bool write(const std::vector<float>& interleavedStereo, std::string* errorOut = nullptr);
     void close();
 
-    bool isOpen() const;
+    [[nodiscard]] bool isOpen() const;
 
 private:
     void* stream_ = nullptr;

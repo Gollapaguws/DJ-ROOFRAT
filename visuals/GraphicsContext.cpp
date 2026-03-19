@@ -106,14 +106,17 @@ bool GraphicsContext::initialize(int width, int height, std::string* errorOut) {
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-        // Create a temporary hidden window for the swap chain
+        // Create a window for the swap chain
         WNDCLASSA wndClass = {};
         wndClass.lpfnWndProc = DefWindowProcA;
         wndClass.lpszClassName = "DJ_ROOFRAT_Graphics_Window";
+        wndClass.hInstance = GetModuleHandleA(nullptr);
+        
+        // Try to register class (ignore error if already registered)
         RegisterClassA(&wndClass);
 
         hwnd_ = CreateWindowA("DJ_ROOFRAT_Graphics_Window", "DJ-ROOFRAT Graphics",
-                              WS_OVERLAPPEDWINDOW, 0, 0, width_, height_,
+                              WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width_, height_,
                               nullptr, nullptr, GetModuleHandleA(nullptr), nullptr);
 
         if (!hwnd_) {
@@ -122,6 +125,8 @@ bool GraphicsContext::initialize(int width, int height, std::string* errorOut) {
             }
             return false;
         }
+
+        // Don't show window yet - will be shown after ImGui initialization
 
         hr = dxgiFactory->CreateSwapChainForHwnd(
             device_.Get(),
@@ -439,9 +444,46 @@ void GraphicsContext::shutdown() {
     if (hwnd_) {
         DestroyWindow((HWND)hwnd_);
         hwnd_ = nullptr;
+        
+        // Unregister window class to prevent resource leak
+        UnregisterClassA("DJ_ROOFRAT_Graphics_Window", GetModuleHandleA(nullptr));
     }
 #endif
     available_ = false;
+}
+
+void GraphicsContext::present() {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (swapChain_) {
+        swapChain_->Present(1, 0);  // vsync enabled
+    }
+#endif
+}
+
+void GraphicsContext::showWindow() {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (hwnd_) {
+        ShowWindow((HWND)hwnd_, SW_SHOW);
+        UpdateWindow((HWND)hwnd_);
+    }
+#endif
+}
+
+void GraphicsContext::clearRenderTarget(float r, float g, float b, float a) {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (context_ && renderTargetView_) {
+        const float clearColor[4] = { r, g, b, a };
+        context_->ClearRenderTargetView(renderTargetView_.Get(), clearColor);
+        
+        if (depthStencilView_) {
+            context_->ClearDepthStencilView(depthStencilView_.Get(), 
+                                           D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 
+                                           1.0f, 0);
+        }
+    }
+#else
+    (void)r; (void)g; (void)b; (void)a;
+#endif
 }
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)

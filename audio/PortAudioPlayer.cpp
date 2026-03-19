@@ -77,6 +77,17 @@ bool PortAudioPlayer::open(int sampleRate, unsigned long framesPerBuffer, std::s
 #endif
 }
 
+bool PortAudioPlayer::open(int sampleRate, int framesPerBuffer, std::string* errorOut) {
+    if (framesPerBuffer <= 0) {
+        if (errorOut != nullptr) {
+            *errorOut = "framesPerBuffer must be positive.";
+        }
+        return false;
+    }
+
+    return open(sampleRate, static_cast<unsigned long>(framesPerBuffer), errorOut);
+}
+
 bool PortAudioPlayer::write(const std::vector<float>& interleavedStereo, std::string* errorOut) {
 #if DJ_SIM_USE_PORTAUDIO
     if (!open_ || stream_ == nullptr) {
