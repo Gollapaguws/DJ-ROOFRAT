@@ -180,6 +180,7 @@ void ParticleSystem::updatePhysics(ID3D11DeviceContext* context, float deltaTime
 }
 
 int ParticleSystem::render(ID3D11DeviceContext* context) {
+    (void)context; // Placeholder - unused in current implementation
     // This is a placeholder for particle rendering
     // In a full implementation, this would set up vertex buffers and draw
     return 0;

@@ -48,11 +48,11 @@ class ComputeShader {
 public:
     ComputeShader() = default;
     ~ComputeShader() = default;
-    bool compile(void* /*device*/, const std::string& /*shaderName*/,
-                 const std::string& /*entryPoint*/, std::string* /*errorOut*/ = nullptr) { return false; }
+    bool compile(void*, const std::string&,
+                 const std::string&, std::string* = nullptr) { return false; }
     void* getComputeShader() const { return nullptr; }
-    void dispatch(void* /*context*/, uint32_t /*groupCountX*/, uint32_t /*groupCountY*/ = 1,
-                  uint32_t /*groupCountZ*/ = 1) {}
+    void dispatch(void*, uint32_t, uint32_t = 1,
+                  uint32_t = 1) {}
 };
 } // namespace dj
 

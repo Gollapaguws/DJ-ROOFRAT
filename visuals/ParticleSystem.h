@@ -103,14 +103,14 @@ class ParticleSystem {
 public:
     ParticleSystem() = default;
     ~ParticleSystem() = default;
-    bool initialize(void* /*device*/, int /*maxParticles*/ = 10000) { return false; }
-    void emitParticles(const float /*position*/[3], int /*count*/, float /*lifetime*/, const float /*baseVelocity*/[3]) {}
-    void updatePhysics(void* /*context*/, float /*deltaTime*/, const float /*gravity*/[3], const float /*windForce*/[3]) {}
-    int render(void* /*context*/) { return 0; }
+    bool initialize(void*, int = 10000) { return false; }
+    void emitParticles(const float[3], int, float, const float[3]) {}
+    void updatePhysics(void*, float, const float[3], const float[3]) {}
+    int render(void*) { return 0; }
     int getActiveParticleCount() const { return 0; }
     int getMaxParticles() const { return 0; }
-    float* getParticlePosition(int /*index*/) { return nullptr; }
-    void triggerConfettiBurst(const float /*position*/[3], int /*particleCount*/ = 500) {}
+    float* getParticlePosition(int) { return nullptr; }
+    void triggerConfettiBurst(const float[3], int = 500) {}
     void reset() {}
     void* getParticleUAV() const { return nullptr; }
 };

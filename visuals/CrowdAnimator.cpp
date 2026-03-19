@@ -28,6 +28,7 @@ void CrowdAnimator::update(float bpm, float deltaTime) {
 
 InstanceData CrowdAnimator::getInstanceData(int crowdMemberId, const float position[3], 
                                             const float color[3]) const {
+    (void)crowdMemberId; // Unused in current implementation
     InstanceData data = {};
     
     data.position[0] = position[0];

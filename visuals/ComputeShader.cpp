@@ -1,5 +1,7 @@
 #include "visuals/ComputeShader.h"
 
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+
 #include <fstream>
 #include <iterator>
 
@@ -11,7 +13,6 @@ ComputeShader::~ComputeShader() = default;
 
 bool ComputeShader::compile(ID3D11Device* device, const std::string& shaderName,
                             const std::string& entryPoint, std::string* errorOut) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (!device) {
         if (errorOut) *errorOut = "Device is null";
         return false;
@@ -89,20 +90,10 @@ bool ComputeShader::compile(ID3D11Device* device, const std::string& shaderName,
     }
 
     return true;
-#else
-    (void)device;
-    (void)shaderName;
-    (void)entryPoint;
-    if (errorOut) {
-        *errorOut = "Compute shader compilation not available (graphics disabled)";
-    }
-    return false;
-#endif
 }
 
 void ComputeShader::dispatch(ID3D11DeviceContext* context, uint32_t groupCountX,
                              uint32_t groupCountY, uint32_t groupCountZ) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (!context || !computeShader_) {
         return;
     }
@@ -117,7 +108,8 @@ void ComputeShader::dispatch(ID3D11DeviceContext* context, uint32_t groupCountX,
     ID3D11UnorderedAccessView* nullUAV = nullptr;
     context->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
     context->CSSetShader(nullptr, nullptr, 0);
-#endif
 }
 
 } // namespace dj
+
+#endif // defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
