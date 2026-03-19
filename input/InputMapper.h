@@ -153,13 +153,39 @@ enum class InputCommand {
     ToggleCoaching,          // 'C' key (toggle coaching overlay)
 };
 
+/**
+ * @brief All keyboard and text commands supported by the application.
+ *
+ * Maps to keyboard characters and action strings. See docs/keyboard-reference.md
+ * for complete key bindings.
+ */
 class InputMapper {
 public:
+    /**
+     * @brief Parse a text command string (case-insensitive).
+     * @param rawCommand Command text (e.g., "playa", "xf left").
+     * @return Matching InputCommand or InputCommand::None if unrecognized.
+     */
     static InputCommand parse(const std::string& rawCommand);
+    /**
+     * @brief Parse a single keyboard character.
+     * @param key Character from _getch() (ASCII or extended).
+     * @return Matching InputCommand or InputCommand::None if unmapped.
+     */
     static InputCommand parseKey(char key);
     
     // Phase 24: Player-specific parsing
+    /**
+     * @brief Player 1 key parsing (delegates to parseKey).
+     * @param key Character input.
+     * @return Matching InputCommand for Player 1.
+     */
     static InputCommand parseKeyPlayer1(char key);
+    /**
+     * @brief Player 2 key parsing via arrow keys and numpad.
+     * @param key Extended key scan code or numpad character.
+     * @return Player 2 InputCommand or InputCommand::None if unmapped.
+     */
     static InputCommand parseKeyPlayer2(char key);
 };
 
