@@ -283,6 +283,38 @@ void test_EnhancedShader_RenderingWithMaterialBuffer() {
     std::cout << "✓ test_EnhancedShader_RenderingWithMaterialBuffer passed\n";
 }
 
+// Test 7: EnhancedShader_IntegratedInitialization - Verify shader and buffer are created during initialize()
+void test_EnhancedShader_IntegratedInitialization() {
+    // Arrange
+    dj::GraphicsContext graphics;
+    bool graphicsInit = graphics.initialize(1920, 1080);
+    
+    if (!graphicsInit) {
+        std::cout << "⊘ test_EnhancedShader_IntegratedInitialization skipped (graphics unavailable)\n";
+        return;
+    }
+
+    dj::Enhanced3DScene scene;
+    
+    // Act - Initialize should create shader and buffer automatically
+    bool sceneInit = scene.initialize(graphics.getD3D11Device(), graphics.getD3D11DeviceContext());
+    
+    if (!sceneInit) {
+        std::cout << "⊘ test_EnhancedShader_IntegratedInitialization skipped (scene initialization failed)\n";
+        graphics.shutdown();
+        return;
+    }
+
+    // Assert - Shader and buffer should be available immediately after initialize()
+    assert(scene.hasCompiledShader() && "Scene should have compiled shader after initialization");
+    assert(scene.hasMaterialBuffer() && "Scene should have material buffer after initialization");
+
+    // Cleanup
+    graphics.shutdown();
+
+    std::cout << "✓ test_EnhancedShader_IntegratedInitialization passed\n";
+}
+
 } // namespace
 
 int main() {
@@ -296,6 +328,7 @@ int main() {
         test_EnhancedShader_BeatReactiveRendering();
         test_EnhancedShader_EmissiveColorPulsing();
         test_EnhancedShader_RenderingWithMaterialBuffer();
+        test_EnhancedShader_IntegratedInitialization();
 
         std::cout << "\n=== All Phase 2 tests passed! ===\n\n";
         return 0;

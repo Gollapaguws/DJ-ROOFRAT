@@ -3,6 +3,9 @@
 #include <memory>
 #include <vector>
 
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 #include <d3d11.h>
 #include <wrl.h>
@@ -133,9 +136,6 @@ private:
     bool createParticleBuffers();
     bool createTunnelGeometry();
     bool createBloomResources();
-
-    // Phase 2: Material buffer for enhanced shader (metallic, roughness, emissive)
-    ComPtr<ID3D11Buffer> materialBuffer_;
 #endif
 };
 

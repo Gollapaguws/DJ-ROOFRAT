@@ -5,6 +5,8 @@
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 #include "visuals/Shader.h"
+#include "visuals/IndexBuffer.h"
+#include "visuals/VertexBuffer.h"
 #endif
 
 namespace dj {
@@ -29,10 +31,12 @@ Enhanced3DScene::Enhanced3DScene()
 }
 
 Enhanced3DScene::~Enhanced3DScene() {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     // Clean up D3D11 resources if needed
     // Note: device_ and context_ are owned by GraphicsContext, not this class
     device_ = nullptr;
     context_ = nullptr;
+#endif
 }
 
 bool Enhanced3DScene::initialize(ID3D11Device* device, ID3D11DeviceContext* context) {
@@ -54,6 +58,16 @@ bool Enhanced3DScene::initialize(ID3D11Device* device, ID3D11DeviceContext* cont
     
     // Calculate beat interval based on BPM
     beatInterval_ = 60.0f / currentBPM_; // seconds per beat
+
+    // Phase 2: Integrate enhanced shader compilation into initialization flow
+    if (!loadEnhancedShader()) {
+        return false;
+    }
+
+    // Phase 2: Integrate material buffer creation into initialization flow
+    if (!createMaterialBuffer()) {
+        return false;
+    }
 
     return true;
 #else

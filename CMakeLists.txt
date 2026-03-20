@@ -58,9 +58,24 @@ set(SQLITE3_INCLUDE_DIR "")
 find_package(SQLite3 QUIET)
 if(SQLite3_FOUND)
     message(STATUS "SQLite3 found via find_package: ${SQLite3_LIBRARIES}")
-    set(SQLITE3_TARGET SQLite3::SQLite3)
-    if(NOT SQLite3_INCLUDE_DIRS)
+    if(TARGET SQLite::SQLite3)
+        set(SQLITE3_TARGET SQLite::SQLite3)
+    elseif(TARGET SQLite3::SQLite3)
+        set(SQLITE3_TARGET SQLite3::SQLite3)
+    elseif(SQLite3_LIBRARIES)
+        set(SQLITE3_TARGET ${SQLite3_LIBRARIES})
+    endif()
+
+    if(SQLite3_INCLUDE_DIRS)
+        set(SQLITE3_INCLUDE_DIR ${SQLite3_INCLUDE_DIRS})
+    elseif(SQLite3_INCLUDE_DIR)
+        set(SQLite3_INCLUDE_DIRS ${SQLite3_INCLUDE_DIR})
+        set(SQLITE3_INCLUDE_DIR ${SQLite3_INCLUDE_DIR})
+    else()
         find_path(SQLite3_INCLUDE_DIRS NAMES sqlite3.h)
+        if(SQLite3_INCLUDE_DIRS)
+            set(SQLITE3_INCLUDE_DIR ${SQLite3_INCLUDE_DIRS})
+        endif()
     endif()
 endif()
 
@@ -87,8 +102,7 @@ if(NOT SQLite3_FOUND)
 endif()
 
 if(NOT SQLite3_FOUND)
-    message(WARNING "SQLite3 not found on system. Trying to fetch from GitHub...")
-    # Try to download and build the amalgamation... (optional fallback)
+    message(STATUS "SQLite3 not found on system. Continuing with in-memory TrackLibrary fallback.")
 endif()
 
 if(DJ_SIM_ENABLE_AUDIO_BACKEND)
@@ -276,7 +290,7 @@ if(SQLite3_FOUND)
         target_include_directories(${DJ_ROOFRAT_TARGET} PRIVATE ${SQLite3_INCLUDE_DIRS})
     endif()
 else()
-    message(WARNING "SQLite3 not found - TrackLibrary will not have database support")
+    message(STATUS "SQLite3 not found - TrackLibrary database support is disabled")
 endif()
 
 if(MSVC)
@@ -470,6 +484,7 @@ set_target_properties(crowd_phase6_test PROPERTIES OUTPUT_NAME "CrowdStateMachin
 add_executable(graphics_context_phase7_test
     visuals/GraphicsContext_Phase7_test.cpp
     visuals/GraphicsContext.cpp
+    visuals/Enhanced3DScene.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
     visuals/VertexBuffer.cpp
@@ -559,6 +574,7 @@ set_target_properties(crowd_renderer_phase8_test PROPERTIES OUTPUT_NAME "CrowdRe
 add_executable(graphics_context_phase8_test
     visuals/GraphicsContext_Phase8_test.cpp
     visuals/GraphicsContext.cpp
+    visuals/Enhanced3DScene.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
     visuals/VertexBuffer.cpp
@@ -591,6 +607,7 @@ set_target_properties(graphics_context_phase8_test PROPERTIES OUTPUT_NAME "Graph
 add_executable(graphics_context_phase18_test
     visuals/GraphicsContext_Phase18_test.cpp
     visuals/GraphicsContext.cpp
+    visuals/Enhanced3DScene.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
     visuals/VertexBuffer.cpp
@@ -625,6 +642,7 @@ add_executable(lighting_phase19_test
     visuals/LightingRig.cpp
     visuals/LaserController.cpp
     visuals/GraphicsContext.cpp
+    visuals/Enhanced3DScene.cpp
     visuals/Shader.cpp
     visuals/RenderTarget.cpp
     visuals/PostProcessor.cpp
@@ -663,6 +681,7 @@ add_executable(particles_phase20_test
     visuals/CrowdAnimator.cpp
     visuals/CrowdRenderer.cpp
     visuals/GraphicsContext.cpp
+    visuals/Enhanced3DScene.cpp
     visuals/Shader.cpp
     visuals/RenderTarget.cpp
     visuals/PostProcessor.cpp
