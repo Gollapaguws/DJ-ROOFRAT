@@ -31,6 +31,7 @@ class Shader;
 class VertexBuffer;
 class IndexBuffer;
 class StageGeometry;
+class Enhanced3DScene;
 
 class GraphicsContext {
 public:
@@ -120,6 +121,7 @@ private:
     std::unique_ptr<VertexBuffer> vertexBuffer_;
     std::unique_ptr<IndexBuffer> indexBuffer_;
     std::unique_ptr<StageGeometry> stageGeometry_;
+    std::unique_ptr<Enhanced3DScene> enhancedScene_;
 
     // Window handle
     void* hwnd_ = nullptr;

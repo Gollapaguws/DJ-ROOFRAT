@@ -2,11 +2,13 @@
 
 #include <memory>
 #include <algorithm>
+#include <cmath>
 
 #include "visuals/LaserController.h"
 #include "visuals/CrowdRenderer.h"
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+#include "visuals/Enhanced3DScene.h"
 #include <d3d11.h>
 #include <dxgi1_3.h>
 #include <windows.h>
@@ -36,7 +38,11 @@ namespace dj {
 GraphicsContext::GraphicsContext()
     : available_(false), width_(0), height_(0),
       laserController_(std::make_unique<LaserController>()),
-      crowdRenderer_(std::make_unique<CrowdRenderer>()) {
+      crowdRenderer_(std::make_unique<CrowdRenderer>())
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+      , enhancedScene_(std::make_unique<Enhanced3DScene>())
+#endif
+{
 }
 
 GraphicsContext::~GraphicsContext() {
@@ -117,21 +123,41 @@ bool GraphicsContext::initialize(int width, int height, std::string* errorOut) {
         swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
         // Create a window for the swap chain
+        HINSTANCE hInstance = GetModuleHandleA(nullptr);
+        const char* className = "DJ_ROOFRAT_Graphics_Window";
+        
         WNDCLASSA wndClass = {};
+        wndClass.style = CS_HREDRAW | CS_VREDRAW;
         wndClass.lpfnWndProc = DJRoofratWndProc;
-        wndClass.lpszClassName = "DJ_ROOFRAT_Graphics_Window";
-        wndClass.hInstance = GetModuleHandleA(nullptr);
+        wndClass.cbClsExtra = 0;
+        wndClass.cbWndExtra = 0;
+        wndClass.hInstance = hInstance;
+        wndClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+        wndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        wndClass.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+        wndClass.lpszMenuName = nullptr;
+        wndClass.lpszClassName = className;
         
         // Try to register class (ignore error if already registered)
-        RegisterClassA(&wndClass);
+        ATOM classAtom = RegisterClassA(&wndClass);
+        if (!classAtom) {
+            DWORD error = GetLastError();
+            if (error != ERROR_CLASS_ALREADY_EXISTS) {
+                if (errorOut) {
+                    *errorOut = "Failed to register window class (error " + std::to_string(error) + ")";
+                }
+                return false;
+            }
+        }
 
-        hwnd_ = CreateWindowA("DJ_ROOFRAT_Graphics_Window", "DJ-ROOFRAT Graphics",
+        hwnd_ = CreateWindowA(className, "DJ-ROOFRAT",
                               WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width_, height_,
-                              nullptr, nullptr, GetModuleHandleA(nullptr), nullptr);
+                              nullptr, nullptr, hInstance, nullptr);
 
         if (!hwnd_) {
+            DWORD error = GetLastError();
             if (errorOut) {
-                *errorOut = "Failed to create window";
+                *errorOut = "Failed to create window (error " + std::to_string(error) + ")";
             }
             return false;
         }
@@ -298,6 +324,16 @@ bool GraphicsContext::initialize(int width, int height, std::string* errorOut) {
             return false;
         }
 
+        // Initialize Enhanced3DScene
+        if (enhancedScene_) {
+            if (!enhancedScene_->initialize(device_.Get(), context_.Get())) {
+                if (errorOut) {
+                    *errorOut = "Failed to initialize Enhanced3DScene";
+                }
+                return false;
+            }
+        }
+
         available_ = true;
         return true;
     } catch (const std::exception& e) {
@@ -349,6 +385,18 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
     
     if (crowdRenderer_) {
         crowdRenderer_->update(mood, energy, blockDurationSeconds);
+    }
+
+    // Update Enhanced3DScene with music data
+    if (enhancedScene_) {
+        // Calculate beat phase (0 to 1) based on BPM
+        // For Phase 1, we use a simple calculation. More sophisticated timing can be added later.
+        static float musicTime = 0.0f;
+        musicTime += blockDurationSeconds;
+        float beatDuration = 60.0f / bpm;
+        float beatPhase = fmodf(musicTime / beatDuration, 1.0f);
+        
+        enhancedScene_->update(bpm, energy, beatPhase, blockDurationSeconds);
     }
 
     // Clear render target and depth stencil
@@ -414,6 +462,13 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
     // Draw indexed primitives
     if (indexBuffer_ && indexBuffer_->getIndexCount() > 0) {
         context_->DrawIndexed(indexBuffer_->getIndexCount(), 0, 0);
+    }
+
+    // Render Enhanced3DScene
+    if (enhancedScene_ && camera_) {
+        const Matrix4* viewMatrixPtr = camera_->getViewMatrix();
+        const Matrix4& projMatrix = camera_->getProjectionMatrix();
+        enhancedScene_->render(viewMatrixPtr->m[0], &projMatrix.m[0][0]);
     }
 
     // Note: presentation (Present) is handled by the caller via graphics.present()

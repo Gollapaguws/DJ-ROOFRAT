@@ -80,9 +80,6 @@ void test_ParticleSystem_Physics() {
     // Act: Update with gravity and wind
     float deltaTime = 0.016f;  // ~60 FPS
     
-    // Get initial state
-    auto initialPos = particleSystem.getParticlePosition(0);
-    
     // Update physics (gravity should pull down, wind should push)
     float gravity[3] = {0.0f, -9.8f, 0.0f};
     float wind[3] = {0.5f, 0.0f, 0.0f};
@@ -134,7 +131,57 @@ void test_ParticleSystem_10KParticles() {
     std::cout << "✓ test_ParticleSystem_10KParticles passed (" << fps << " FPS)\n";
 }
 
-// Test 5: CrowdMesh LOD Generation
+// Test 5: ParticleSystem should honor small explicit capacities
+void test_ParticleSystem_CustomCapacity() {
+    std::cout << "Running: test_ParticleSystem_CustomCapacity\n";
+
+    dj::GraphicsContext graphics;
+    bool initialized = graphics.initialize(1920, 1080);
+    assert(initialized && "Graphics should initialize");
+
+    dj::ParticleSystem particleSystem;
+    bool psInitialized = particleSystem.initialize(graphics.getD3D11Device(), 32);
+    assert(psInitialized && "ParticleSystem should initialize with a small custom capacity");
+    assert(particleSystem.getMaxParticles() == 32 && "Explicit particle capacity should be preserved");
+
+    float pos[3] = {0.0f, 0.0f, 0.0f};
+    float vel[3] = {0.0f, 1.0f, 0.0f};
+    particleSystem.emitParticles(pos, 64, 1.5f, vel);
+
+    assert(particleSystem.getActiveParticleCount() == 32 && "Active particles should clamp to the configured capacity");
+
+    std::cout << "✓ test_ParticleSystem_CustomCapacity passed\n";
+}
+
+// Test 6: Confetti bursts should still overwrite old particles once capacity is full
+void test_ParticleSystem_ConfettiBurstAfterSaturation() {
+    std::cout << "Running: test_ParticleSystem_ConfettiBurstAfterSaturation\n";
+
+    dj::GraphicsContext graphics;
+    bool initialized = graphics.initialize(1920, 1080);
+    assert(initialized && "Graphics should initialize");
+
+    dj::ParticleSystem particleSystem;
+    bool psInitialized = particleSystem.initialize(graphics.getD3D11Device(), 16);
+    assert(psInitialized && "ParticleSystem should initialize with a compact pool");
+
+    float basePos[3] = {0.0f, 0.0f, 0.0f};
+    float baseVel[3] = {0.0f, 0.0f, 0.0f};
+    particleSystem.emitParticles(basePos, 16, 2.0f, baseVel);
+    assert(particleSystem.getActiveParticleCount() == 16 && "Pool should be full after the initial emission");
+
+    float burstPos[3] = {25.0f, 50.0f, 75.0f};
+    particleSystem.triggerConfettiBurst(burstPos, 8);
+
+    float* firstParticlePos = particleSystem.getParticlePosition(0);
+    assert(firstParticlePos != nullptr && "Particle position should be readable after confetti burst");
+    assert(firstParticlePos[0] > 10.0f && "Confetti burst should overwrite the oldest particle slots even after saturation");
+    assert(particleSystem.getActiveParticleCount() == 16 && "Confetti burst should reuse capacity without exceeding it");
+
+    std::cout << "✓ test_ParticleSystem_ConfettiBurstAfterSaturation passed\n";
+}
+
+// Test 7: CrowdMesh LOD Generation
 void test_CrowdMesh_LODGeneration() {
     std::cout << "Running: test_CrowdMesh_LODGeneration\n";
     
@@ -167,7 +214,7 @@ void test_CrowdMesh_LODGeneration() {
               << " verts, LOD1: " << lod1Vertices << " verts, LOD2: " << lod2Vertices << " verts)\n";
 }
 
-// Test 6: CrowdRenderer Instanced Draw
+// Test 8: CrowdRenderer Instanced Draw
 void test_CrowdRenderer_InstancedDraw() {
     std::cout << "Running: test_CrowdRenderer_InstancedDraw\n";
     
@@ -202,7 +249,7 @@ void test_CrowdRenderer_InstancedDraw() {
     std::cout << "✓ test_CrowdRenderer_InstancedDraw passed\n";
 }
 
-// Test 7: CrowdRenderer LOD Switching
+// Test 9: CrowdRenderer LOD Switching
 void test_CrowdRenderer_LODSwitching() {
     std::cout << "Running: test_CrowdRenderer_LODSwitching\n";
     
@@ -237,7 +284,7 @@ void test_CrowdRenderer_LODSwitching() {
     std::cout << "✓ test_CrowdRenderer_LODSwitching passed\n";
 }
 
-// Test 8: CrowdAnimator BPM Sync
+// Test 10: CrowdAnimator BPM Sync
 void test_CrowdAnimator_BPMSync() {
     std::cout << "Running: test_CrowdAnimator_BPMSync\n";
     
@@ -272,7 +319,7 @@ void test_CrowdAnimator_BPMSync() {
     std::cout << "✓ test_CrowdAnimator_BPMSync passed\n";
 }
 
-// Test 9: CrowdAnimator State Transitions
+// Test 11: CrowdAnimator State Transitions
 void test_CrowdAnimator_IdleJumpWave() {
     std::cout << "Running: test_CrowdAnimator_IdleJumpWave\n";
     
@@ -312,13 +359,15 @@ int runAllTests() {
         test_ComputeShader_Creation();
         test_ParticleSystem_Physics();
         test_ParticleSystem_10KParticles();
+        test_ParticleSystem_CustomCapacity();
+        test_ParticleSystem_ConfettiBurstAfterSaturation();
         test_CrowdMesh_LODGeneration();
         test_CrowdRenderer_InstancedDraw();
         test_CrowdRenderer_LODSwitching();
         test_CrowdAnimator_BPMSync();
         test_CrowdAnimator_IdleJumpWave();
         
-        std::cout << "\n=== All 9 tests PASSED ===\n\n";
+        std::cout << "\n=== All 11 tests PASSED ===\n\n";
         return 0;
     } catch (const std::exception& e) {
         std::cerr << "\n✗ Test failed with exception: " << e.what() << "\n";

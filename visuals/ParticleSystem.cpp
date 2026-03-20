@@ -1,6 +1,8 @@
 #include "visuals/ParticleSystem.h"
 #include "visuals/ComputeShader.h"
 
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+
 #include <random>
 #include <cmath>
 #include <algorithm>
@@ -12,12 +14,11 @@ ParticleSystem::ParticleSystem() = default;
 ParticleSystem::~ParticleSystem() = default;
 
 bool ParticleSystem::initialize(ID3D11Device* device, int maxParticlesCount) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (!device) {
         return false;
     }
 
-    maxParticles_ = (maxParticlesCount > 100) ? maxParticlesCount : 10000;
+    maxParticles_ = (maxParticlesCount > 0) ? maxParticlesCount : 10000;
     activeParticleCount_ = 0;
 
     // Create structured buffer for particles on GPU
@@ -91,9 +92,6 @@ bool ParticleSystem::initialize(ID3D11Device* device, int maxParticlesCount) {
     stagingBuffer_.resize(maxParticles_);
 
     return true;
-#else
-    return false;
-#endif
 }
 
 void ParticleSystem::emitParticles(const float position[3], int count, float lifetime, const float baseVelocity[3]) {
@@ -139,17 +137,18 @@ void ParticleSystem::emitParticles(const float position[3], int count, float lif
 
 void ParticleSystem::updatePhysics(ID3D11DeviceContext* context, float deltaTime,
                                    const float gravity[3], const float windForce[3]) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (!context || !computeShader_) {
+        return;
+    }
+
+    if (activeParticleCount_ <= 0) {
         return;
     }
 
     // Upload particle data to GPU if we have new particles
     // particleBuffer_ uses D3D11_USAGE_DEFAULT (required for UAV), so use UpdateSubresource
-    if (activeParticleCount_ > 0) {
-        context->UpdateSubresource(particleBuffer_.Get(), 0, nullptr,
-                                   stagingBuffer_.data(), sizeof(Particle) * activeParticleCount_, 0);
-    }
+    context->UpdateSubresource(particleBuffer_.Get(), 0, nullptr,
+                               stagingBuffer_.data(), sizeof(Particle) * activeParticleCount_, 0);
 
     // Update constant buffer
     D3D11_MAPPED_SUBRESOURCE cbResource = {};
@@ -176,7 +175,6 @@ void ParticleSystem::updatePhysics(ID3D11DeviceContext* context, float deltaTime
 
     // Clean up dead particles (simple approach: mark lifetime-expired particles)
     // This would require GPU readback, so for now we just decrement lifetime in shader
-#endif
 }
 
 int ParticleSystem::render(ID3D11DeviceContext* context) {
@@ -187,7 +185,6 @@ int ParticleSystem::render(ID3D11DeviceContext* context) {
 }
 
 float* ParticleSystem::getParticlePosition(int index) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (index < 0 || index >= activeParticleCount_) {
         return nullptr;
     }
@@ -195,9 +192,6 @@ float* ParticleSystem::getParticlePosition(int index) {
     // For testing, we return the particle from staging buffer
     // In production, we'd need GPU readback
     return stagingBuffer_[index].position;
-#else
-    return nullptr;
-#endif
 }
 
 void ParticleSystem::triggerConfettiBurst(const float position[3], int particleCount) {
@@ -207,9 +201,9 @@ void ParticleSystem::triggerConfettiBurst(const float position[3], int particleC
     std::uniform_real_distribution<> angleDistributor(0.0f, 2.0f * 3.14159f);
     std::uniform_real_distribution<> speedDistributor(5.0f, 10.0f);
 
-    constexpr float PI = 3.14159265359f;
+    particleCount = std::clamp(particleCount, 0, maxParticles_);
 
-    for (int i = 0; i < particleCount && activeParticleCount_ < maxParticles_; ++i) {
+    for (int i = 0; i < particleCount; ++i) {
         float angle = static_cast<float>(angleDistributor(gen));
         float speed = static_cast<float>(speedDistributor(gen));
 
@@ -231,3 +225,5 @@ void ParticleSystem::reset() {
 }
 
 } // namespace dj
+
+#endif // defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)

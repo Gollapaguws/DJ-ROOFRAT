@@ -325,6 +325,12 @@ void printLiveControls() {
 std::vector<dj::InputCommand> pollKeyboardCommands() {
     std::vector<dj::InputCommand> commands;
 #if defined(_WIN32)
+    const HANDLE stdinHandle = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD consoleMode = 0;
+    if (stdinHandle == nullptr || stdinHandle == INVALID_HANDLE_VALUE || GetConsoleMode(stdinHandle, &consoleMode) == 0) {
+        return commands;
+    }
+
     while (_kbhit() != 0) {
         const int first = _getch();
         if (first == 0 || first == 224) {
@@ -648,6 +654,13 @@ void printCareerStatus(const dj::CareerProgression& career, const dj::UnlockSyst
 } // namespace
 
 int main(int argc, char** argv) {
+    // Force unbuffered output for debugging
+    std::cout.setf(std::ios::unitbuf);
+    std::cerr.setf(std::ios::unitbuf);
+    
+    std::cout << "DJ-ROOFRAT starting..." << std::endl;
+    std::cout << "Arguments: " << argc << std::endl;
+    
     std::vector<std::string> tracks;
     bool disableAudio = false;
     bool tutorialMode = false;
@@ -1035,8 +1048,21 @@ int main(int argc, char** argv) {
     auto lastAutoSaveTime = std::chrono::steady_clock::now();
     const int autoSaveIntervalSeconds = configManager.getConfig().autosaveIntervalSeconds;
 
-    for (int block = 0; block < totalBlocks; ++block) {
-        const float progress = static_cast<float>(block) / static_cast<float>(totalBlocks - 1);
+    // Main loop: run indefinitely when graphics enabled, otherwise fixed block count
+    int block = 0;
+    while (true) {
+        // Exit conditions
+        if (quitRequested) {
+            break;
+        }
+        if (!graphicsEnabled && block >= totalBlocks) {
+            break;  // Console-only mode has fixed duration
+        }
+        if (!graphicsEnabled && !deckA.isPlaying() && !deckB.isPlaying()) {
+            break;  // Console-only mode exits when both decks stop
+        }
+        
+        const float progress = graphicsEnabled ? 0.0f : static_cast<float>(block) / static_cast<float>(totalBlocks - 1);
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
         // Process Windows messages to keep window alive and responsive
@@ -2076,9 +2102,7 @@ int main(int argc, char** argv) {
         }
 #endif
 
-        if (!deckA.isPlaying() && !deckB.isPlaying()) {
-            break;
-        }
+        ++block;  // Increment block counter for next iteration
     }
 
     // Phase 7: Clean up graphics

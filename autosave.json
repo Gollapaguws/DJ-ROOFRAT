@@ -1,7 +1,7 @@
 {
   "deckA": {
     "trackPath": "",
-    "playbackPosition": 13.4738,
+    "playbackPosition": 5.56744,
     "tempoBend": 0.02,
     "isPlaying": true,
     "lowGain": 1,
@@ -17,7 +17,7 @@
     "midGain": 1,
     "highGain": 1
   },
-  "crossfader": 0.944954,
+  "crossfader": -0.190992,
   "currentCareerTier": 0,
   "crowdEnergy": 0,
   "venueId": "Basement Bar"
