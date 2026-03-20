@@ -724,6 +724,39 @@ endif()
 
 set_target_properties(enhanced3dscene_phase1_test PROPERTIES OUTPUT_NAME "Enhanced3DScene_Phase1_test")
 
+# Enhanced3DScene Phase 2 test (Enhanced Shader and Material Buffer Integration)
+add_executable(enhanced3dscene_phase2_test
+    visuals/Enhanced3DScene_Phase2_test.cpp
+    visuals/Enhanced3DScene.cpp
+    visuals/GraphicsContext.cpp
+    visuals/Camera.cpp
+    visuals/Shader.cpp
+    visuals/VertexBuffer.cpp
+    visuals/IndexBuffer.cpp
+    visuals/StageGeometry.cpp
+    visuals/LaserController.cpp
+    visuals/CrowdRenderer.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
+)
+
+target_include_directories(enhanced3dscene_phase2_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(enhanced3dscene_phase2_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(enhanced3dscene_phase2_test PRIVATE d3d11 dxgi d3dcompiler)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(enhanced3dscene_phase2_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(enhanced3dscene_phase2_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(enhanced3dscene_phase2_test PROPERTIES OUTPUT_NAME "Enhanced3DScene_Phase2_test")
+
 # TrackLoader Phase 9 test (MP3 support and comprehensive audio loading)
 add_executable(trackloader_phase9_test
     audio/TrackLoader_Phase9_test.cpp

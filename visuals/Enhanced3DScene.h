@@ -47,6 +47,14 @@ public:
     bool hasTunnelEffect() const { return tunnelEffectEnabled_; }
     bool hasBloom() const { return bloomEnabled_; }
 
+    // Phase 2: Enhanced shader and material buffer methods
+    bool loadEnhancedShader();
+    bool createMaterialBuffer();
+    bool hasCompiledShader() const;
+    bool hasMaterialBuffer() const;
+    float getBeatIntensity() const;
+    float getEmissiveIntensity() const;
+
 private:
     // Feature flags
     bool dynamicLightingEnabled_ = true;
@@ -69,10 +77,23 @@ private:
     ID3D11Device* device_ = nullptr;
     ID3D11DeviceContext* context_ = nullptr;
 
+    // Material buffer structure (16-byte aligned to match HLSL)
+    struct MaterialBufferData {
+        float baseColor[3];        // 12 bytes: RGB base color
+        float metallic;            // 4 bytes: metallic factor [0,1]
+        float emissiveColor[3];    // 12 bytes: RGB emissive color
+        float roughness;           // 4 bytes: roughness factor [0,1]
+        float cameraPosition[3];   // 12 bytes: camera position in world space
+        float bpm;                 // 4 bytes: current BPM
+    };
+
     // Enhanced shaders
     std::unique_ptr<Shader> enhancedShader_;
     std::unique_ptr<Shader> particleShader_;
     std::unique_ptr<Shader> tunnelShader_;
+
+    // Constant buffers
+    ComPtr<ID3D11Buffer> materialBuffer_;
 
     // Particle system
     struct ParticleEmitter {
@@ -112,6 +133,9 @@ private:
     bool createParticleBuffers();
     bool createTunnelGeometry();
     bool createBloomResources();
+
+    // Phase 2: Material buffer for enhanced shader (metallic, roughness, emissive)
+    ComPtr<ID3D11Buffer> materialBuffer_;
 #endif
 };
 
