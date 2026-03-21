@@ -190,6 +190,19 @@ void Enhanced3DScene::render(const float* viewMatrix, const float* projMatrix) {
         context_->VSSetShader(enhancedShader_->getVertexShader(), nullptr, 0);
         context_->PSSetShader(enhancedShader_->getPixelShader(), nullptr, 0);
         
+        // Phase 5: Bind shadow map SRV and comparison sampler for PCF sampling
+        // Register(t0) for shadow map texture, Register(s0) for comparison sampler
+        if (shadowMap_ && shadowMappingEnabled_) {
+            ID3D11ShaderResourceView* shadowSRV = shadowMap_->getShaderResourceView();
+            ID3D11SamplerState* shadowSampler = shadowMap_->getComparisonSampler();
+            if (shadowSRV) {
+                context_->PSSetShaderResources(0, 1, &shadowSRV);
+            }
+            if (shadowSampler) {
+                context_->PSSetSamplers(0, 1, &shadowSampler);
+            }
+        }
+        
         // Phase 3: Bind texture SRV and sampler state to pixel shader for UV mapping
         if (textureManager_) {
             textureManager_->bind(context_, 0);  // Bind to texture slot 0

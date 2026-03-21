@@ -488,6 +488,8 @@ add_executable(graphics_context_phase7_test
     visuals/GraphicsContext_Phase7_test.cpp
     visuals/GraphicsContext.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/ShadowMap.cpp
+    visuals/TextureManager.cpp
     visuals/TunnelGeometry.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
@@ -579,6 +581,8 @@ add_executable(graphics_context_phase8_test
     visuals/GraphicsContext_Phase8_test.cpp
     visuals/GraphicsContext.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/ShadowMap.cpp
+    visuals/TextureManager.cpp
     visuals/TunnelGeometry.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
@@ -613,6 +617,8 @@ add_executable(graphics_context_phase18_test
     visuals/GraphicsContext_Phase18_test.cpp
     visuals/GraphicsContext.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/ShadowMap.cpp
+    visuals/TextureManager.cpp
     visuals/TunnelGeometry.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
@@ -649,6 +655,8 @@ add_executable(lighting_phase19_test
     visuals/LaserController.cpp
     visuals/GraphicsContext.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/ShadowMap.cpp
+    visuals/TextureManager.cpp
     visuals/TunnelGeometry.cpp
     visuals/Shader.cpp
     visuals/RenderTarget.cpp
@@ -689,6 +697,8 @@ add_executable(particles_phase20_test
     visuals/CrowdRenderer.cpp
     visuals/GraphicsContext.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/ShadowMap.cpp
+    visuals/TextureManager.cpp
     visuals/TunnelGeometry.cpp
     visuals/Shader.cpp
     visuals/RenderTarget.cpp

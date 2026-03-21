@@ -40,6 +40,7 @@ ShadowMap::~ShadowMap() {
     shaderResourceView_.Reset();
     depthStencilState_.Reset();
     rasterizerState_.Reset();
+    comparisonSampler_.Reset();
 #endif
 }
 
@@ -167,7 +168,30 @@ bool ShadowMap::setupRenderState(ID3D11Device* device) {
     rsDesc.AntialiasedLineEnable = FALSE;
 
     hr = device->CreateRasterizerState(&rsDesc, rasterizerState_.GetAddressOf());
-    return SUCCEEDED(hr);
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    // Create comparison sampler for PCF shadow map sampling
+    // This sampler is used with SamplerComparisonState in HLSL shaders
+    // Register(s0) in lighting.hlsl expects a comparison sampler
+    D3D11_SAMPLER_DESC sampDesc = {};
+    sampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;  // PCF-suitable comparison filter
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+    sampDesc.MipLODBias = 0.0f;
+    sampDesc.MaxAnisotropy = 1;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_LESS;  // Compare pixel depth < shadow map depth
+    sampDesc.BorderColor[0] = 1.0f;  // Clamp value (outside shadow = lit, 1.0)
+    sampDesc.BorderColor[1] = 1.0f;
+    sampDesc.BorderColor[2] = 1.0f;
+    sampDesc.BorderColor[3] = 1.0f;
+    sampDesc.MinLOD = 0.0f;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    hr = device->CreateSamplerState(&sampDesc, comparisonSampler_.GetAddressOf());
+    return SUCCEEDED(hr) && comparisonSampler_;
 #else
     return false;
 #endif
@@ -285,6 +309,14 @@ ID3D11DepthStencilView* ShadowMap::getDepthStencilView() const {
 ID3D11ShaderResourceView* ShadowMap::getShaderResourceView() const {
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     return shaderResourceView_.Get();
+#else
+    return nullptr;
+#endif
+}
+
+ID3D11SamplerState* ShadowMap::getComparisonSampler() const {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    return comparisonSampler_.Get();
 #else
     return nullptr;
 #endif

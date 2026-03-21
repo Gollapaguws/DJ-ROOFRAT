@@ -48,6 +48,9 @@ public:
     /// Get shader resource view for sampling in lighting pass
     ID3D11ShaderResourceView* getShaderResourceView() const;
 
+    /// Get comparison sampler for PCF shadow map sampling
+    ID3D11SamplerState* getComparisonSampler() const;
+
     /// Get light-space view matrix
     const float* getLightViewMatrix() const;
 
@@ -77,6 +80,7 @@ private:
     // Rendering state
     ComPtr<ID3D11DepthStencilState> depthStencilState_;
     ComPtr<ID3D11RasterizerState> rasterizerState_;
+    ComPtr<ID3D11SamplerState> comparisonSampler_;  // For PCF shadow map sampling
 
     // Light properties
     float lightPosition_[3] = {0.0f, 10.0f, 0.0f};

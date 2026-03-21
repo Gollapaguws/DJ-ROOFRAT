@@ -103,7 +103,15 @@ void test_ShadowMap_ShaderResourceView() {
     // SRV should be able to sample depth values
     assert(srvDesc.ViewDimension == D3D11_SRV_DIMENSION_TEXTURE2D && "SRV should be 2D texture view");
     
-    std::cout << "  ✓ Shader resource view created for depth sampling\n";
+    // Phase 5: Verify comparison sampler exists for PCF sampling
+    ID3D11SamplerState* comparisonSampler = shadowMap.getComparisonSampler();
+    assert(comparisonSampler != nullptr && "Comparison sampler should be created for PCF filtering");
+    
+    D3D11_SAMPLER_DESC sampDesc = {};
+    comparisonSampler->GetDesc(&sampDesc);
+    assert(sampDesc.ComparisonFunc == D3D11_COMPARISON_LESS && "Sampler should use COMPARISON_LESS");
+    
+    std::cout << "  ✓ Shader resource view and comparison sampler created for depth sampling\n";
 }
 
 // Test 4: ShadowDepthShader_Compilation
