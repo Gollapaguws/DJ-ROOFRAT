@@ -41,7 +41,7 @@ void test_ShadowMap_DepthTextureCreation() {
     initializeGraphicsForPhase5Tests();
     
     ShadowMap shadowMap;
-    bool result = shadowMap.initialize(g_graphicsContext->getDevice(), 1024, 1024);
+    bool result = shadowMap.initialize(g_graphicsContext->getD3D11Device(), 1024, 1024);
     assert(result && "ShadowMap initialization should succeed");
     
     // Verify texture was created correctly
@@ -68,7 +68,7 @@ void test_ShadowMap_DepthStencilView() {
     initializeGraphicsForPhase5Tests();
     
     ShadowMap shadowMap;
-    bool result = shadowMap.initialize(g_graphicsContext->getDevice(), 1024, 1024);
+    bool result = shadowMap.initialize(g_graphicsContext->getD3D11Device(), 1024, 1024);
     assert(result && "ShadowMap initialization should succeed");
     
     ID3D11DepthStencilView* dsv = shadowMap.getDepthStencilView();
@@ -91,7 +91,7 @@ void test_ShadowMap_ShaderResourceView() {
     initializeGraphicsForPhase5Tests();
     
     ShadowMap shadowMap;
-    bool result = shadowMap.initialize(g_graphicsContext->getDevice(), 1024, 1024);
+    bool result = shadowMap.initialize(g_graphicsContext->getD3D11Device(), 1024, 1024);
     assert(result && "ShadowMap initialization should succeed");
     
     ID3D11ShaderResourceView* srv = shadowMap.getShaderResourceView();
@@ -147,7 +147,7 @@ void test_ShadowMapping_LightSpaceMatrix() {
     initializeGraphicsForPhase5Tests();
     
     ShadowMap shadowMap;
-    bool result = shadowMap.initialize(g_graphicsContext->getDevice(), 1024, 1024);
+    bool result = shadowMap.initialize(g_graphicsContext->getD3D11Device(), 1024, 1024);
     assert(result && "ShadowMap initialization should succeed");
     
     // Set up a directional light (sun light from above)
@@ -193,7 +193,7 @@ void test_ShadowMapping_PCFFiltering() {
     assert(psBlob->GetBufferSize() > 0 && "Lighting shader blob should have content");
     
     // Verify shader can be created into a pixel shader
-    bool psCreated = lightingShader.createPixelShader(g_graphicsContext->getDevice());
+    bool psCreated = lightingShader.createPixelShader(g_graphicsContext->getD3D11Device());
     assert(psCreated && "Lighting pixel shader should be created successfully");
     
     ID3D11PixelShader* ps = lightingShader.getPixelShader();

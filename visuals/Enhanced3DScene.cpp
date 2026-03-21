@@ -9,6 +9,7 @@
 #include "visuals/VertexBuffer.h"
 #include "visuals/TextureManager.h"
 #include "visuals/TunnelGeometry.h"
+#include "visuals/ShadowMap.h"
 #endif
 
 namespace dj {
@@ -82,6 +83,11 @@ bool Enhanced3DScene::initialize(ID3D11Device* device, ID3D11DeviceContext* cont
 
     // Phase 4: Create tunnel geometry and shader
     if (!createTunnelGeometry()) {
+        return false;
+    }
+
+    // Phase 5: Create shadow mapping resources
+    if (!createShadowResources()) {
         return false;
     }
 
@@ -404,6 +410,113 @@ void Enhanced3DScene::renderTunnel() {
         uint32_t indexCount = tunnelIndexBuffer_->getIndexCount();
         context_->DrawIndexed(indexCount, 0, 0);
     }
+#endif
+}
+
+// Phase 5: Create shadow mapping resources
+bool Enhanced3DScene::createShadowResources() {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (device_ == nullptr) {
+        return false;
+    }
+
+    // Create shadow map
+    if (!shadowMap_) {
+        shadowMap_ = std::make_unique<ShadowMap>();
+    }
+    if (!shadowMap_->initialize(device_, 1024, 1024)) {
+        return false;
+    }
+
+    // Create depth shader
+    if (!shadowDepthShader_) {
+        shadowDepthShader_ = std::make_unique<Shader>();
+    }
+    
+    std::string error;
+    if (!shadowDepthShader_->compile("shadowdepth", "VSMain", "vs_5_0", &error)) {
+        return false;
+    }
+    if (!shadowDepthShader_->compile("shadowdepth", "PSMain", "ps_5_0", &error)) {
+        return false;
+    }
+    if (!shadowDepthShader_->createShaders(device_)) {
+        return false;
+    }
+
+    // Create shadow constant buffer (for light view/projection matrices)
+    D3D11_BUFFER_DESC desc = {};
+    desc.ByteWidth = 128 + 16;  // Two 4x4 matrices (128 bytes) + shadow settings (16 bytes)
+    desc.Usage = D3D11_USAGE_DYNAMIC;
+    desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    
+    HRESULT hr = device_->CreateBuffer(&desc, nullptr, shadowConstantBuffer_.GetAddressOf());
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    return true;
+#else
+    return false;
+#endif
+}
+
+// Phase 5: Render shadow depth pass before main rendering
+void Enhanced3DScene::renderShadowDepthPass() {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (!shadowMappingEnabled_ || !shadowMap_ || !shadowDepthShader_) {
+        return;
+    }
+
+    // Bind shadow map for depth pass
+    if (!shadowMap_->bindForDepthPass(context_)) {
+        return;
+    }
+
+    // Set shadow depth shader
+    context_->VSSetShader(shadowDepthShader_->getVertexShader(), nullptr, 0);
+    context_->PSSetShader(shadowDepthShader_->getPixelShader(), nullptr, 0);
+
+    // Update shadow constant buffer with light-space matrices
+    if (shadowConstantBuffer_) {
+        D3D11_MAPPED_SUBRESOURCE mapped = {};
+        HRESULT hr = context_->Map(shadowConstantBuffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+        if (SUCCEEDED(hr)) {
+            struct ShadowBufferData {
+                float lightView[16];
+                float lightProj[16];
+                int useShadows;
+                float shadowBias;
+                float texelSize[2];
+            };
+
+            ShadowBufferData* shadowData = (ShadowBufferData*)mapped.pData;
+            
+            // Copy light matrices
+            const float* lightView = shadowMap_->getLightViewMatrix();
+            const float* lightProj = shadowMap_->getLightProjectionMatrix();
+            
+            std::copy(lightView, lightView + 16, shadowData->lightView);
+            std::copy(lightProj, lightProj + 16, shadowData->lightProj);
+            
+            shadowData->useShadows = shadowMappingEnabled_ ? 1 : 0;
+            shadowData->shadowBias = 0.0005f;
+            shadowData->texelSize[0] = 1.0f / 1024.0f;
+            shadowData->texelSize[1] = 1.0f / 1024.0f;
+            
+            context_->Unmap(shadowConstantBuffer_.Get(), 0);
+            
+            // Bind constant buffer to vertex shader
+            context_->VSSetConstantBuffers(0, 1, shadowConstantBuffer_.GetAddressOf());
+        }
+    }
+
+    // TODO: In full implementation, would render all scene geometry to shadow map here
+    // For now, just set up the infrastructure for Phase 5
+
+    // Unbind shadow map
+    shadowMap_->unbindDepthPass(context_);
 #endif
 }
 

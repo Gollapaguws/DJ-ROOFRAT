@@ -229,6 +229,7 @@ add_executable(${DJ_ROOFRAT_TARGET}
     visuals/StageGeometry.cpp
     visuals/TunnelGeometry.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/ShadowMap.cpp
     # vendor/sqlite3_stub.cpp  # Using std::map implementation instead
 )
 
@@ -721,6 +722,9 @@ set_target_properties(particles_phase20_test PROPERTIES OUTPUT_NAME "Particles_P
 add_executable(enhanced3dscene_phase1_test
     visuals/Enhanced3DScene_Phase1_test.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/ShadowMap.cpp
+    visuals/TunnelGeometry.cpp
+    visuals/TextureManager.cpp
     visuals/GraphicsContext.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
@@ -754,6 +758,9 @@ set_target_properties(enhanced3dscene_phase1_test PROPERTIES OUTPUT_NAME "Enhanc
 add_executable(enhanced3dscene_phase2_test
     visuals/Enhanced3DScene_Phase2_test.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/ShadowMap.cpp
+    visuals/TunnelGeometry.cpp
+    visuals/TextureManager.cpp
     visuals/GraphicsContext.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
@@ -787,6 +794,8 @@ set_target_properties(enhanced3dscene_phase2_test PROPERTIES OUTPUT_NAME "Enhanc
 add_executable(enhanced3dscene_phase3_test
     tests/Enhanced3DScene_Phase3_test.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/ShadowMap.cpp
+    visuals/TunnelGeometry.cpp
     visuals/GraphicsContext.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
@@ -821,6 +830,7 @@ set_target_properties(enhanced3dscene_phase3_test PROPERTIES OUTPUT_NAME "Enhanc
 add_executable(enhanced3dscene_phase4_test
     tests/Enhanced3DScene_Phase4_test.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/ShadowMap.cpp
     visuals/TunnelGeometry.cpp
     visuals/GraphicsContext.cpp
     visuals/Camera.cpp
@@ -851,6 +861,42 @@ else()
 endif()
 
 set_target_properties(enhanced3dscene_phase4_test PROPERTIES OUTPUT_NAME "Enhanced3DScene_Phase4_test")
+
+# Enhanced3DScene Phase 5 test (Shadow mapping with depth texture pass and PCF)
+add_executable(enhanced3dscene_phase5_test
+    tests/Enhanced3DScene_Phase5_test.cpp
+    visuals/Enhanced3DScene.cpp
+    visuals/ShadowMap.cpp
+    visuals/TunnelGeometry.cpp
+    visuals/GraphicsContext.cpp
+    visuals/Camera.cpp
+    visuals/Shader.cpp
+    visuals/VertexBuffer.cpp
+    visuals/IndexBuffer.cpp
+    visuals/TextureManager.cpp
+    visuals/StageGeometry.cpp
+    visuals/LaserController.cpp
+    visuals/CrowdRenderer.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
+)
+
+target_include_directories(enhanced3dscene_phase5_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(enhanced3dscene_phase5_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(enhanced3dscene_phase5_test PRIVATE d3d11 dxgi d3dcompiler)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(enhanced3dscene_phase5_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(enhanced3dscene_phase5_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(enhanced3dscene_phase5_test PROPERTIES OUTPUT_NAME "Enhanced3DScene_Phase5_test")
 
 # TrackLoader Phase 9 test (MP3 support and comprehensive audio loading)
 add_executable(trackloader_phase9_test

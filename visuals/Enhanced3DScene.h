@@ -19,6 +19,7 @@ class VertexBuffer;
 class IndexBuffer;
 class TextureManager;
 class TunnelGeometry;
+class ShadowMap;  // Phase 5: Shadow mapping
 
 /// Enhanced3DScene manages advanced 3D visual effects synchronized to music
 /// Features:
@@ -45,12 +46,14 @@ public:
     void setParticleBursts(bool enabled) { particleBurstsEnabled_ = enabled; }
     void setTunnelEffect(bool enabled) { tunnelEffectEnabled_ = enabled; }
     void setBloomEffect(bool enabled) { bloomEnabled_ = enabled; }
+    void setShadowMapping(bool enabled) { shadowMappingEnabled_ = enabled; }  // Phase 5: Shadow mapping
 
     // Get current feature states
     bool hasDynamicLighting() const { return dynamicLightingEnabled_; }
     bool hasParticleBursts() const { return particleBurstsEnabled_; }
     bool hasTunnelEffect() const { return tunnelEffectEnabled_; }
     bool hasBloom() const { return bloomEnabled_; }
+    bool hasShadowMapping() const { return shadowMappingEnabled_; }  // Phase 5: Shadow mapping
 
     // Phase 2: Enhanced shader and material buffer methods
     bool loadEnhancedShader();
@@ -66,6 +69,7 @@ private:
     bool particleBurstsEnabled_ = true;
     bool tunnelEffectEnabled_ = false;
     bool bloomEnabled_ = false;
+    bool shadowMappingEnabled_ = false;  // Phase 5: Shadow mapping
 
     // Music state
     float currentBPM_ = 120.0f;
@@ -137,15 +141,22 @@ private:
     ComPtr<ID3D11RenderTargetView> bloomRTV_;
     ComPtr<ID3D11ShaderResourceView> bloomSRV_;
 
+    // Phase 5: Shadow mapping
+    std::unique_ptr<ShadowMap> shadowMap_;
+    ComPtr<ID3D11Buffer> shadowConstantBuffer_;
+    std::unique_ptr<Shader> shadowDepthShader_;
+
     // Helper methods
     void updateDynamicLights();
     void emitParticleBurst(const float* position, float intensity);
     void renderTunnel();
     void applyBloom();
+    void renderShadowDepthPass();  // Phase 5: Shadow depth pass
     
     bool createParticleBuffers();
     bool createTunnelGeometry();
     bool createBloomResources();
+    bool createShadowResources();  // Phase 5: Initialize shadow mapping
 #endif
 };
 
