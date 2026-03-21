@@ -36,6 +36,8 @@ void StageGeometry::generateFloor() {
             v.normal[0] = 0.0f;
             v.normal[1] = 1.0f;
             v.normal[2] = 0.0f;
+            v.texCoord[0] = x / (float)subdivisionsX;  // U [0,1]
+            v.texCoord[1] = z / (float)subdivisionsZ;  // V [0,1]
             
             vertices_.push_back(v);
         }
@@ -84,6 +86,8 @@ void StageGeometry::generateWalls() {
             v.normal[0] = -1.0f;
             v.normal[1] = 0.0f;
             v.normal[2] = 0.0f;
+            v.texCoord[0] = i / (float)subdivisions;  // U [0,1] along wall length
+            v.texCoord[1] = (float)j;                 // V [0,1] vertical
             
             vertices_.push_back(v);
         }
@@ -103,6 +107,8 @@ void StageGeometry::generateWalls() {
             v.normal[0] = 1.0f;
             v.normal[1] = 0.0f;
             v.normal[2] = 0.0f;
+            v.texCoord[0] = i / (float)subdivisions;  // U [0,1] along wall length
+            v.texCoord[1] = (float)j;                 // V [0,1] vertical
             
             vertices_.push_back(v);
         }
@@ -165,6 +171,8 @@ void StageGeometry::generateBooth() {
         v.normal[0] = 0.0f;
         v.normal[1] = 1.0f;
         v.normal[2] = 0.0f;
+        v.texCoord[0] = (float)(i % 2);      // U: 0 or 1
+        v.texCoord[1] = (i < 2) ? 0.0f : 1.0f;  // V: 0 or 1
         vertices_.push_back(v);
     }
 
@@ -178,7 +186,6 @@ void StageGeometry::generateBooth() {
     indices_.push_back(vertexIndexOffset + 3);
 
     // Booth sides
-    uint32_t sideVertexOffset = static_cast<uint32_t>(vertices_.size());
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j <= 1; ++j) {
             float y = (1.0f - j) * boothHeight;
@@ -193,6 +200,8 @@ void StageGeometry::generateBooth() {
             v.normal[0] = nx;
             v.normal[1] = 0.0f;
             v.normal[2] = nz;
+            v.texCoord[0] = i / 4.0f;   // U: distribute along sides
+            v.texCoord[1] = (float)j;   // V: vertical
             
             vertices_.push_back(v);
         }

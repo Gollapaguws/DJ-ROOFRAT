@@ -225,7 +225,9 @@ add_executable(${DJ_ROOFRAT_TARGET}
     visuals/Shader.cpp
     visuals/VertexBuffer.cpp
     visuals/IndexBuffer.cpp
+    visuals/TextureManager.cpp
     visuals/StageGeometry.cpp
+    visuals/TunnelGeometry.cpp
     visuals/Enhanced3DScene.cpp
     # vendor/sqlite3_stub.cpp  # Using std::map implementation instead
 )
@@ -485,6 +487,7 @@ add_executable(graphics_context_phase7_test
     visuals/GraphicsContext_Phase7_test.cpp
     visuals/GraphicsContext.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/TunnelGeometry.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
     visuals/VertexBuffer.cpp
@@ -575,6 +578,7 @@ add_executable(graphics_context_phase8_test
     visuals/GraphicsContext_Phase8_test.cpp
     visuals/GraphicsContext.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/TunnelGeometry.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
     visuals/VertexBuffer.cpp
@@ -608,6 +612,7 @@ add_executable(graphics_context_phase18_test
     visuals/GraphicsContext_Phase18_test.cpp
     visuals/GraphicsContext.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/TunnelGeometry.cpp
     visuals/Camera.cpp
     visuals/Shader.cpp
     visuals/VertexBuffer.cpp
@@ -643,6 +648,7 @@ add_executable(lighting_phase19_test
     visuals/LaserController.cpp
     visuals/GraphicsContext.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/TunnelGeometry.cpp
     visuals/Shader.cpp
     visuals/RenderTarget.cpp
     visuals/PostProcessor.cpp
@@ -682,6 +688,7 @@ add_executable(particles_phase20_test
     visuals/CrowdRenderer.cpp
     visuals/GraphicsContext.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/TunnelGeometry.cpp
     visuals/Shader.cpp
     visuals/RenderTarget.cpp
     visuals/PostProcessor.cpp
@@ -775,6 +782,75 @@ else()
 endif()
 
 set_target_properties(enhanced3dscene_phase2_test PROPERTIES OUTPUT_NAME "Enhanced3DScene_Phase2_test")
+
+# Enhanced3DScene Phase 3 test (UV-based texture mapping with procedural checkerboard)
+add_executable(enhanced3dscene_phase3_test
+    tests/Enhanced3DScene_Phase3_test.cpp
+    visuals/Enhanced3DScene.cpp
+    visuals/GraphicsContext.cpp
+    visuals/Camera.cpp
+    visuals/Shader.cpp
+    visuals/VertexBuffer.cpp
+    visuals/IndexBuffer.cpp
+    visuals/TextureManager.cpp
+    visuals/StageGeometry.cpp
+    visuals/LaserController.cpp
+    visuals/CrowdRenderer.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
+)
+
+target_include_directories(enhanced3dscene_phase3_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(enhanced3dscene_phase3_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(enhanced3dscene_phase3_test PRIVATE d3d11 dxgi d3dcompiler)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(enhanced3dscene_phase3_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(enhanced3dscene_phase3_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(enhanced3dscene_phase3_test PROPERTIES OUTPUT_NAME "Enhanced3DScene_Phase3_test")
+
+# Enhanced3DScene Phase 4 test (Procedural tunnel geometry with scrolling UVs and beat distortion)
+add_executable(enhanced3dscene_phase4_test
+    tests/Enhanced3DScene_Phase4_test.cpp
+    visuals/Enhanced3DScene.cpp
+    visuals/TunnelGeometry.cpp
+    visuals/GraphicsContext.cpp
+    visuals/Camera.cpp
+    visuals/Shader.cpp
+    visuals/VertexBuffer.cpp
+    visuals/IndexBuffer.cpp
+    visuals/TextureManager.cpp
+    visuals/StageGeometry.cpp
+    visuals/LaserController.cpp
+    visuals/CrowdRenderer.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
+)
+
+target_include_directories(enhanced3dscene_phase4_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(enhanced3dscene_phase4_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(enhanced3dscene_phase4_test PRIVATE d3d11 dxgi d3dcompiler)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(enhanced3dscene_phase4_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(enhanced3dscene_phase4_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(enhanced3dscene_phase4_test PROPERTIES OUTPUT_NAME "Enhanced3DScene_Phase4_test")
 
 # TrackLoader Phase 9 test (MP3 support and comprehensive audio loading)
 add_executable(trackloader_phase9_test

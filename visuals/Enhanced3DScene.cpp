@@ -7,6 +7,8 @@
 #include "visuals/Shader.h"
 #include "visuals/IndexBuffer.h"
 #include "visuals/VertexBuffer.h"
+#include "visuals/TextureManager.h"
+#include "visuals/TunnelGeometry.h"
 #endif
 
 namespace dj {
@@ -69,6 +71,20 @@ bool Enhanced3DScene::initialize(ID3D11Device* device, ID3D11DeviceContext* cont
         return false;
     }
 
+    // Phase 3: Initialize texture manager with procedural checkerboard
+    if (!textureManager_) {
+        textureManager_ = std::make_unique<TextureManager>();
+    }
+    textureManager_->setDevice(device_);
+    if (!textureManager_->createCheckerboard(256, 256)) {
+        return false;
+    }
+
+    // Phase 4: Create tunnel geometry and shader
+    if (!createTunnelGeometry()) {
+        return false;
+    }
+
     return true;
 #else
     // Graphics not available
@@ -95,6 +111,10 @@ void Enhanced3DScene::update(float bpm, float energy, float beatPhase, float del
         lastBeatTime_ = timeAccumulator_;
     }
     lastBeatPhase_ = beatPhase;
+    
+    // Phase 4: Update tunnel scroll offset
+    tunnelScrollOffset_ += tunnelScrollSpeed_ * deltaTime;
+    tunnelScrollOffset_ = fmod(tunnelScrollOffset_, 1.0f);  // Wrap to [0, 1]
 }
 
 void Enhanced3DScene::render(const float* viewMatrix, const float* projMatrix) {
@@ -163,6 +183,11 @@ void Enhanced3DScene::render(const float* viewMatrix, const float* projMatrix) {
         // Set shaders as active
         context_->VSSetShader(enhancedShader_->getVertexShader(), nullptr, 0);
         context_->PSSetShader(enhancedShader_->getPixelShader(), nullptr, 0);
+        
+        // Phase 3: Bind texture SRV and sampler state to pixel shader for UV mapping
+        if (textureManager_) {
+            textureManager_->bind(context_, 0);  // Bind to texture slot 0
+        }
         
         // TODO Phase 3: Add actual draw call with geometry
         // For now this is a stub to test material buffer binding
@@ -263,6 +288,123 @@ float Enhanced3DScene::getEmissiveIntensity() const {
     // Modulate by BPM (faster BPM = more frequent pulses)
     // For now we use the beat phase directly, but this can be enhanced
     return std::clamp(intensity, 0.0f, 1.0f);
+}
+
+// Phase 4: Create tunnel geometry with scrolling UVs
+bool Enhanced3DScene::createTunnelGeometry() {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (device_ == nullptr) {
+        return false;
+    }
+
+    // Generate tunnel mesh (32 segments, 16 rings, 5.0 radius)
+    auto tunnelGeom = std::make_unique<TunnelGeometry>();
+    tunnelGeom->generate(32, 16, 5.0f);
+    
+    const auto& vertices = tunnelGeom->getVertices();
+    const auto& indices = tunnelGeom->getIndices();
+    
+    if (vertices.empty() || indices.empty()) {
+        return false;
+    }
+    
+    // Create vertex buffer
+    if (!tunnelVertexBuffer_) {
+        tunnelVertexBuffer_ = std::make_unique<VertexBuffer>();
+    }
+    if (!tunnelVertexBuffer_->create(device_, vertices.data(), static_cast<uint32_t>(vertices.size()), sizeof(Vertex))) {
+        return false;
+    }
+    
+    // Create index buffer
+    if (!tunnelIndexBuffer_) {
+        tunnelIndexBuffer_ = std::make_unique<IndexBuffer>();
+    }
+    if (!tunnelIndexBuffer_->create(device_, indices.data(), static_cast<uint32_t>(indices.size()))) {
+        return false;
+    }
+    
+    // Create tunnel shader
+    if (!tunnelShader_) {
+        tunnelShader_ = std::make_unique<Shader>();
+    }
+    
+    std::string error;
+    if (!tunnelShader_->compile("tunnel", "VSMain", "vs_5_0", &error)) {
+        return false;
+    }
+    if (!tunnelShader_->compile("tunnel", "PSMain", "ps_5_0", &error)) {
+        return false;
+    }
+    if (!tunnelShader_->createShaders(device_)) {
+        return false;
+    }
+    
+    // Create tunnel constant buffer
+    D3D11_BUFFER_DESC desc = {};
+    desc.ByteWidth = 80;  // 64 (matrix) + 4 (scrollOffset) + 4 (beatIntensity) + 8 (padding)
+    desc.Usage = D3D11_USAGE_DYNAMIC;
+    desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    
+    HRESULT hr = device_->CreateBuffer(&desc, nullptr, tunnelBuffer_.GetAddressOf());
+    return SUCCEEDED(hr);
+#else
+    return false;
+#endif
+}
+
+// Phase 4: Render tunnel with scrolling UVs and beat distortion
+void Enhanced3DScene::renderTunnel() {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (!tunnelEffectEnabled_ || !tunnelShader_ || !tunnelVertexBuffer_ || 
+        !tunnelIndexBuffer_ || !tunnelBuffer_) {
+        return;
+    }
+    
+    // Update tunnel constant buffer with scroll offset and beat intensity
+    D3D11_MAPPED_SUBRESOURCE mapped = {};
+    HRESULT hr = context_->Map(tunnelBuffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+    if (SUCCEEDED(hr)) {
+        struct TunnelBufferData {
+            float worldViewProj[16];  // 4x4 matrix
+            float scrollOffset;
+            float beatIntensity;
+            float padding[2];
+        };
+        
+        TunnelBufferData* tunnelData = (TunnelBufferData*)mapped.pData;
+        
+        // Set identity matrix for simplicity (camera is inside tunnel)
+        for (int i = 0; i < 16; ++i) {
+            tunnelData->worldViewProj[i] = (i % 5 == 0) ? 1.0f : 0.0f;  // Identity matrix
+        }
+        
+        // Set scrolling offset
+        tunnelData->scrollOffset = tunnelScrollOffset_;
+        
+        // Set beat intensity
+        tunnelData->beatIntensity = getBeatIntensity();
+        
+        context_->Unmap(tunnelBuffer_.Get(), 0);
+        
+        // Bind tunnel constant buffer
+        context_->VSSetConstantBuffers(0, 1, tunnelBuffer_.GetAddressOf());
+        
+        // Set tunnel shader
+        context_->VSSetShader(tunnelShader_->getVertexShader(), nullptr, 0);
+        context_->PSSetShader(tunnelShader_->getPixelShader(), nullptr, 0);
+        
+        // Bind texture
+        if (textureManager_) {
+            textureManager_->bind(context_, 0);
+        }
+        
+        // Draw tunnel geometry
+        uint32_t indexCount = tunnelIndexBuffer_->getIndexCount();
+        context_->DrawIndexed(indexCount, 0, 0);
+    }
+#endif
 }
 
 } // namespace dj

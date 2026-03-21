@@ -17,6 +17,8 @@ namespace dj {
 class Shader;
 class VertexBuffer;
 class IndexBuffer;
+class TextureManager;
+class TunnelGeometry;
 
 /// Enhanced3DScene manages advanced 3D visual effects synchronized to music
 /// Features:
@@ -75,6 +77,10 @@ private:
     float lastBeatTime_ = 0.0f;
     float lastBeatPhase_ = 0.0f;  // Track previous beatPhase for wrap detection
     float beatInterval_ = 0.5f;
+    
+    // Phase 4: Tunnel effect state
+    float tunnelScrollOffset_ = 0.0f;
+    float tunnelScrollSpeed_ = 0.5f;
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     ID3D11Device* device_ = nullptr;
@@ -97,6 +103,10 @@ private:
 
     // Constant buffers
     ComPtr<ID3D11Buffer> materialBuffer_;
+    ComPtr<ID3D11Buffer> tunnelBuffer_;   // Phase 4: Tunnel shader constant buffer
+
+    // Phase 3: Texture management for UV-mapped geometry
+    std::unique_ptr<TextureManager> textureManager_;
 
     // Particle system
     struct ParticleEmitter {
