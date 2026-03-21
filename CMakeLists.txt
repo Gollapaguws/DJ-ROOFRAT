@@ -180,6 +180,7 @@ add_executable(${DJ_ROOFRAT_TARGET}
     visuals/BeatGridRenderer.cpp
     visuals/BeatMarkerOverlay.cpp
     visuals/EnergyHistogram.cpp
+    visuals/SplashScreenAnimator.cpp
     visuals/GraphicsContext.cpp
     visuals/LightingRig.cpp
     visuals/LaserController.cpp
@@ -1751,6 +1752,22 @@ else()
 endif()
 
 set_target_properties(beatjump_phase41_test PROPERTIES OUTPUT_NAME "BeatJump_Phase41_test")
+
+# Splash Screen Phase 42 test
+add_executable(splashscreen_phase42_test
+    visuals/SplashScreen_Phase42_test.cpp
+    visuals/SplashScreenAnimator.cpp
+)
+
+target_include_directories(splashscreen_phase42_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(splashscreen_phase42_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(splashscreen_phase42_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(splashscreen_phase42_test PROPERTIES OUTPUT_NAME "SplashScreen_Phase42_test")
 
 # ===== Benchmarks (Phase 2: Performance Profiling & Optimization) =====
 

@@ -77,6 +77,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "visuals/BeatMarkerOverlay.h"
 #include "visuals/EnergyCurveRenderer.h"
 #include "visuals/CoachingHUD.h"
+#include "visuals/SplashScreenAnimator.h"
 #include "visuals/SyncIndicator.h"
 #include "audio/SyncUndoStack.h"
 
@@ -1041,6 +1042,9 @@ int main(int argc, char** argv) {
     // Note: MIDI device enumeration and opening is optional for development
     // In production, would enumerate devices and allow user selection
 
+    dj::SplashScreenAnimator splashScreen;
+    const auto visualSessionStart = std::chrono::steady_clock::now();
+
     constexpr std::size_t framesPerBlock = 512;
     constexpr int totalBlocks = 1200;
 
@@ -1817,8 +1821,9 @@ int main(int argc, char** argv) {
         lighting.update(blendedBpm, crowdOut.energyMeter, blockDurationSeconds);
         
         int moodIndex = static_cast<int>(crowdOut.mood);
+        bool graphicsFrameRendered = false;
         if (graphicsEnabled) {
-            [[maybe_unused]] bool rendered = graphics.renderFrame(blendedBpm, crowdOut.energyMeter, moodIndex, mixer.crossfader());
+            graphicsFrameRendered = graphics.renderFrame(blendedBpm, crowdOut.energyMeter, moodIndex, mixer.crossfader());
         }
 
         if ((block % 60) == 0) {
@@ -2000,104 +2005,116 @@ int main(int argc, char** argv) {
             ImGui_ImplDX11_NewFrame();
             ImGui_ImplWin32_NewFrame();
             ImGui::NewFrame();
-            
-            // Deck and mixer control panel
-            ImGui::Begin("DJ-ROOFRAT Control Panel");
-            ImGui::Text("Live GUI Controls");
-            ImGui::Separator();
-            ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-            ImGui::Text("Block: %d / %d", block, totalBlocks);
-            ImGui::Text("Audio: %s", realtimeAudio ? "REALTIME" : "SILENT");
-            ImGui::Separator();
 
-            if (ImGui::Checkbox("Manual Mix Mode", &manualMixMode)) {
-                if (!manualMixMode) {
-                    // Keep current fader position when returning to autopilot.
+            const double splashElapsedSeconds =
+                std::chrono::duration<double>(std::chrono::steady_clock::now() - visualSessionStart).count();
+            const bool splashActive = splashScreen.isActive(splashElapsedSeconds);
+
+            if (!splashActive) {
+                // Deck and mixer control panel
+                ImGui::Begin("DJ-ROOFRAT Control Panel");
+                ImGui::Text("Live GUI Controls");
+                ImGui::Separator();
+                ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+                ImGui::Text("Block: %d / %d", block, totalBlocks);
+                ImGui::Text("Audio: %s", realtimeAudio ? "REALTIME" : "SILENT");
+                ImGui::Separator();
+
+                if (ImGui::Checkbox("Manual Mix Mode", &manualMixMode)) {
+                    if (!manualMixMode) {
+                        // Keep current fader position when returning to autopilot.
+                        mixer.setCrossfader(crossfaderPosition);
+                    }
+                }
+
+                float guiCrossfader = crossfaderPosition;
+                if (ImGui::SliderFloat("Crossfader", &guiCrossfader, -1.0f, 1.0f, "%.2f")) {
+                    crossfaderPosition = guiCrossfader;
                     mixer.setCrossfader(crossfaderPosition);
+                    manualMixMode = true;
                 }
-            }
 
-            float guiCrossfader = crossfaderPosition;
-            if (ImGui::SliderFloat("Crossfader", &guiCrossfader, -1.0f, 1.0f, "%.2f")) {
-                crossfaderPosition = guiCrossfader;
-                mixer.setCrossfader(crossfaderPosition);
-                manualMixMode = true;
-            }
-
-            ImGui::Separator();
-            ImGui::Text("Deck A");
-            ImGui::Text("State: %s | BPM: %.2f | Frame: %llu",
-                        deckA.isPlaying() ? "PLAYING" : "PAUSED",
-                        deckA.getBPM(),
-                        static_cast<unsigned long long>(deckA.currentFrame()));
-            if (ImGui::Button(deckA.isPlaying() ? "Pause A" : "Play A")) {
-                if (deckA.isPlaying()) {
-                    deckA.pause();
-                } else {
-                    deckA.play();
+                ImGui::Separator();
+                ImGui::Text("Deck A");
+                ImGui::Text("State: %s | BPM: %.2f | Frame: %llu",
+                            deckA.isPlaying() ? "PLAYING" : "PAUSED",
+                            deckA.getBPM(),
+                            static_cast<unsigned long long>(deckA.currentFrame()));
+                if (ImGui::Button(deckA.isPlaying() ? "Pause A" : "Play A")) {
+                    if (deckA.isPlaying()) {
+                        deckA.pause();
+                    } else {
+                        deckA.play();
+                    }
                 }
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Cue A")) {
-                deckA.jumpToCue(activeCueBankA);
-            }
-            if (ImGui::SliderFloat("Tempo A (%)", &tempoA, -50.0f, 50.0f, "%.2f")) {
-                deckA.setTempoPercent(tempoA);
-            }
-            if (ImGui::SliderFloat("A Low", &eqALow, 0.0f, 2.0f, "%.2f")) {
-                deckA.setEQ(eqALow, eqAMid, eqAHigh);
-            }
-            if (ImGui::SliderFloat("A Mid", &eqAMid, 0.0f, 2.0f, "%.2f")) {
-                deckA.setEQ(eqALow, eqAMid, eqAHigh);
-            }
-            if (ImGui::SliderFloat("A High", &eqAHigh, 0.0f, 2.0f, "%.2f")) {
-                deckA.setEQ(eqALow, eqAMid, eqAHigh);
-            }
-            if (ImGui::SliderFloat("A Filter", &filterA, 0.0f, 1.0f, "%.2f")) {
-                deckA.setFilter(filterA);
-            }
-
-            ImGui::Separator();
-            ImGui::Text("Deck B");
-            ImGui::Text("State: %s | BPM: %.2f | Frame: %llu",
-                        deckB.isPlaying() ? "PLAYING" : "PAUSED",
-                        deckB.getBPM(),
-                        static_cast<unsigned long long>(deckB.currentFrame()));
-            if (ImGui::Button(deckB.isPlaying() ? "Pause B" : "Play B")) {
-                if (deckB.isPlaying()) {
-                    deckB.pause();
-                } else {
-                    deckB.play();
+                ImGui::SameLine();
+                if (ImGui::Button("Cue A")) {
+                    deckA.jumpToCue(activeCueBankA);
                 }
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Cue B")) {
-                deckB.jumpToCue(activeCueBankB);
-            }
-            if (ImGui::SliderFloat("Tempo B (%)", &tempoB, -50.0f, 50.0f, "%.2f")) {
-                deckB.setTempoPercent(tempoB);
-            }
-            if (ImGui::SliderFloat("B Low", &eqBLow, 0.0f, 2.0f, "%.2f")) {
-                deckB.setEQ(eqBLow, eqBMid, eqBHigh);
-            }
-            if (ImGui::SliderFloat("B Mid", &eqBMid, 0.0f, 2.0f, "%.2f")) {
-                deckB.setEQ(eqBLow, eqBMid, eqBHigh);
-            }
-            if (ImGui::SliderFloat("B High", &eqBHigh, 0.0f, 2.0f, "%.2f")) {
-                deckB.setEQ(eqBLow, eqBMid, eqBHigh);
-            }
-            if (ImGui::SliderFloat("B Filter", &filterB, 0.0f, 1.0f, "%.2f")) {
-                deckB.setFilter(filterB);
+                if (ImGui::SliderFloat("Tempo A (%)", &tempoA, -50.0f, 50.0f, "%.2f")) {
+                    deckA.setTempoPercent(tempoA);
+                }
+                if (ImGui::SliderFloat("A Low", &eqALow, 0.0f, 2.0f, "%.2f")) {
+                    deckA.setEQ(eqALow, eqAMid, eqAHigh);
+                }
+                if (ImGui::SliderFloat("A Mid", &eqAMid, 0.0f, 2.0f, "%.2f")) {
+                    deckA.setEQ(eqALow, eqAMid, eqAHigh);
+                }
+                if (ImGui::SliderFloat("A High", &eqAHigh, 0.0f, 2.0f, "%.2f")) {
+                    deckA.setEQ(eqALow, eqAMid, eqAHigh);
+                }
+                if (ImGui::SliderFloat("A Filter", &filterA, 0.0f, 1.0f, "%.2f")) {
+                    deckA.setFilter(filterA);
+                }
+
+                ImGui::Separator();
+                ImGui::Text("Deck B");
+                ImGui::Text("State: %s | BPM: %.2f | Frame: %llu",
+                            deckB.isPlaying() ? "PLAYING" : "PAUSED",
+                            deckB.getBPM(),
+                            static_cast<unsigned long long>(deckB.currentFrame()));
+                if (ImGui::Button(deckB.isPlaying() ? "Pause B" : "Play B")) {
+                    if (deckB.isPlaying()) {
+                        deckB.pause();
+                    } else {
+                        deckB.play();
+                    }
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Cue B")) {
+                    deckB.jumpToCue(activeCueBankB);
+                }
+                if (ImGui::SliderFloat("Tempo B (%)", &tempoB, -50.0f, 50.0f, "%.2f")) {
+                    deckB.setTempoPercent(tempoB);
+                }
+                if (ImGui::SliderFloat("B Low", &eqBLow, 0.0f, 2.0f, "%.2f")) {
+                    deckB.setEQ(eqBLow, eqBMid, eqBHigh);
+                }
+                if (ImGui::SliderFloat("B Mid", &eqBMid, 0.0f, 2.0f, "%.2f")) {
+                    deckB.setEQ(eqBLow, eqBMid, eqBHigh);
+                }
+                if (ImGui::SliderFloat("B High", &eqBHigh, 0.0f, 2.0f, "%.2f")) {
+                    deckB.setEQ(eqBLow, eqBMid, eqBHigh);
+                }
+                if (ImGui::SliderFloat("B Filter", &filterB, 0.0f, 1.0f, "%.2f")) {
+                    deckB.setFilter(filterB);
+                }
+
+                ImGui::Separator();
+                ImGui::Checkbox("Show Spectrum", &showSpectrum);
+                ImGui::Checkbox("Show Energy Curve", &showEnergyCurve);
+                ImGui::End();
             }
 
-            ImGui::Separator();
-            ImGui::Checkbox("Show Spectrum", &showSpectrum);
-            ImGui::Checkbox("Show Energy Curve", &showEnergyCurve);
-            ImGui::End();
-            
+            splashScreen.render(splashElapsedSeconds, ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y);
+
             ImGui::Render();
-            graphics.clearRenderTarget(0.1f, 0.1f, 0.15f, 1.0f);
+            if (!graphicsFrameRendered) {
+                graphics.clearRenderTarget(0.1f, 0.1f, 0.15f, 1.0f);
+            }
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+            graphics.present();
+        } else if (graphicsEnabled && graphics.isAvailable()) {
             graphics.present();
         }
 #endif
