@@ -88,9 +88,8 @@ void Camera::updateViewMatrix() {
         }
     }
 
-    // Position camera
-    viewMatrix_.m[3][1] = 5.0f; // Move up
-    viewMatrix_.m[3][2] = 5.0f; // Move back
+    viewMatrix_.m[3][1] = -2.0f;
+    viewMatrix_.m[3][2] = 8.0f;
 
     // Create world matrix (identity)
     for (int i = 0; i < 4; ++i) {

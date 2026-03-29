@@ -5,11 +5,14 @@
 
 namespace dj {
 
+#ifndef DJROOFRAT_VERTEX_STRUCT_DEFINED
+#define DJROOFRAT_VERTEX_STRUCT_DEFINED
 struct Vertex {
     float position[3];
     float normal[3];
     float texCoord[2];  // UV coordinates in [0,1] range
 };
+#endif
 
 class StageGeometry {
 public:

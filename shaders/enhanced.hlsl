@@ -21,6 +21,7 @@ cbuffer MaterialBuffer : register(b1) {
 struct VS_INPUT {
     float3 Position : POSITION;
     float3 Normal : NORMAL;
+    float2 TexCoord : TEXCOORD0;
 };
 
 struct PS_INPUT {
@@ -28,7 +29,11 @@ struct PS_INPUT {
     float3 WorldNormal : NORMAL;
     float3 WorldPos : TEXCOORD0;
     float3 ViewDir : TEXCOORD1;
+    float2 TexCoord : TEXCOORD2;
 };
+
+Texture2D SceneTexture : register(t1);
+SamplerState SceneSampler : register(s1);
 
 // Vertex Shader
 PS_INPUT VSMain(VS_INPUT input) {
@@ -49,6 +54,8 @@ PS_INPUT VSMain(VS_INPUT input) {
     
     // Calculate view direction for specular
     output.ViewDir = normalize(CameraPosition - worldPos.xyz);
+
+    output.TexCoord = input.TexCoord;
     
     return output;
 }
@@ -97,9 +104,12 @@ float4 PSMain(PS_INPUT input) : SV_TARGET {
     float3 lightDir = normalize(LightDir);
     float3 viewDir = normalize(input.ViewDir);
     
+    float2 tiledUV = frac(input.TexCoord * 3.0);
+    float3 albedo = SceneTexture.Sample(SceneSampler, tiledUV).rgb;
+
     // Calculate PBR-inspired lighting
     float3 litColor = CalculateLighting(normal, lightDir, viewDir,
-                                        BaseColor, Metallic, Roughness);
+                                        BaseColor * albedo, Metallic, Roughness);
     
     // Add rim lighting (edge glow)
     float rim = CalculateRimLight(normal, viewDir, 3.0);
@@ -109,13 +119,14 @@ float4 PSMain(PS_INPUT input) : SV_TARGET {
     float3 finalColor = ApplyBeatEffect(litColor, BeatIntensity, BPM);
     
     // Add emissive contribution
-    finalColor += EmissiveColor * BeatIntensity;
+    float emissivePulse = 0.3 + (0.7 * BeatIntensity);
+    finalColor += EmissiveColor * emissivePulse;
     
     // Add rim lighting
     finalColor += rimColor;
     
     // Ambient contribution
-    float3 ambient = BaseColor * 0.15;
+    float3 ambient = (BaseColor * albedo) * 0.22;
     finalColor += ambient;
     
     // HDR tone mapping (simple Reinhard)

@@ -333,6 +333,10 @@ bool GraphicsContext::initialize(int width, int height, std::string* errorOut) {
                 }
                 return false;
             }
+
+            // Enable advanced visuals in live app mode for a fully playable graphics experience.
+            enhancedScene_->setTunnelEffect(true);
+            enhancedScene_->setShadowMapping(true);
         }
 
         available_ = true;
@@ -363,6 +367,17 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
     }
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    context_->OMSetRenderTargets(1, renderTargetView_.GetAddressOf(), depthStencilView_.Get());
+
+    D3D11_VIEWPORT viewport = {};
+    viewport.TopLeftX = 0.0f;
+    viewport.TopLeftY = 0.0f;
+    viewport.Width = static_cast<float>(width_);
+    viewport.Height = static_cast<float>(height_);
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    context_->RSSetViewports(1, &viewport);
+
     // Update timing
     frameTimer_ += 1.0f / 60.0f; // Assume 60 FPS for now
     frameCount_++;
@@ -401,7 +416,7 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
     }
 
     // Clear render target and depth stencil
-    float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    float clearColor[4] = {0.04f, 0.07f, 0.12f, 1.0f};
     context_->ClearRenderTargetView(renderTargetView_.Get(), clearColor);
     context_->ClearDepthStencilView(depthStencilView_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -448,13 +463,14 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
             cbData->lightDir[0] = 1.0f;
             cbData->lightDir[1] = 1.0f;
             cbData->lightDir[2] = -1.0f;
-            cbData->padding = 0.0f;
+            cbData->padding = enhancedScene_ ? enhancedScene_->getBeatIntensity() : 0.0f;
 
             context_->Unmap(constantBuffer_.Get(), 0);
         }
 
         // Bind constant buffer to vertex shader
         context_->VSSetConstantBuffers(0, 1, constantBuffer_.GetAddressOf());
+        context_->PSSetConstantBuffers(0, 1, constantBuffer_.GetAddressOf());
     }
 
     // BUG 3 FIX: Set primitive topology (D3D11 requires explicit topology)

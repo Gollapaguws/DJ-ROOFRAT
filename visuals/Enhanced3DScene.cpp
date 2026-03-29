@@ -10,6 +10,7 @@
 #include "visuals/TextureManager.h"
 #include "visuals/TunnelGeometry.h"
 #include "visuals/ShadowMap.h"
+#include "visuals/StageGeometry.h"
 #endif
 
 namespace dj {
@@ -72,12 +73,16 @@ bool Enhanced3DScene::initialize(ID3D11Device* device, ID3D11DeviceContext* cont
         return false;
     }
 
-    // Phase 3: Initialize texture manager with procedural checkerboard
+    // Phase 3: Initialize texture manager with procedural checkerboard (1024x1024 for high fidelity)
     if (!textureManager_) {
         textureManager_ = std::make_unique<TextureManager>();
     }
     textureManager_->setDevice(device_);
-    if (!textureManager_->createCheckerboard(256, 256)) {
+    if (!textureManager_->createCheckerboard(1024, 1024)) {
+        return false;
+    }
+
+    if (!createStageGeometry()) {
         return false;
     }
 
@@ -140,6 +145,9 @@ void Enhanced3DScene::render(const float* viewMatrix, const float* projMatrix) {
         return;
     }
 
+    // Run shadow depth pre-pass before main shading when enabled.
+    renderShadowDepthPass();
+
     // Populate material buffer with current state
     D3D11_MAPPED_SUBRESOURCE mapped = {};
     HRESULT hr = context_->Map(materialBuffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
@@ -155,23 +163,20 @@ void Enhanced3DScene::render(const float* viewMatrix, const float* projMatrix) {
 
         MaterialBufferData* matData = (MaterialBufferData*)mapped.pData;
         
-        // Set base color (white by default)
-        matData->baseColor[0] = 1.0f;
-        matData->baseColor[1] = 1.0f;
+        matData->baseColor[0] = 0.95f;
+        matData->baseColor[1] = 0.97f;
         matData->baseColor[2] = 1.0f;
-        
-        // Set metallic (0.2 default)
-        matData->metallic = 0.2f;
+
+        matData->metallic = 0.12f;
         
         // Set emissive color based on beat intensity (beat-reactive)
         float beatIntensity = getBeatIntensity();
-        float emissiveScale = beatIntensity * currentEnergy_;
+        float emissiveScale = 0.18f + (0.42f * currentEnergy_);
         matData->emissiveColor[0] = 1.0f * emissiveScale;
-        matData->emissiveColor[1] = 0.5f * emissiveScale;
-        matData->emissiveColor[2] = 0.2f * emissiveScale;
-        
-        // Set roughness (0.6 default)
-        matData->roughness = 0.6f;
+        matData->emissiveColor[1] = 0.55f * emissiveScale;
+        matData->emissiveColor[2] = 0.24f * emissiveScale;
+
+        matData->roughness = 0.48f - (0.18f * beatIntensity);
         
         // Set camera position (default at origin for now)
         matData->cameraPosition[0] = 0.0f;
@@ -205,12 +210,56 @@ void Enhanced3DScene::render(const float* viewMatrix, const float* projMatrix) {
         
         // Phase 3: Bind texture SRV and sampler state to pixel shader for UV mapping
         if (textureManager_) {
-            textureManager_->bind(context_, 0);  // Bind to texture slot 0
+            textureManager_->bind(context_, 1);
         }
-        
-        // TODO Phase 3: Add actual draw call with geometry
-        // For now this is a stub to test material buffer binding
+
+        if (stageVertexBuffer_ && stageIndexBuffer_) {
+            stageVertexBuffer_->bind(context_, 0);
+            stageIndexBuffer_->bind(context_);
+            context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            context_->DrawIndexed(stageIndexBuffer_->getIndexCount(), 0, 0);
+        }
     }
+
+    // Render tunnel overlay/effect pass when enabled.
+    if (tunnelEffectEnabled_) {
+        renderTunnel();
+    }
+#endif
+}
+
+bool Enhanced3DScene::createStageGeometry() {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (device_ == nullptr) {
+        return false;
+    }
+
+    auto stageGeometry = std::make_unique<StageGeometry>();
+    stageGeometry->generate();
+
+    const auto& vertices = stageGeometry->getVertices();
+    const auto& indices = stageGeometry->getIndices();
+    if (vertices.empty() || indices.empty()) {
+        return false;
+    }
+
+    if (!stageVertexBuffer_) {
+        stageVertexBuffer_ = std::make_unique<VertexBuffer>();
+    }
+    if (!stageVertexBuffer_->create(device_, vertices.data(), static_cast<uint32_t>(vertices.size()), sizeof(Vertex))) {
+        return false;
+    }
+
+    if (!stageIndexBuffer_) {
+        stageIndexBuffer_ = std::make_unique<IndexBuffer>();
+    }
+    if (!stageIndexBuffer_->create(device_, indices.data(), static_cast<uint32_t>(indices.size()))) {
+        return false;
+    }
+
+    return true;
+#else
+    return false;
 #endif
 }
 
@@ -413,6 +462,11 @@ void Enhanced3DScene::renderTunnel() {
         // Set tunnel shader
         context_->VSSetShader(tunnelShader_->getVertexShader(), nullptr, 0);
         context_->PSSetShader(tunnelShader_->getPixelShader(), nullptr, 0);
+
+        // Bind tunnel geometry buffers
+        tunnelVertexBuffer_->bind(context_, 0);
+        tunnelIndexBuffer_->bind(context_);
+        context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         
         // Bind texture
         if (textureManager_) {
@@ -457,9 +511,10 @@ bool Enhanced3DScene::createShadowResources() {
         return false;
     }
 
-    // Create shadow constant buffer (for light view/projection matrices)
+    // Create shadow constant buffer matching shadowdepth.hlsl TransformBuffer (b0):
+    // matrix World (64 bytes) + matrix View (64 bytes) + matrix Projection (64 bytes)
     D3D11_BUFFER_DESC desc = {};
-    desc.ByteWidth = 128 + 16;  // Two 4x4 matrices (128 bytes) + shadow settings (16 bytes)
+    desc.ByteWidth = 64 * 3;
     desc.Usage = D3D11_USAGE_DYNAMIC;
     desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -482,8 +537,37 @@ void Enhanced3DScene::renderShadowDepthPass() {
         return;
     }
 
+    // Save current render targets and viewport so we can restore main pass state.
+    ID3D11RenderTargetView* previousRTV = nullptr;
+    ID3D11DepthStencilView* previousDSV = nullptr;
+    context_->OMGetRenderTargets(1, &previousRTV, &previousDSV);
+
+    // Save depth-stencil and rasterizer states changed by shadow pass.
+    ID3D11DepthStencilState* previousDepthStencilState = nullptr;
+    UINT previousStencilRef = 0;
+    context_->OMGetDepthStencilState(&previousDepthStencilState, &previousStencilRef);
+
+    ID3D11RasterizerState* previousRasterizerState = nullptr;
+    context_->RSGetState(&previousRasterizerState);
+
+    D3D11_VIEWPORT previousViewport = {};
+    UINT viewportCount = 1;
+    context_->RSGetViewports(&viewportCount, &previousViewport);
+
     // Bind shadow map for depth pass
     if (!shadowMap_->bindForDepthPass(context_)) {
+        if (previousRTV) {
+            previousRTV->Release();
+        }
+        if (previousDSV) {
+            previousDSV->Release();
+        }
+        if (previousDepthStencilState) {
+            previousDepthStencilState->Release();
+        }
+        if (previousRasterizerState) {
+            previousRasterizerState->Release();
+        }
         return;
     }
 
@@ -491,32 +575,29 @@ void Enhanced3DScene::renderShadowDepthPass() {
     context_->VSSetShader(shadowDepthShader_->getVertexShader(), nullptr, 0);
     context_->PSSetShader(shadowDepthShader_->getPixelShader(), nullptr, 0);
 
-    // Update shadow constant buffer with light-space matrices
+    // Update shadow constant buffer with world/view/projection matrices expected by shadowdepth.hlsl
     if (shadowConstantBuffer_) {
         D3D11_MAPPED_SUBRESOURCE mapped = {};
         HRESULT hr = context_->Map(shadowConstantBuffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
         if (SUCCEEDED(hr)) {
             struct ShadowBufferData {
-                float lightView[16];
-                float lightProj[16];
-                int useShadows;
-                float shadowBias;
-                float texelSize[2];
+                float world[16];
+                float view[16];
+                float projection[16];
             };
 
             ShadowBufferData* shadowData = (ShadowBufferData*)mapped.pData;
-            
-            // Copy light matrices
+
+            // Identity world for scene-local geometry in this pass.
+            for (int i = 0; i < 16; ++i) {
+                shadowData->world[i] = (i % 5 == 0) ? 1.0f : 0.0f;
+            }
+
+            // Copy light view/projection matrices into shader expected slots.
             const float* lightView = shadowMap_->getLightViewMatrix();
             const float* lightProj = shadowMap_->getLightProjectionMatrix();
-            
-            std::copy(lightView, lightView + 16, shadowData->lightView);
-            std::copy(lightProj, lightProj + 16, shadowData->lightProj);
-            
-            shadowData->useShadows = shadowMappingEnabled_ ? 1 : 0;
-            shadowData->shadowBias = 0.0005f;
-            shadowData->texelSize[0] = 1.0f / 1024.0f;
-            shadowData->texelSize[1] = 1.0f / 1024.0f;
+            std::copy(lightView, lightView + 16, shadowData->view);
+            std::copy(lightProj, lightProj + 16, shadowData->projection);
             
             context_->Unmap(shadowConstantBuffer_.Get(), 0);
             
@@ -525,11 +606,44 @@ void Enhanced3DScene::renderShadowDepthPass() {
         }
     }
 
-    // TODO: In full implementation, would render all scene geometry to shadow map here
-    // For now, just set up the infrastructure for Phase 5
+    // Render available scene geometry into shadow depth map.
+    if (stageVertexBuffer_ && stageIndexBuffer_) {
+        stageVertexBuffer_->bind(context_, 0);
+        stageIndexBuffer_->bind(context_);
+        context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        context_->DrawIndexed(stageIndexBuffer_->getIndexCount(), 0, 0);
+    }
+
+    if (tunnelVertexBuffer_ && tunnelIndexBuffer_) {
+        tunnelVertexBuffer_->bind(context_, 0);
+        tunnelIndexBuffer_->bind(context_);
+        context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        context_->DrawIndexed(tunnelIndexBuffer_->getIndexCount(), 0, 0);
+    }
 
     // Unbind shadow map
     shadowMap_->unbindDepthPass(context_);
+
+    // Restore previous render target/depth state and viewport for the main scene pass.
+    context_->OMSetRenderTargets(1, &previousRTV, previousDSV);
+    context_->OMSetDepthStencilState(previousDepthStencilState, previousStencilRef);
+    context_->RSSetState(previousRasterizerState);
+    if (viewportCount > 0) {
+        context_->RSSetViewports(1, &previousViewport);
+    }
+
+    if (previousRTV) {
+        previousRTV->Release();
+    }
+    if (previousDSV) {
+        previousDSV->Release();
+    }
+    if (previousDepthStencilState) {
+        previousDepthStencilState->Release();
+    }
+    if (previousRasterizerState) {
+        previousRasterizerState->Release();
+    }
 #endif
 }
 

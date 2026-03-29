@@ -20,6 +20,7 @@ class IndexBuffer;
 class TextureManager;
 class TunnelGeometry;
 class ShadowMap;  // Phase 5: Shadow mapping
+class StageGeometry;
 
 /// Enhanced3DScene manages advanced 3D visual effects synchronized to music
 /// Features:
@@ -133,6 +134,8 @@ private:
     ComPtr<ID3D11Buffer> lightBuffer_;
 
     // Tunnel effect geometry
+    std::unique_ptr<VertexBuffer> stageVertexBuffer_;
+    std::unique_ptr<IndexBuffer> stageIndexBuffer_;
     std::unique_ptr<VertexBuffer> tunnelVertexBuffer_;
     std::unique_ptr<IndexBuffer> tunnelIndexBuffer_;
 
@@ -154,6 +157,7 @@ private:
     void renderShadowDepthPass();  // Phase 5: Shadow depth pass
     
     bool createParticleBuffers();
+    bool createStageGeometry();
     bool createTunnelGeometry();
     bool createBloomResources();
     bool createShadowResources();  // Phase 5: Initialize shadow mapping
