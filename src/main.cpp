@@ -79,6 +79,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "visuals/CoachingHUD.h"
 #include "visuals/SplashScreenAnimator.h"
 #include "visuals/SyncIndicator.h"
+#include "visuals/BeatGridRenderer.h"
+#include "visuals/EnergyHistogram.h"
 #include "audio/SyncUndoStack.h"
 
 namespace {
@@ -924,6 +926,16 @@ int main(int argc, char** argv) {
     bool showEnergyCurve = false;
     double lastEnergySampleTimeSeconds = -1.0;
     double lastMixAnalysisTimeSeconds = -1.0;
+
+    // Phase 1: Graphics visualization panels
+    dj::BeatGridRenderer beatGridRenderer;
+    dj::EnergyHistogram energyHistogram;
+    dj::CamelotWheel camelotWheel;
+    bool showBeatGridPanel = false;
+    bool showEnergyHistogramPanel = false;
+    bool showCamelotWheelPanel = false;
+    bool showCoachingPanel = false;
+    bool showSyncPanel = false;
 
     // Arc V: Career Mode Systems
     dj::UnlockSystem unlocks;
@@ -2103,6 +2115,100 @@ int main(int argc, char** argv) {
                 ImGui::Separator();
                 ImGui::Checkbox("Show Spectrum", &showSpectrum);
                 ImGui::Checkbox("Show Energy Curve", &showEnergyCurve);
+                ImGui::Checkbox("Show Beat Grid", &showBeatGridPanel);
+                ImGui::Checkbox("Show Energy Histogram", &showEnergyHistogramPanel);
+                ImGui::Checkbox("Show Camelot Wheel", &showCamelotWheelPanel);
+                ImGui::Checkbox("Show Coaching", &showCoachingPanel);
+                ImGui::Checkbox("Show Sync", &showSyncPanel);
+                ImGui::End();
+            }
+
+            // Phase 1: Beat Grid Visualization Panel
+            if (showBeatGridPanel) {
+                ImGui::Begin("Beat Grid", &showBeatGridPanel);
+                ImGui::Text("Beat Grid Visualization");
+                ImGui::Separator();
+                try {
+                    std::string beatGridOutput = beatGridRenderer.render(beatGridA, 80);
+                    ImGui::TextWrapped("%s", beatGridOutput.c_str());
+                } catch (...) {
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Error rendering beat grid");
+                }
+                ImGui::End();
+            }
+
+            // Phase 1: Energy Histogram Visualization Panel
+            if (showEnergyHistogramPanel) {
+                ImGui::Begin("Energy Histogram", &showEnergyHistogramPanel);
+                ImGui::Text("Energy Distribution");
+                ImGui::Separator();
+                try {
+                    // Collect energy ratings from the curve
+                    std::vector<int> energyRatings;
+                    auto samples = energyCurve.getCurve();
+                    for (const auto& sample : samples) {
+                        int rating = static_cast<int>(sample.energy * 10.0f);
+                        energyRatings.push_back(std::clamp(rating, 1, 10));
+                    }
+                    if (!energyRatings.empty()) {
+                        std::string histogramOutput = energyHistogram.render(energyRatings, 80, 10);
+                        ImGui::TextWrapped("%s", histogramOutput.c_str());
+                    } else {
+                        ImGui::Text("No energy data available");
+                    }
+                } catch (...) {
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Error rendering histogram");
+                }
+                ImGui::End();
+            }
+
+            // Phase 1: Camelot Wheel Visualization Panel
+            if (showCamelotWheelPanel) {
+                ImGui::Begin("Camelot Wheel", &showCamelotWheelPanel);
+                ImGui::Text("Harmonic Mixing Circle");
+                ImGui::Separator();
+                try {
+                    std::string camelotOutput = camelotWheel.render("5A");  // Default key
+                    ImGui::TextWrapped("%s", camelotOutput.c_str());
+                } catch (...) {
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Error rendering Camelot wheel");
+                }
+                ImGui::End();
+            }
+
+            // Phase 1: Coaching HUD Panel
+            if (showCoachingPanel) {
+                ImGui::Begin("Coaching", &showCoachingPanel);
+                ImGui::Text("Transition Coaching");
+                ImGui::Separator();
+                try {
+                    auto suggestion = coach.suggestNextTransition(deckA, deckB, energyCurve, camelotAnalyzerA);
+                    double beatsRemaining = 8.0;  // Example: 8 beats until transition
+                    std::string coachingOutput = coachingHud.render(suggestion, beatsRemaining);
+                    ImGui::TextWrapped("%s", coachingOutput.c_str());
+                    ImGui::Separator();
+                    ImGui::Text("Confidence: %.0f%%", suggestion.confidence * 100.0f);
+                    ImGui::Text("Energy Delta: %.2f", suggestion.energyDelta);
+                    ImGui::Text("Harmonic Score: %.2f", suggestion.harmonicScore);
+                } catch (...) {
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Error rendering coaching HUD");
+                }
+                ImGui::End();
+            }
+
+            // Phase 1: Sync Status Panel
+            if (showSyncPanel) {
+                ImGui::Begin("Sync Status", &showSyncPanel);
+                ImGui::Text("Synchronization Status");
+                ImGui::Separator();
+                try {
+                    std::string syncOutput = syncIndicator.render(coachingEnabled, SyncState::Locked, 0.1);
+                    ImGui::TextWrapped("%s", syncOutput.c_str());
+                    ImGui::Separator();
+                    ImGui::Text("Sync Enabled: %s", coachingEnabled ? "Yes" : "No");
+                } catch (...) {
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Error rendering sync indicator");
+                }
                 ImGui::End();
             }
 

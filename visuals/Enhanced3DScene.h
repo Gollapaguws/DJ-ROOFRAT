@@ -21,6 +21,8 @@ class TextureManager;
 class TunnelGeometry;
 class ShadowMap;  // Phase 5: Shadow mapping
 class StageGeometry;
+class CrowdRenderer;  // Phase 2: Crowd visualization
+class CrowdAnimator;  // Phase 2: Crowd animation
 
 /// Enhanced3DScene manages advanced 3D visual effects synchronized to music
 /// Features:
@@ -48,6 +50,7 @@ public:
     void setTunnelEffect(bool enabled) { tunnelEffectEnabled_ = enabled; }
     void setBloomEffect(bool enabled) { bloomEnabled_ = enabled; }
     void setShadowMapping(bool enabled) { shadowMappingEnabled_ = enabled; }  // Phase 5: Shadow mapping
+    void setCrowdVisualization(bool enabled) { crowdVisualizationEnabled_ = enabled; }  // Phase 2: Crowd visualization
 
     // Get current feature states
     bool hasDynamicLighting() const { return dynamicLightingEnabled_; }
@@ -55,6 +58,7 @@ public:
     bool hasTunnelEffect() const { return tunnelEffectEnabled_; }
     bool hasBloom() const { return bloomEnabled_; }
     bool hasShadowMapping() const { return shadowMappingEnabled_; }  // Phase 5: Shadow mapping
+    bool hasCrowdVisualization() const { return crowdVisualizationEnabled_; }  // Phase 2: Crowd visualization
 
     // Phase 2: Enhanced shader and material buffer methods
     bool loadEnhancedShader();
@@ -71,6 +75,7 @@ private:
     bool tunnelEffectEnabled_ = false;
     bool bloomEnabled_ = false;
     bool shadowMappingEnabled_ = false;  // Phase 5: Shadow mapping
+    bool crowdVisualizationEnabled_ = true;  // Phase 2: Crowd visualization
 
     // Music state
     float currentBPM_ = 120.0f;
@@ -149,18 +154,25 @@ private:
     ComPtr<ID3D11Buffer> shadowConstantBuffer_;
     std::unique_ptr<Shader> shadowDepthShader_;
 
+    // Phase 2: Crowd visualization state and rendering
+    std::unique_ptr<CrowdRenderer> crowdRenderer_;
+    std::unique_ptr<CrowdAnimator> crowdAnimator_;
+    int currentMood_ = 0;  // 0-3: Unimpressed, Calm, Grooving, Hyped
+
     // Helper methods
     void updateDynamicLights();
     void emitParticleBurst(const float* position, float intensity);
     void renderTunnel();
     void applyBloom();
     void renderShadowDepthPass();  // Phase 5: Shadow depth pass
+    void renderCrowd(const float* viewMatrix, const float* projMatrix);  // Phase 2: Render crowd
     
     bool createParticleBuffers();
     bool createStageGeometry();
     bool createTunnelGeometry();
     bool createBloomResources();
     bool createShadowResources();  // Phase 5: Initialize shadow mapping
+    bool initializeCrowdRendering();  // Phase 2: Initialize crowd rendering
 #endif
 };
 

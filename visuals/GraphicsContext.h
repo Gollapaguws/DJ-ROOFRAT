@@ -25,6 +25,7 @@ struct ConstantBufferData {
 namespace dj {
 
 class LaserController;
+class LightingRig;
 class CrowdRenderer;
 class Camera;
 class Shader;
@@ -102,6 +103,7 @@ private:
     int height_;
     float fps_ = 60.0f;
 
+    std::unique_ptr<LightingRig> lightingRig_;
     std::unique_ptr<LaserController> laserController_;
     std::unique_ptr<CrowdRenderer> crowdRenderer_;
 

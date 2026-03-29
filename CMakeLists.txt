@@ -1753,6 +1753,84 @@ endif()
 
 set_target_properties(beatjump_phase41_test PROPERTIES OUTPUT_NAME "BeatJump_Phase41_test")
 
+# Graphics Visualization Panels Phase 1 test
+add_executable(graphics_phase1_test
+    tests/Graphics_Phase1_test.cpp
+    audio/BeatGrid.cpp
+    audio/BeatGridEditor.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/CamelotAnalyzer.cpp
+    audio/EnergyAnalyzer.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
+    gameplay/EnergyCurve.cpp
+    gameplay/TransitionCoach.cpp
+    visuals/BeatGridRenderer.cpp
+    visuals/EnergyHistogram.cpp
+    visuals/CamelotWheel.cpp
+    visuals/CoachingHUD.cpp
+    visuals/SyncIndicator.cpp
+)
+
+target_include_directories(graphics_phase1_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(graphics_phase1_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(graphics_phase1_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(graphics_phase1_test PROPERTIES OUTPUT_NAME "Graphics_Phase1_test")
+
+# Graphics 3D Crowd Visualization Phase 2 test
+add_executable(graphics_phase2_test
+    tests/Graphics_Phase2_test.cpp
+    visuals/CrowdRenderer.cpp
+    visuals/CrowdAnimator.cpp
+    visuals/CrowdMesh.cpp
+)
+
+target_include_directories(graphics_phase2_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(graphics_phase2_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(graphics_phase2_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(graphics_phase2_test PROPERTIES OUTPUT_NAME "Graphics_Phase2_test")
+
+# Graphics Phase 3 test (Lighting and Lasers)
+add_executable(graphics_phase3_test
+    tests/Graphics_Phase3_test.cpp
+    visuals/LightingRig.cpp
+    visuals/LaserController.cpp
+)
+
+target_include_directories(graphics_phase3_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(graphics_phase3_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(graphics_phase3_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(graphics_phase3_test PROPERTIES OUTPUT_NAME "Graphics_Phase3_test")
+
 # Splash Screen Phase 42 test
 add_executable(splashscreen_phase42_test
     visuals/SplashScreen_Phase42_test.cpp

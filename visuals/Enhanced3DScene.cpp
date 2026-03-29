@@ -11,6 +11,8 @@
 #include "visuals/TunnelGeometry.h"
 #include "visuals/ShadowMap.h"
 #include "visuals/StageGeometry.h"
+#include "visuals/CrowdRenderer.h"  // Phase 2: Crowd visualization
+#include "visuals/CrowdAnimator.h"  // Phase 2: Crowd animation
 #endif
 
 namespace dj {
@@ -96,6 +98,11 @@ bool Enhanced3DScene::initialize(ID3D11Device* device, ID3D11DeviceContext* cont
         return false;
     }
 
+    // Phase 2: Initialize crowd rendering
+    if (!initializeCrowdRendering()) {
+        return false;
+    }
+
     return true;
 #else
     // Graphics not available
@@ -122,6 +129,11 @@ void Enhanced3DScene::update(float bpm, float energy, float beatPhase, float del
         lastBeatTime_ = timeAccumulator_;
     }
     lastBeatPhase_ = beatPhase;
+    
+    // Phase 2: Update crowd animation synchronized to BPM
+    if (crowdAnimator_) {
+        crowdAnimator_->update(currentBPM_, deltaTime);
+    }
     
     // Phase 4: Update tunnel scroll offset
     tunnelScrollOffset_ += tunnelScrollSpeed_ * deltaTime;
@@ -224,6 +236,11 @@ void Enhanced3DScene::render(const float* viewMatrix, const float* projMatrix) {
     // Render tunnel overlay/effect pass when enabled.
     if (tunnelEffectEnabled_) {
         renderTunnel();
+    }
+
+    // Phase 2: Render crowd visualization when enabled
+    if (crowdVisualizationEnabled_) {
+        renderCrowd(viewMatrix, projMatrix);
     }
 #endif
 }
@@ -647,4 +664,67 @@ void Enhanced3DScene::renderShadowDepthPass() {
 #endif
 }
 
+// Phase 2: Initialize crowd rendering components
+bool Enhanced3DScene::initializeCrowdRendering() {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (device_ == nullptr) {
+        return false;
+    }
+
+    // Create crowd renderer and animator instances
+    if (!crowdRenderer_) {
+        crowdRenderer_ = std::make_unique<CrowdRenderer>();
+    }
+    if (!crowdAnimator_) {
+        crowdAnimator_ = std::make_unique<CrowdAnimator>();
+    }
+
+    // Initialize GPU resources for instanced rendering
+    if (!crowdRenderer_->initialize(device_)) {
+        return false;
+    }
+
+    return true;
+#else
+    return false;
+#endif
+}
+
+// Phase 2: Render the crowd mesh synchronized with music
+void Enhanced3DScene::renderCrowd(const float* viewMatrix, const float* projMatrix) {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (!crowdRenderer_ || !crowdAnimator_ || viewMatrix == nullptr || projMatrix == nullptr || 
+        context_ == nullptr) {
+        return;
+    }
+
+    // Map current mood based on energy level
+    // Energy-based mood transition: low energy = unimpressed, high energy = hyped
+    const int previousMood = currentMood_;
+    if (currentEnergy_ < 0.25f) {
+        currentMood_ = 0;  // Unimpressed
+    } else if (currentEnergy_ < 0.5f) {
+        currentMood_ = 1;  // Calm
+    } else if (currentEnergy_ < 0.75f) {
+        currentMood_ = 2;  // Grooving
+    } else {
+        currentMood_ = 3;  // Hyped
+    }
+
+    // Render instanced crowd with LOD selection based on camera distance
+    float3 crowdPos(0.0f, 0.0f, 0.0f);    // Center of stage
+    float3 cameraPos(0.0f, 0.0f, -5.0f);  // Camera position from view matrix (simplified)
+    
+    // Calculate LOD level
+    int lodLevel = crowdRenderer_->calculateLODLevel(crowdPos, cameraPos);
+
+    // Render the crowd
+    if (!crowdRenderer_->renderInstanced(context_, cameraPos)) {
+        // Fallback: rendering failed, silently continue
+        return;
+    }
+#endif
+}
+
 } // namespace dj
+

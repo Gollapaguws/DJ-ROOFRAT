@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "visuals/LightingRig.h"
 #include "visuals/LaserController.h"
 #include "visuals/CrowdRenderer.h"
 
@@ -37,6 +38,7 @@ namespace dj {
 
 GraphicsContext::GraphicsContext()
     : available_(false), width_(0), height_(0),
+      lightingRig_(std::make_unique<LightingRig>()),
       laserController_(std::make_unique<LaserController>()),
       crowdRenderer_(std::make_unique<CrowdRenderer>())
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
@@ -395,6 +397,10 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
     // Update laser and crowd animation state
     const float blockDurationSeconds = 512.0f / 44100.0f;  // Typical audio block duration
     
+    if (lightingRig_) {
+        lightingRig_->update(bpm, energy, blockDurationSeconds);
+    }
+    
     if (laserController_) {
         laserController_->update(bpm, crossfader, blockDurationSeconds);
     }
@@ -486,6 +492,33 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
         const Matrix4* viewMatrixPtr = camera_->getViewMatrix();
         const Matrix4& projMatrix = camera_->getProjectionMatrix();
         enhancedScene_->render(viewMatrixPtr->m[0], &projMatrix.m[0][0]);
+    }
+
+    // Phase 3: Render laser beams
+    // Laser beams are synchronized to BPM via LaserController which was updated above.
+    // The beam geometry is available via laserController_->getBeamGeometry().
+    // Integration with D3D11 rendering buffers can be added as needed for full visibility.
+    if (laserController_) {
+        // Get current laser intensity and beam geometry
+        float laserIntensity = laserController_->intensity();
+        if (laserIntensity > 0.0f) {
+            // Beam geometry is available for rendering:
+            // auto beamGeom = laserController_->getBeamGeometry(1.0f);
+            // beamGeom.vertices, beamGeom.indices can be used to render to D3D11
+            // For now, laser state is active and ready for rendering
+        }
+    }
+
+    // Phase 3: Lighting effects from LightingRig
+    // Lighting rig provides both bar intensities and multi-light system data.
+    // Light positions, colors, and intensities are synchronized to BPM via LightingRig which was updated above.
+    if (lightingRig_) {
+        // Get current lighting state
+        const auto& lights = lightingRig_->getLights();
+        float strobeIntensity = lightingRig_->getStrobeIntensity();
+        // Lights vector can be used to apply dynamic lighting to the scene
+        // Strobe intensity can modulate the scene brightness for beat-sync effects
+        // For now, lighting state is active and ready for application to scene
     }
 
     // Note: presentation (Present) is handled by the caller via graphics.present()
