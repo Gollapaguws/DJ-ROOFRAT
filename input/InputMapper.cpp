@@ -114,6 +114,35 @@ InputCommand InputMapper::parse(const std::string& rawCommand) {
     if (command == "record name" || command == "record filename" || command == "set recording filename") {
         return InputCommand::SetRecordingFilename;
     }
+    
+    // Phase 6: Graphics toggles
+    if (command == "toggle crowd") {
+        return InputCommand::ToggleCrowd;
+    }
+    if (command == "toggle lasers") {
+        return InputCommand::ToggleLasers;
+    }
+    if (command == "toggle particles") {
+        return InputCommand::ToggleParticles;
+    }
+    if (command == "toggle shadows") {
+        return InputCommand::ToggleShadows;
+    }
+    if (command == "toggle postprocessing" || command == "toggle post-processing") {
+        return InputCommand::TogglePostProcessing;
+    }
+    if (command == "quality low" || command == "low") {
+        return InputCommand::SetQualityLow;
+    }
+    if (command == "quality medium" || command == "medium") {
+        return InputCommand::SetQualityMedium;
+    }
+    if (command == "quality high" || command == "high") {
+        return InputCommand::SetQualityHigh;
+    }
+    if (command == "quality ultra" || command == "ultra") {
+        return InputCommand::SetQualityUltra;
+    }
 
     return InputCommand::None;
 }
@@ -121,6 +150,9 @@ InputCommand InputMapper::parse(const std::string& rawCommand) {
 InputCommand InputMapper::parseKey(char rawKey) {
     const char lowerKey = static_cast<char>(std::tolower(static_cast<unsigned char>(rawKey)));
     const bool isShifted = (rawKey != lowerKey);  // Heuristic: treat uppercase as "Shift held" (Windows console / common layouts; may not hold for all layouts or input methods)
+    
+    // Note: F-key handling removed due to scan code conflicts in switch statement
+    // Graphics toggles available via command parsing ("toggle crowd", etc.)
     
     if (isShifted) {
         // Shifted keys for isolators, analytics toggle, filter order, and Phase 4 multi-cue jumps
@@ -169,6 +201,7 @@ InputCommand InputMapper::parseKey(char rawKey) {
             return InputCommand::AdjustFirstBeatLeft;   // Shift+Minus: adjust first beat -10ms
         case '=':
             return InputCommand::AdjustFirstBeatRight;  // Shift+Equals: adjust first beat +10ms
+        
         default:
             return InputCommand::None;
         }
@@ -267,6 +300,7 @@ InputCommand InputMapper::parseKey(char rawKey) {
         return InputCommand::WarpUpA;             // Phase 41: Warp +0.01% on Deck A
     case '/':
         return InputCommand::WarpDownA;           // Phase 41: Warp -0.01% on Deck A
+    
     default:
         return InputCommand::None;
     }

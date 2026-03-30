@@ -10,6 +10,9 @@
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 #include "visuals/Enhanced3DScene.h"
+#include "visuals/ParticleSystem.h"
+#include "visuals/PostProcessor.h"
+#include "visuals/RenderTarget.h"
 #include <d3d11.h>
 #include <dxgi1_3.h>
 #include <windows.h>
@@ -341,6 +344,33 @@ bool GraphicsContext::initialize(int width, int height, std::string* errorOut) {
             enhancedScene_->setShadowMapping(true);
         }
 
+        // Phase 4: Initialize ParticleSystem
+        particleSystem_ = std::make_unique<ParticleSystem>();
+        if (!particleSystem_->initialize(device_.Get(), 10000)) {
+            if (errorOut) {
+                *errorOut = "Failed to initialize ParticleSystem";
+            }
+            return false;
+        }
+
+        // Phase 4: Initialize PostProcessor
+        postProcessor_ = std::make_unique<PostProcessor>();
+        if (!postProcessor_->initialize(device_.Get(), context_.Get(), width_, height_)) {
+            if (errorOut) {
+                *errorOut = "Failed to initialize PostProcessor";
+            }
+            return false;
+        }
+
+        // Phase 4: Create render target for post-processing
+        postProcessingTarget_ = std::make_unique<RenderTarget>();
+        if (!postProcessingTarget_->create(device_.Get(), context_.Get(), width_, height_, DXGI_FORMAT_R8G8B8A8_UNORM)) {
+            if (errorOut) {
+                *errorOut = "Failed to create post-processing render target";
+            }
+            return false;
+        }
+
         available_ = true;
         return true;
     } catch (const std::exception& e) {
@@ -419,6 +449,24 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
         float beatPhase = fmodf(musicTime / beatDuration, 1.0f);
         
         enhancedScene_->update(bpm, energy, beatPhase, blockDurationSeconds);
+    }
+
+    // Phase 4: Update and emit particles based on energy peaks
+    if (particleSystem_) {
+        // Detect energy peak: energy > 0.8 and higher than last frame
+        const float ENERGY_THRESHOLD = 0.8f;
+        if (energy > ENERGY_THRESHOLD && energy > lastEnergyPeak_) {
+            // Emit particle burst at center of scene
+            float burstPos[3] = {0.0f, 2.0f, 0.0f};
+            float burstVelocity[3] = {0.0f, 5.0f, 0.0f};
+            particleSystem_->emitParticles(burstPos, 150, 2.0f, burstVelocity);
+        }
+        lastEnergyPeak_ = energy;
+
+        // Update particle physics
+        float gravity[3] = {0.0f, -9.8f, 0.0f};
+        float wind[3] = {0.0f, 0.0f, 0.0f};
+        particleSystem_->updatePhysics(context_.Get(), blockDurationSeconds, gravity, wind);
     }
 
     // Clear render target and depth stencil
@@ -516,9 +564,22 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
         // Get current lighting state
         const auto& lights = lightingRig_->getLights();
         float strobeIntensity = lightingRig_->getStrobeIntensity();
+        // Suppress unused variable warnings - these will be used for full lighting integration
+        (void)lights;
+        (void)strobeIntensity;
         // Lights vector can be used to apply dynamic lighting to the scene
         // Strobe intensity can modulate the scene brightness for beat-sync effects
         // For now, lighting state is active and ready for application to scene
+    }
+
+    // Phase 4: Apply post-processing effects
+    if (postProcessor_) {
+        // Apply bloom based on energy level
+        float bloomIntensity = energy * 0.5f;  // Scale energy to bloom [0, 0.5]
+        postProcessor_->applyBloom(bloomIntensity);
+
+        // Apply color grading based on mood and energy
+        postProcessor_->applyColorGrade(mood);
     }
 
     // Note: presentation (Present) is handled by the caller via graphics.present()
@@ -546,6 +607,11 @@ void GraphicsContext::shutdown() {
     shader_.reset();
     stageGeometry_.reset();
     camera_.reset();
+
+    // Phase 4: Clean up particles and post-processing
+    particleSystem_.reset();
+    postProcessor_.reset();
+    postProcessingTarget_.reset();
 
     constantBuffer_.Reset();       // Clean up constant buffer (BUG 2)
     inputLayout_.Reset();          // Clean up input layout (BUG 1)

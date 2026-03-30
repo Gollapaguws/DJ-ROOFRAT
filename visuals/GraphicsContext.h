@@ -33,6 +33,9 @@ class VertexBuffer;
 class IndexBuffer;
 class StageGeometry;
 class Enhanced3DScene;
+class ParticleSystem;
+class PostProcessor;
+class RenderTarget;
 
 class GraphicsContext {
 public:
@@ -124,6 +127,12 @@ private:
     std::unique_ptr<IndexBuffer> indexBuffer_;
     std::unique_ptr<StageGeometry> stageGeometry_;
     std::unique_ptr<Enhanced3DScene> enhancedScene_;
+
+    // Phase 4: Particles and post-processing
+    std::unique_ptr<ParticleSystem> particleSystem_;
+    std::unique_ptr<PostProcessor> postProcessor_;
+    std::unique_ptr<RenderTarget> postProcessingTarget_;
+    float lastEnergyPeak_ = 0.0f;  // Track energy for burst detection
 
     // Window handle
     void* hwnd_ = nullptr;

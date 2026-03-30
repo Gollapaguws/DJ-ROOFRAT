@@ -488,6 +488,7 @@ set_target_properties(crowd_phase6_test PROPERTIES OUTPUT_NAME "CrowdStateMachin
 add_executable(graphics_context_phase7_test
     visuals/GraphicsContext_Phase7_test.cpp
     visuals/GraphicsContext.cpp
+    visuals/LightingRig.cpp
     visuals/Enhanced3DScene.cpp
     visuals/ShadowMap.cpp
     visuals/TextureManager.cpp
@@ -581,6 +582,7 @@ set_target_properties(crowd_renderer_phase8_test PROPERTIES OUTPUT_NAME "CrowdRe
 add_executable(graphics_context_phase8_test
     visuals/GraphicsContext_Phase8_test.cpp
     visuals/GraphicsContext.cpp
+    visuals/LightingRig.cpp
     visuals/Enhanced3DScene.cpp
     visuals/ShadowMap.cpp
     visuals/TextureManager.cpp
@@ -1830,6 +1832,43 @@ else()
 endif()
 
 set_target_properties(graphics_phase3_test PROPERTIES OUTPUT_NAME "Graphics_Phase3_test")
+
+# Graphics Phase 5 test (Performance and Career UI Panels)
+add_executable(graphics_phase5_test
+    tests/Graphics_Phase5_test.cpp
+    gameplay/GameModes.cpp
+    gameplay/UnlockSystem.cpp
+    gameplay/AchievementSystem.cpp
+    library/TrackLibrary.cpp
+    library/TrackBrowser.cpp
+    audio/CamelotAnalyzer.cpp
+)
+
+target_include_directories(graphics_phase5_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(graphics_phase5_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(graphics_phase5_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(graphics_phase5_test PROPERTIES OUTPUT_NAME "Graphics_Phase5_test")
+
+# Graphics Phase 6 test (Graphics Settings and Hotkey Toggles)
+add_executable(graphics_phase6_test
+    tests/Graphics_Phase6_test.cpp
+    input/InputMapper.cpp
+)
+
+target_include_directories(graphics_phase6_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(graphics_phase6_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(graphics_phase6_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(graphics_phase6_test PROPERTIES OUTPUT_NAME "Graphics_Phase6_test")
 
 # Splash Screen Phase 42 test
 add_executable(splashscreen_phase42_test

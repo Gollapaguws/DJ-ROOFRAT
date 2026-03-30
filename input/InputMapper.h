@@ -151,6 +151,17 @@ enum class InputCommand {
     
     // Phase 40: Transition Coaching & Phrasing
     ToggleCoaching,          // 'C' key (toggle coaching overlay)
+    
+    // Phase 6: Graphics Settings and Hotkey Toggles
+    ToggleCrowd,             // F1 (toggle 3D crowd renderer)
+    ToggleLasers,            // F2 (toggle laser effects)
+    ToggleParticles,         // F3 (toggle particle system)
+    ToggleShadows,           // F4 (toggle shadow rendering)
+    TogglePostProcessing,    // F5 (toggle post-processing effects)
+    SetQualityLow,           // Shift+F1 (Low: no particles/shadows)
+    SetQualityMedium,        // Shift+F2 (Medium: no shadows)
+    SetQualityHigh,          // Shift+F3 (High: all enabled)
+    SetQualityUltra,         // Shift+F4 (Ultra: all enabled + max detail)
 };
 
 /**

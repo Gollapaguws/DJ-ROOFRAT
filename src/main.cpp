@@ -931,11 +931,34 @@ int main(int argc, char** argv) {
     dj::BeatGridRenderer beatGridRenderer;
     dj::EnergyHistogram energyHistogram;
     dj::CamelotWheel camelotWheel;
+    dj::CamelotAnalyzer camelotAnalyzerA;  // For harmonic analysis
+    dj::CamelotAnalyzer camelotAnalyzerB;
     bool showBeatGridPanel = false;
     bool showEnergyHistogramPanel = false;
     bool showCamelotWheelPanel = false;
     bool showCoachingPanel = false;
     bool showSyncPanel = false;
+    // Phase 5: Performance and Career UI panels
+    bool showPerformancePanel = false;
+    bool showCareerPanel = false;
+    bool showLibraryPanel = false;
+
+    // Phase 6: Graphics Settings and Hotkey Toggles
+    bool showGraphicsSettings = false;  // ImGui settings panel visibility
+    bool crowdEnabled = true;  // Default: High quality (all enabled)
+    bool lasersEnabled = true;
+    bool particlesEnabled = true;
+    bool shadowsEnabled = true;
+    bool postProcessingEnabled = true;
+    
+    // Quality preset levels (for reference)
+    enum class GraphicsQuality {
+        Low,      // crowd, lasers only (no particles/shadows)
+        Medium,   // crowd, lasers, particles (no shadows)
+        High,     // all enabled
+        Ultra     // all enabled (Ultra reserved for future max detail)
+    };
+    GraphicsQuality currentQuality = GraphicsQuality::High;
 
     // Arc V: Career Mode Systems
     dj::UnlockSystem unlocks;
@@ -1709,6 +1732,73 @@ int main(int argc, char** argv) {
                 std::cout << "Coaching " << (coachingEnabled ? "enabled" : "disabled") << "\n";
                 break;
             
+            // Phase 6: Graphics settings toggles
+            case dj::InputCommand::ToggleCrowd:
+                crowdEnabled = !crowdEnabled;
+                std::cout << "Crowd renderer " << (crowdEnabled ? "enabled" : "disabled") << "\n";
+                break;
+            
+            case dj::InputCommand::ToggleLasers:
+                lasersEnabled = !lasersEnabled;
+                std::cout << "Laser effects " << (lasersEnabled ? "enabled" : "disabled") << "\n";
+                break;
+            
+            case dj::InputCommand::ToggleParticles:
+                particlesEnabled = !particlesEnabled;
+                std::cout << "Particles " << (particlesEnabled ? "enabled" : "disabled") << "\n";
+                break;
+            
+            case dj::InputCommand::ToggleShadows:
+                shadowsEnabled = !shadowsEnabled;
+                std::cout << "Shadows " << (shadowsEnabled ? "enabled" : "disabled") << "\n";
+                break;
+            
+            case dj::InputCommand::TogglePostProcessing:
+                postProcessingEnabled = !postProcessingEnabled;
+                std::cout << "Post-processing " << (postProcessingEnabled ? "enabled" : "disabled") << "\n";
+                break;
+            
+            // Phase 6: Quality presets
+            case dj::InputCommand::SetQualityLow:
+                crowdEnabled = true;
+                lasersEnabled = true;
+                particlesEnabled = false;
+                shadowsEnabled = false;
+                postProcessingEnabled = true;
+                currentQuality = GraphicsQuality::Low;
+                std::cout << "Quality preset: LOW\n";
+                break;
+            
+            case dj::InputCommand::SetQualityMedium:
+                crowdEnabled = true;
+                lasersEnabled = true;
+                particlesEnabled = true;
+                shadowsEnabled = false;
+                postProcessingEnabled = true;
+                currentQuality = GraphicsQuality::Medium;
+                std::cout << "Quality preset: MEDIUM\n";
+                break;
+            
+            case dj::InputCommand::SetQualityHigh:
+                crowdEnabled = true;
+                lasersEnabled = true;
+                particlesEnabled = true;
+                shadowsEnabled = true;
+                postProcessingEnabled = true;
+                currentQuality = GraphicsQuality::High;
+                std::cout << "Quality preset: HIGH\n";
+                break;
+            
+            case dj::InputCommand::SetQualityUltra:
+                crowdEnabled = true;
+                lasersEnabled = true;
+                particlesEnabled = true;
+                shadowsEnabled = true;
+                postProcessingEnabled = true;
+                currentQuality = GraphicsQuality::Ultra;
+                std::cout << "Quality preset: ULTRA\n";
+                break;
+            
             case dj::InputCommand::Quit:
                 quitRequested = true;
                 break;
@@ -2120,6 +2210,10 @@ int main(int argc, char** argv) {
                 ImGui::Checkbox("Show Camelot Wheel", &showCamelotWheelPanel);
                 ImGui::Checkbox("Show Coaching", &showCoachingPanel);
                 ImGui::Checkbox("Show Sync", &showSyncPanel);
+                ImGui::Checkbox("Show Performance", &showPerformancePanel);
+                ImGui::Checkbox("Show Career", &showCareerPanel);
+                ImGui::Checkbox("Show Library", &showLibraryPanel);
+                ImGui::Checkbox("Show Graphics Settings", &showGraphicsSettings);
                 ImGui::End();
             }
 
@@ -2202,13 +2296,163 @@ int main(int argc, char** argv) {
                 ImGui::Text("Synchronization Status");
                 ImGui::Separator();
                 try {
-                    std::string syncOutput = syncIndicator.render(coachingEnabled, SyncState::Locked, 0.1);
+                    std::string syncOutput = syncIndicator.render(coachingEnabled, dj::SyncState::Locked, 0.1);
                     ImGui::TextWrapped("%s", syncOutput.c_str());
                     ImGui::Separator();
                     ImGui::Text("Sync Enabled: %s", coachingEnabled ? "Yes" : "No");
                 } catch (...) {
                     ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Error rendering sync indicator");
                 }
+                ImGui::End();
+            }
+
+            // Phase 5: Performance Metrics Panel
+            if (showPerformancePanel) {
+                ImGui::Begin("Performance Metrics", &showPerformancePanel);
+                ImGui::Text("Real-Time Performance");
+                ImGui::Separator();
+                float fps = ImGui::GetIO().Framerate;
+                float frameTime = (fps > 0.0f) ? (1000.0f / fps) : 0.0f;
+                ImGui::Text("FPS: %.1f", fps);
+                ImGui::Text("Frame Time: %.2f ms", frameTime);
+                ImGui::Text("Block: %d / %d", block, totalBlocks);
+                float progressPercent = graphicsEnabled ? 0.0f : (static_cast<float>(block) / totalBlocks) * 100.0f;
+                ImGui::ProgressBar(progressPercent / 100.0f, ImVec2(-1, 0), "");
+                ImGui::Separator();
+                ImGui::Text("Audio: %s", realtimeAudio ? "REALTIME" : "SILENT");
+                ImGui::Text("Graphics: %s", graphicsEnabled ? "ENABLED" : "DISABLED");
+                ImGui::Text("ImGui: %s", imguiEnabled ? "ENABLED" : "DISABLED");
+                ImGui::End();
+            }
+
+            // Phase 5: Career Progress Panel
+            if (showCareerPanel) {
+                ImGui::Begin("Career Progress", &showCareerPanel);
+                ImGui::Text("DJ Career Status");
+                ImGui::Separator();
+                ImGui::Text("Tier: %d", career.tier());
+                ImGui::Text("Venue: %s", career.currentVenueName().c_str());
+                float repPercent = career.reputation() / 100.0f;
+                ImGui::Text("Reputation: %.1f / 100", career.reputation());
+                ImGui::ProgressBar(repPercent, ImVec2(-1, 0), "");
+                ImGui::Separator();
+                auto unlockedEffects = unlocks.getUnlockedEffects(career.tier());
+                ImGui::Text("Unlocked Effects: %zu", unlockedEffects.size());
+                if (ImGui::TreeNode("Effects List")) {
+                    for (const auto& effect : unlockedEffects) {
+                        ImGui::BulletText("%s", unlocks.getEffectName(effect).c_str());
+                    }
+                    ImGui::TreePop();
+                }
+                ImGui::Separator();
+                ImGui::Text("Achievements: %d / %zu", 
+                    achievements.getUnlockedCount(), 
+                    achievements.getAllAchievements().size());
+                if (ImGui::TreeNode("Achievements")) {
+                    for (const auto& achievement : achievements.getAllAchievements()) {
+                        ImGui::BulletText("%s %s", 
+                            achievement.unlocked ? "✓" : "✗", 
+                            achievement.name.c_str());
+                    }
+                    ImGui::TreePop();
+                }
+                ImGui::End();
+            }
+
+            // Phase 5: Track Library Panel
+            if (showLibraryPanel) {
+                ImGui::Begin("Track Library", &showLibraryPanel);
+                ImGui::Text("Music Library Browser");
+                ImGui::Separator();
+                // Check if library was initialized (initialized() check, not isOpen())
+                std::string libStatus = "NOT AVAILABLE";
+                try {
+                    auto libTracks = browser->filter(0.0f, 999.0f);  // Get all tracks
+                    libStatus = "CONNECTED";
+                    ImGui::Text("Library: %s", libStatus.c_str());
+                    ImGui::Text("Total Tracks: %zu", libTracks.size());
+                    ImGui::Separator();
+                    ImGui::Text("Current Decks:");
+                    ImGui::BulletText("Deck A: %s", pathA.empty() ? "(no track)" : pathA.c_str());
+                    ImGui::BulletText("Deck B: %s", pathB.empty() ? "(no track)" : pathB.c_str());
+                    ImGui::Separator();
+                    if (ImGui::TreeNode("Track List (Read-Only)")) {
+                        for (const auto& libTrack : libTracks) {
+                            ImGui::TextWrapped("%s", libTrack.path.c_str());
+                        }
+                        ImGui::TreePop();
+                    }
+                } catch (...) {
+                    ImGui::Text("Library: %s", libStatus.c_str());
+                    ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "Library not initialized");
+                }
+                ImGui::End();
+            }
+
+            // Phase 6: Graphics Settings Panel
+            if (showGraphicsSettings) {
+                ImGui::Begin("Graphics Settings", &showGraphicsSettings);
+                ImGui::Text("Graphics Quality Settings");
+                ImGui::Separator();
+                
+                // Quality preset buttons
+                ImGui::Text("Quality Presets:");
+                if (ImGui::Button("Low##q", ImVec2(70, 0))) {
+                    crowdEnabled = true;
+                    lasersEnabled = true;
+                    particlesEnabled = false;
+                    shadowsEnabled = false;
+                    postProcessingEnabled = true;
+                    currentQuality = GraphicsQuality::Low;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Medium##q", ImVec2(70, 0))) {
+                    crowdEnabled = true;
+                    lasersEnabled = true;
+                    particlesEnabled = true;
+                    shadowsEnabled = false;
+                    postProcessingEnabled = true;
+                    currentQuality = GraphicsQuality::Medium;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("High##q", ImVec2(70, 0))) {
+                    crowdEnabled = true;
+                    lasersEnabled = true;
+                    particlesEnabled = true;
+                    shadowsEnabled = true;
+                    postProcessingEnabled = true;
+                    currentQuality = GraphicsQuality::High;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Ultra##q", ImVec2(70, 0))) {
+                    crowdEnabled = true;
+                    lasersEnabled = true;
+                    particlesEnabled = true;
+                    shadowsEnabled = true;
+                    postProcessingEnabled = true;
+                    currentQuality = GraphicsQuality::Ultra;
+                }
+                
+                ImGui::Separator();
+                ImGui::Text("Individual Effects:");
+                ImGui::Checkbox("Crowd Renderer", &crowdEnabled);
+                ImGui::Checkbox("Lasers", &lasersEnabled);
+                ImGui::Checkbox("Particles", &particlesEnabled);
+                ImGui::Checkbox("Shadows", &shadowsEnabled);
+                ImGui::Checkbox("Post-Processing", &postProcessingEnabled);
+                
+                ImGui::Separator();
+                ImGui::Text("Hotkeys:");
+                ImGui::BulletText("F1: Toggle Crowd");
+                ImGui::BulletText("F2: Toggle Lasers");
+                ImGui::BulletText("F3: Toggle Particles");
+                ImGui::BulletText("F4: Toggle Shadows");
+                ImGui::BulletText("F5: Toggle Post-Processing");
+                ImGui::BulletText("Shift+F1: Quality Low");
+                ImGui::BulletText("Shift+F2: Quality Medium");
+                ImGui::BulletText("Shift+F3: Quality High");
+                ImGui::BulletText("Shift+F4: Quality Ultra");
+                
                 ImGui::End();
             }
 
