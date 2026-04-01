@@ -747,6 +747,11 @@ DJControllerGeometry* Enhanced3DScene::getControllerGeometry() const {
 void Enhanced3DScene::renderController(ID3D11DeviceContext* context) {
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (!controllerGeometry_ || !context) {
+        static int errorCount = 0;
+        if (errorCount++ < 1) {
+            printf("[3D Controller] ERROR: controllerGeometry_=%p context=%p\n", 
+                   controllerGeometry_.get(), context);
+        }
         return;
     }
 
@@ -755,20 +760,41 @@ void Enhanced3DScene::renderController(ID3D11DeviceContext* context) {
     const auto& indices = controllerGeometry_->getIndices();
 
     if (vertices.empty() || indices.empty()) {
+        static int emptyCount = 0;
+        if (emptyCount++ < 1) {
+            printf("[3D Controller] ERROR: Empty geometry! vertices=%zu indices=%zu\n",
+                   vertices.size(), indices.size());
+        }
         return;
     }
 
     // Use enhanced shader for rendering controller with PBR
     if (!enhancedShader_) {
+        static int shaderCount = 0;
+        if (shaderCount++ < 1) {
+            printf("[3D Controller] ERROR: No enhanced shader!\n");
+        }
         return;
     }
 
     // Debug output: confirm renderController was called
     static bool once = false;
+    static int frameCount = 0;
     if (!once) {
-        printf("[3D Controller] renderController called, buffers: VB=%p IB=%p\n", 
+        printf("[3D Controller] ===== CONTROLLER RENDERING DIAGNOSTICS =====\n");
+        printf("[3D Controller] Vertices: %zu, Indices: %zu\n", vertices.size(), indices.size());
+        printf("[3D Controller] Vertex sample [0]: pos=(%.2f, %.2f, %.2f)\n",
+               vertices[0].position[0], vertices[0].position[1], vertices[0].position[2]);
+        printf("[3D Controller] Buffers: VB=%p IB=%p\n", 
                controllerVertexBuffer_.get(), controllerIndexBuffer_.get());
+        printf("[3D Controller] Shader: VS=%p PS=%p\n",
+               enhancedShader_->getVertexShader(), enhancedShader_->getPixelShader());
         once = true;
+    }
+
+    frameCount++;
+    if (frameCount % 300 == 0) {
+        printf("[3D Controller] Still rendering (frame %d)\n", frameCount);
     }
 
     // Set shaders
@@ -788,7 +814,17 @@ void Enhanced3DScene::renderController(ID3D11DeviceContext* context) {
 
         // Draw indexed primitives
         uint32_t indexCount = controllerIndexBuffer_->getIndexCount();
+        
+        if (!once || frameCount == 1) {
+            printf("[3D Controller] Issuing DrawIndexed(%u, 0, 0)\n", indexCount);
+        }
+        
         context->DrawIndexed(indexCount, 0, 0);
+    } else {
+        static int bufferErrorCount = 0;
+        if (bufferErrorCount++ < 1) {
+            printf("[3D Controller] ERROR: Buffers not created properly!\n");
+        }
     }
 #endif
 }

@@ -108,30 +108,31 @@ private:
     std::map<ControlID, float> targetRotations_;  // Target rotation values for knobs
     std::map<ControlID, float> currentRotations_; // Current rotation values (lerp)
     
-    // Constants for geometry
-    static constexpr float CONTROLLER_WIDTH = 4.0f;
-    static constexpr float CONTROLLER_DEPTH = 3.0f;
+    // Constants for geometry (SCALED UP 10x for visibility)
+    static constexpr float CONTROLLER_WIDTH = 40.0f;
+    static constexpr float CONTROLLER_DEPTH = 30.0f;
     static constexpr float BASE_HEIGHT = 0.05f;
     
-    // Control dimensions
-    static constexpr float KNOB_RADIUS = 0.15f;
-    static constexpr float KNOB_HEIGHT = 0.12f;
-    static constexpr float JOG_WHEEL_RADIUS = 0.3f;
-    static constexpr float PITCH_FADER_WIDTH = 0.08f;
-    static constexpr float PITCH_FADER_HEIGHT = 0.6f;
-    static constexpr float BUTTON_SIZE = 0.12f;
-    static constexpr float CROSSFADER_WIDTH = 0.8f;
+    // Control dimensions (SCALED UP 10x for visibility)
+    static constexpr float KNOB_RADIUS = 1.5f;
+    static constexpr float KNOB_HEIGHT = 1.2f;
+    static constexpr float JOG_WHEEL_RADIUS = 3.0f;
+    static constexpr float PITCH_FADER_WIDTH = 0.8f;
+    static constexpr float PITCH_FADER_HEIGHT = 6.0f;
+    static constexpr float BUTTON_SIZE = 1.2f;
+    static constexpr float CROSSFADER_WIDTH = 8.0f;
     
-    // Control positions (centered near origin, fitting within 3-unit depth)
-    static constexpr float DECK_A_X = -1.5f;
-    static constexpr float DECK_B_X = 1.5f;
-    static constexpr float CONTROL_Y = 0.5f;
-    static constexpr float JOG_WHEEL_Z = -1.0f;
-    static constexpr float PITCH_FADER_Z = 1.0f;
-    static constexpr float EQ_CENTER_Z = -0.3f;
-    static constexpr float EQ_SPACING_Z = 0.3f;
-    static constexpr float BUTTON_Z = -1.0f;
-    static constexpr float CROSSFADER_Z = 0.8f;
+    // Control positions (MOVE FORWARD so camera at Z=-8 can see it)
+    // Controller will be centered at Z=20, spanning Z=5 to Z=35
+    static constexpr float DECK_A_X = -15.0f;
+    static constexpr float DECK_B_X = 15.0f;
+    static constexpr float CONTROL_Y = 5.0f;
+    static constexpr float JOG_WHEEL_Z = 10.0f;   // Changed from -10.0f - jog wheels at front
+    static constexpr float PITCH_FADER_Z = 30.0f;  // Changed from 10.0f - faders at back
+    static constexpr float EQ_CENTER_Z = 19.7f;    // Changed from -0.3f - EQ knobs in middle
+    static constexpr float EQ_SPACING_Z = 3.0f;    // Changed from 0.3f - scaled spacing
+    static constexpr float BUTTON_Z = 9.0f;        // Changed from -1.0f - buttons near jog wheels
+    static constexpr float CROSSFADER_Z = 20.8f;   // Changed from 0.8f - crossfader center
 };
 
 } // namespace dj
