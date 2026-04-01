@@ -762,21 +762,15 @@ void Enhanced3DScene::renderController(ID3D11DeviceContext* context, const float
     // Debug output once
     static bool once = false;
     if (!once) {
-        printf("\n");
-        printf("================================================================================\n");
-        printf("   3D CONTROLLER RENDERING DIAGNOSTIC\n");
-        printf("================================================================================\n");
-        printf("[3D Controller] CRITICAL: Do you see a SECOND WINDOW (graphics window)?\n");
-        printf("[3D Controller] - If YES: Look for bright cyan 3D geometry in the graphics window\n");
-        printf("[3D Controller] - If NO: Only console text visible - DirectX window not showing!\n");
-        printf("[3D Controller] \n");
-        printf("[3D Controller] Technical details:\n");
-        printf("[3D Controller] - Rendering %zu vertices, %zu indices\n", vertices.size(), indices.size());
-        printf("[3D Controller] - World position: Z=+30 (camera at Z=-8, looking forward)\n");
-        printf("[3D Controller] - Depth test: DISABLED for diagnostic\n");
-        printf("[3D Controller] - Cull mode: NONE (both faces visible)\n");
-        printf("================================================================================\n");
-        printf("\n");
+        std::cout << std::endl;
+        std::cout << "================================================================================" << std::endl;
+        std::cout << "  3D CONTROLLER RENDERING ACTIVE" << std::endl;
+        std::cout << "================================================================================" << std::endl;
+        std::cout << "[3D Controller] Geometry: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
+        std::cout << "[3D Controller] Render state: Depth test OFF, Cull mode NONE (diagnostic)" << std::endl;
+        std::cout << "[3D Controller] Look for 3D geometry in the graphics window!" << std::endl;
+        std::cout << "================================================================================" << std::endl;
+        std::cout << std::endl;
         once = true;
     }
 
@@ -803,14 +797,30 @@ void Enhanced3DScene::renderController(ID3D11DeviceContext* context, const float
         context->RSSetState(rasterizerState.Get());
     }
 
-    // CRITICAL FIX: Create world matrix with Z translation to move controller forward
-    // Camera at Z=-8, controller will be placed at Z=+30 (38 units away, clearly visible)
+    // CRITICAL FIX: Scale up controller massively for visibility test
+    // If we can't see it at 50x scale, there's a fundamental matrix issue
     float worldMatrix[16] = {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 30, 1  // Translate +30 in Z
+        50, 0, 0, 0,   // Scale X by 50
+        0, 50, 0, 0,   // Scale Y by 50
+        0, 0, 50, 0,   // Scale Z by 50
+        0, -5, 0, 1    // Translate Y down by 5 to center in view
     };
+    
+    // DEBUG: Print detailed matrix info once
+        if (!once) {
+         std::cout << "[3D Controller] === RENDERING DEBUG ===" << std::endl;
+         std::cout << "[3D Controller] World matrix: SCALE 50x, translate Y=-5" << std::endl;
+         std::cout << "[3D Controller] View matrix row 3: ["
+                << viewMatrix[12] << ", " << viewMatrix[13] << ", " << viewMatrix[14] << ", " << viewMatrix[15] << "]" << std::endl;
+         std::cout << "[3D Controller] Projection matrix [0][0]=" << projMatrix[0]
+                << " [1][1]=" << projMatrix[5] << std::endl;
+         std::cout << "[3D Controller] First vertex: (" << vertices[0].position[0] << ", " << vertices[0].position[1] << ", " << vertices[0].position[2] << ")" << std::endl;
+         std::cout << "[3D Controller] After 50x scale, first vertex world pos: ("
+                << vertices[0].position[0] * 50.0f << ", "
+                << vertices[0].position[1] * 50.0f - 5.0f << ", "
+                << vertices[0].position[2] * 50.0f << ")" << std::endl;
+         std::cout << "[3D Controller] THIS SHOULD FILL THE ENTIRE SCREEN!" << std::endl;
+        }
 
     // Create and bind constant buffer with controller-specific world matrix
     Microsoft::WRL::ComPtr<ID3D11Buffer> controllerConstantBuffer;
@@ -859,7 +869,7 @@ void Enhanced3DScene::renderController(ID3D11DeviceContext* context, const float
         
         uint32_t indexCount = controllerIndexBuffer_->getIndexCount();
         if (!once) {
-            printf("[3D Controller] Drawing %u indices with depth test DISABLED, cull mode NONE\n", indexCount);
+            std::cout << "[3D Controller] Drawing " << indexCount << " indices with depth test DISABLED, cull mode NONE" << std::endl;
         }
         
         context->DrawIndexed(indexCount, 0, 0);
