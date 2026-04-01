@@ -11,6 +11,7 @@
 #include "visuals/TunnelGeometry.h"
 #include "visuals/ShadowMap.h"
 #include "visuals/StageGeometry.h"
+#include "visuals/DJControllerGeometry.h"
 #include "visuals/CrowdRenderer.h"  // Phase 2: Crowd visualization
 #include "visuals/CrowdAnimator.h"  // Phase 2: Crowd animation
 #endif
@@ -85,6 +86,11 @@ bool Enhanced3DScene::initialize(ID3D11Device* device, ID3D11DeviceContext* cont
     }
 
     if (!createStageGeometry()) {
+        return false;
+    }
+
+    // Phase 2: Create DJ Controller geometry
+    if (!createControllerGeometry()) {
         return false;
     }
 
@@ -242,6 +248,9 @@ void Enhanced3DScene::render(const float* viewMatrix, const float* projMatrix) {
     if (crowdVisualizationEnabled_) {
         renderCrowd(viewMatrix, projMatrix);
     }
+
+    // Phase 2: Render DJ Controller UI geometry
+    renderController(context_);
 #endif
 }
 
@@ -723,6 +732,117 @@ void Enhanced3DScene::renderCrowd(const float* viewMatrix, const float* projMatr
         // Fallback: rendering failed, silently continue
         return;
     }
+#endif
+}
+
+// Phase 2: DJ Controller rendering
+bool Enhanced3DScene::hasControllerGeometry() const {
+    return controllerGeometry_ != nullptr;
+}
+
+DJControllerGeometry* Enhanced3DScene::getControllerGeometry() const {
+    return controllerGeometry_.get();
+}
+
+void Enhanced3DScene::renderController(ID3D11DeviceContext* context) {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (!controllerGeometry_ || !context) {
+        return;
+    }
+
+    // Get vertices and indices from controller geometry
+    const auto& vertices = controllerGeometry_->getVertices();
+    const auto& indices = controllerGeometry_->getIndices();
+
+    if (vertices.empty() || indices.empty()) {
+        return;
+    }
+
+    // Use enhanced shader for rendering controller with PBR
+    if (!enhancedShader_) {
+        return;
+    }
+
+    // Debug output: confirm renderController was called
+    static bool once = false;
+    if (!once) {
+        printf("[3D Controller] renderController called, buffers: VB=%p IB=%p\n", 
+               controllerVertexBuffer_.get(), controllerIndexBuffer_.get());
+        once = true;
+    }
+
+    // Set shaders
+    context->VSSetShader(enhancedShader_->getVertexShader(), nullptr, 0);
+    context->PSSetShader(enhancedShader_->getPixelShader(), nullptr, 0);
+
+    // Bind material buffer for PBR properties
+    if (materialBuffer_) {
+        context->PSSetConstantBuffers(1, 1, materialBuffer_.GetAddressOf());
+    }
+
+    // Bind vertex and index buffers
+    if (controllerVertexBuffer_ && controllerIndexBuffer_) {
+        controllerVertexBuffer_->bind(context, 0);
+        controllerIndexBuffer_->bind(context);
+        context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        // Draw indexed primitives
+        uint32_t indexCount = controllerIndexBuffer_->getIndexCount();
+        context->DrawIndexed(indexCount, 0, 0);
+    }
+#endif
+}
+
+// Phase 2: Initialize DJ Controller geometry and buffers
+bool Enhanced3DScene::createControllerGeometry() {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (device_ == nullptr || context_ == nullptr) {
+        return false;
+    }
+
+    // Create controller geometry
+    if (!controllerGeometry_) {
+        controllerGeometry_ = std::make_unique<DJControllerGeometry>();
+    }
+
+    // Generate mesh
+    controllerGeometry_->generateMesh();
+
+    const auto& vertices = controllerGeometry_->getVertices();
+    const auto& indices = controllerGeometry_->getIndices();
+
+    if (vertices.empty() || indices.empty()) {
+        printf("[3D Controller] ERROR: generateMesh produced empty geometry (vertices=%zu, indices=%zu)\n",
+               vertices.size(), indices.size());
+        return false;
+    }
+
+    // Create vertex buffer
+    if (!controllerVertexBuffer_) {
+        controllerVertexBuffer_ = std::make_unique<VertexBuffer>();
+    }
+    if (!controllerVertexBuffer_->create(device_, vertices.data(), static_cast<uint32_t>(vertices.size()), sizeof(Vertex))) {
+        printf("[3D Controller] ERROR: Failed to create vertex buffer (%u vertices)\n", 
+               static_cast<uint32_t>(vertices.size()));
+        return false;
+    }
+
+    // Create index buffer
+    if (!controllerIndexBuffer_) {
+        controllerIndexBuffer_ = std::make_unique<IndexBuffer>();
+    }
+    if (!controllerIndexBuffer_->create(device_, indices.data(), static_cast<uint32_t>(indices.size()))) {
+        printf("[3D Controller] ERROR: Failed to create index buffer (%u indices)\n", 
+               static_cast<uint32_t>(indices.size()));
+        return false;
+    }
+
+    printf("[3D Controller] Geometry created successfully: %u vertices, %u indices\n",
+           static_cast<uint32_t>(vertices.size()), static_cast<uint32_t>(indices.size()));
+
+    return true;
+#else
+    return false;
 #endif
 }
 

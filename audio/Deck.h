@@ -16,6 +16,13 @@ class EffectChain;
 class VinylSimulator;
 class ScratchDetector;
 
+/// EQ state structure for accessing three-band EQ gains
+struct EQState {
+    float low = 1.0f;   // Low band gain (default 1.0)
+    float mid = 1.0f;   // Mid band gain (default 1.0)
+    float high = 1.0f;  // High band gain (default 1.0)
+};
+
 class Deck {
 public:
     /**
@@ -310,6 +317,13 @@ public:
      * @return Const pointer to SpectrumAnalyzer (never null after loadClip).
      */
     const SpectrumAnalyzer* getSpectrumAnalyzer() const;
+
+    // Phase 5: Visual feedback sync - get EQ state
+    /**
+     * @brief Get current 3-band EQ gains.
+     * @return EQState struct with low, mid, high gain values.
+     */
+    EQState getEQ() const;
 
 private:
     void advanceHeads(double step);

@@ -706,4 +706,13 @@ const SpectrumAnalyzer* Deck::getSpectrumAnalyzer() const {
     return spectrumAnalyzer_.get();
 }
 
+// Phase 5: Visual feedback sync - get EQ state
+EQState Deck::getEQ() const {
+    return EQState{
+        eq_.getLowGain(),
+        eq_.getMidGain(),
+        eq_.getHighGain()
+    };
+}
+
 } // namespace dj

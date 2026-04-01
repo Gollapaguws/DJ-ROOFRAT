@@ -81,6 +81,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "visuals/SyncIndicator.h"
 #include "visuals/BeatGridRenderer.h"
 #include "visuals/EnergyHistogram.h"
+#include "visuals/RayCaster.h"
+#include "visuals/ControllerInteraction.h"
+#include "visuals/Camera.h"
 #include "audio/SyncUndoStack.h"
 
 namespace {
@@ -1924,6 +1927,59 @@ int main(int argc, char** argv) {
         
         int moodIndex = static_cast<int>(crowdOut.mood);
         bool graphicsFrameRendered = false;
+        
+        // Phase 6: 3D DJ Controller mouse interaction
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+        if (graphicsEnabled && imguiEnabled && !ImGui::GetIO().WantCaptureMouse) {
+            auto& io = ImGui::GetIO();
+            static float lastMouseX = io.MousePos.x;
+            static float lastMouseY = io.MousePos.y;
+            float deltaMouseX = io.MousePos.x - lastMouseX;
+            float deltaMouseY = io.MousePos.y - lastMouseY;
+            
+            // Create interaction handler (static to persist state)
+            static dj::ControllerInteraction interaction(deckA, deckB, mixer);
+            
+            // Get controller geometry from graphics context
+            auto* controllerGeom = graphics.getControllerGeometry();
+            if (controllerGeom) {
+                auto camera = graphics.getCamera();
+                int screenWidth = 1920;
+                int screenHeight = 1080;
+                
+                // Raycast from mouse to 3D controller
+                dj::Ray ray = dj::RayCaster::screenToWorldRay(
+                    io.MousePos.x, io.MousePos.y, 
+                    screenWidth, screenHeight, 
+                    camera
+                );
+                
+                dj::ControlID pickedControl = controllerGeom->pickControl(ray);
+                
+                // Update hover highlight
+                if (pickedControl != dj::ControlID::None) {
+                    controllerGeom->setHoverHighlight(pickedControl);
+                } else {
+                    controllerGeom->clearHoverHighlight();
+                }
+                
+                // Handle mouse interactions
+                if (ImGui::IsMouseClicked(0)) {
+                    interaction.handleMouseDown(pickedControl);
+                }
+                if (ImGui::IsMouseDown(0)) {
+                    interaction.handleMouseDrag(pickedControl, deltaMouseX, deltaMouseY);
+                }
+                if (ImGui::IsMouseReleased(0)) {
+                    interaction.handleMouseUp();
+                }
+            }
+            
+            lastMouseX = io.MousePos.x;
+            lastMouseY = io.MousePos.y;
+        }
+#endif
+        
         if (graphicsEnabled) {
             graphicsFrameRendered = graphics.renderFrame(blendedBpm, crowdOut.energyMeter, moodIndex, mixer.crossfader());
         }

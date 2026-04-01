@@ -11,6 +11,11 @@ public:
     void setLowMidCrossover(float hz);
     void setMidHighCrossover(float hz);
     
+    // Phase 5: Visual feedback - get current gains
+    float getLowGain() const { return lowGain_; }
+    float getMidGain() const { return midGain_; }
+    float getHighGain() const { return highGain_; }
+    
     static float gainToDB(float linear);
     static float dBToGain(float dB);
     

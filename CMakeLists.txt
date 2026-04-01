@@ -187,6 +187,11 @@ add_executable(${DJ_ROOFRAT_TARGET}
     visuals/CrowdRenderer.cpp
     visuals/CrowdMesh.cpp
     visuals/CrowdAnimator.cpp
+    visuals/CamelotWheel.cpp
+    visuals/ParticleSystem.cpp
+    visuals/RenderTarget.cpp
+    visuals/PostProcessor.cpp
+    visuals/ComputeShader.cpp
     gameplay/GameModes.cpp
     gameplay/TutorialSystem.cpp
     gameplay/ProgressTracker.cpp
@@ -206,6 +211,9 @@ add_executable(${DJ_ROOFRAT_TARGET}
     visuals/EnergyCurveRenderer.cpp
     visuals/CoachingHUD.cpp
     visuals/SyncIndicator.cpp
+    visuals/DJControllerGeometry.cpp
+    visuals/ControllerInteraction.cpp
+    visuals/RayCaster.cpp
     multiplayer/BattleMode.cpp
     multiplayer/BattleRules.cpp
     multiplayer/Judge.cpp
@@ -712,6 +720,8 @@ add_executable(particles_phase20_test
     visuals/StageGeometry.cpp
     visuals/LightingRig.cpp
     visuals/LaserController.cpp
+    visuals/DJControllerGeometry.cpp
+    visuals/RayCaster.cpp
 )
 
 target_include_directories(particles_phase20_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -771,6 +781,7 @@ set_target_properties(enhanced3dscene_phase1_test PROPERTIES OUTPUT_NAME "Enhanc
 add_executable(enhanced3dscene_phase2_test
     visuals/Enhanced3DScene_Phase2_test.cpp
     visuals/Enhanced3DScene.cpp
+    visuals/DJControllerGeometry.cpp
     visuals/ShadowMap.cpp
     visuals/TunnelGeometry.cpp
     visuals/TextureManager.cpp
@@ -2150,3 +2161,154 @@ else()
 endif()
 
 set_target_properties(e2e_midi_effects_test PROPERTIES OUTPUT_NAME "E2E_MIDIEffects_test")
+
+# DJ Controller Geometry Phase 1 test (Procedural 3D geometry for DJ controller components)
+add_executable(djcontroller_geometry_phase1_test
+    tests/DJControllerGeometry_Phase1_test.cpp
+    visuals/DJControllerGeometry.cpp
+)
+
+target_include_directories(djcontroller_geometry_phase1_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(djcontroller_geometry_phase1_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(djcontroller_geometry_phase1_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(djcontroller_geometry_phase1_test PROPERTIES OUTPUT_NAME "DJControllerGeometry_Phase1_test")
+
+# DJ Controller Geometry Phase 5 test (Visual Feedback and Sync)
+add_executable(djcontroller_geometry_phase5_test
+    tests/DJControllerGeometry_Phase5_test.cpp
+    visuals/DJControllerGeometry.cpp
+    visuals/DJControllerGeometry_Phase5_visuals.cpp
+    visuals/RayCaster.cpp
+    audio/Deck.cpp
+    audio/Mixer.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/SyncController.cpp
+    audio/BPMDetector.cpp
+    audio/OnsetDetector.cpp
+    audio/TrackLoader.cpp
+    audio/KeyDetector.cpp
+    audio/CamelotAnalyzer.cpp
+    audio/EnergyAnalyzer.cpp
+    audio/FFTEngine.cpp
+    audio/EffectChain.cpp
+    audio/Delay.cpp
+    audio/Reverb.cpp
+    audio/Phaser.cpp
+    audio/Flanger.cpp
+    audio/Bitcrusher.cpp
+    audio/AutoFilter.cpp
+    audio/RingModulator.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/MetadataParser.cpp
+)
+
+target_include_directories(djcontroller_geometry_phase5_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(djcontroller_geometry_phase5_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(djcontroller_geometry_phase5_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(djcontroller_geometry_phase5_test PROPERTIES OUTPUT_NAME "DJControllerGeometry_Phase5_test")
+
+# RayCaster Phase 3 test (3D raycasting and mouse picking for DJ controller)
+add_executable(raycaster_phase3_test
+    tests/RayCaster_Phase3_test.cpp
+    visuals/RayCaster.cpp
+    visuals/Camera.cpp
+    visuals/DJControllerGeometry.cpp
+)
+
+target_include_directories(raycaster_phase3_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(raycaster_phase3_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(raycaster_phase3_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(raycaster_phase3_test PROPERTIES OUTPUT_NAME "RayCaster_Phase3_test")
+
+# ControllerInteraction Phase 4 test
+add_executable(controller_interaction_phase4_test
+    tests/ControllerInteraction_Phase4_test.cpp
+    visuals/ControllerInteraction.cpp
+    visuals/DJControllerGeometry.cpp
+    visuals/RayCaster.cpp
+    visuals/Camera.cpp
+    audio/Deck.cpp
+    audio/Mixer.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
+)
+
+target_include_directories(controller_interaction_phase4_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(controller_interaction_phase4_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(controller_interaction_phase4_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(controller_interaction_phase4_test PROPERTIES OUTPUT_NAME "ControllerInteraction_Phase4_test")
+
+# ControllerInteraction Phase 6 test
+add_executable(controller_interaction_phase6_test
+    tests/ControllerInteraction_Phase6_test.cpp
+    visuals/ControllerInteraction.cpp
+    visuals/DJControllerGeometry.cpp
+    visuals/RayCaster.cpp
+    visuals/Camera.cpp
+    audio/Deck.cpp
+    audio/Mixer.cpp
+    audio/AudioClip.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/BPMDetector.cpp
+    audio/MetadataParser.cpp
+    audio/KeyDetector.cpp
+    audio/WaveformCache.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+    audio/VinylSimulator.cpp
+    audio/ScratchDetector.cpp
+    audio/PhaseAligner.cpp
+    audio/SyncController.cpp
+    audio/SpectrumAnalyzer.cpp
+    audio/FFTEngine.cpp
+)
+
+target_include_directories(controller_interaction_phase6_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(controller_interaction_phase6_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(controller_interaction_phase6_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(controller_interaction_phase6_test PROPERTIES OUTPUT_NAME "ControllerInteraction_Phase6_test")

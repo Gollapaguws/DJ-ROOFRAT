@@ -81,6 +81,10 @@ public:
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     // Get window handle for ImGui integration
     void* getWindowHandle() const { return hwnd_; }
+    
+    // Phase 6: 3D controller mouse interaction accessors
+    Camera getCamera() const;
+    class DJControllerGeometry* getControllerGeometry() const;
 #else
     void* getWindowHandle() const { return nullptr; }
 #endif

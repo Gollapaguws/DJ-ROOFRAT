@@ -695,6 +695,21 @@ ID3D11BlendState* GraphicsContext::createAdditiveBlendState() const {
 
     return blendState;
 }
+
+// Phase 6: 3D controller mouse interaction accessors
+Camera GraphicsContext::getCamera() const {
+    if (camera_) {
+        return *camera_;
+    }
+    return Camera();  // Return default camera if not initialized
+}
+
+class DJControllerGeometry* GraphicsContext::getControllerGeometry() const {
+    if (enhancedScene_) {
+        return const_cast<class DJControllerGeometry*>(enhancedScene_->getControllerGeometry());
+    }
+    return nullptr;
+}
 #endif
 
 } // namespace dj

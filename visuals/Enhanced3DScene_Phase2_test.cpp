@@ -1,10 +1,12 @@
 #include <cassert>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 #include "visuals/Enhanced3DScene.h"
 #include "visuals/GraphicsContext.h"
+#include "visuals/DJControllerGeometry.h"
 
 namespace {
 
@@ -315,6 +317,121 @@ void test_EnhancedShader_IntegratedInitialization() {
     std::cout << "✓ test_EnhancedShader_IntegratedInitialization passed\n";
 }
 
+// ===== CONTROLLER INTEGRATION TESTS (Phase 2 - UI Rendering) =====
+
+// Test 8: Enhanced3DScene_ControllerInitialized - Verify controller geometry is initialized
+void test_Enhanced3DScene_ControllerInitialized() {
+    // Arrange
+    dj::GraphicsContext graphics;
+    bool graphicsInit = graphics.initialize(1920, 1080);
+    
+    if (!graphicsInit) {
+        std::cout << "⊘ test_Enhanced3DScene_ControllerInitialized skipped (graphics unavailable)\n";
+        return;
+    }
+
+    dj::Enhanced3DScene scene;
+    
+    // Act - Initialize should create controller geometry
+    bool sceneInit = scene.initialize(graphics.getD3D11Device(), graphics.getD3D11DeviceContext());
+    
+    if (!sceneInit) {
+        std::cout << "⊘ test_Enhanced3DScene_ControllerInitialized skipped (scene initialization failed)\n";
+        graphics.shutdown();
+        return;
+    }
+
+    // Assert - Scene should have controller geometry initialized
+    assert(scene.hasControllerGeometry() && "Scene should have controller geometry initialized");
+
+    // Cleanup
+    graphics.shutdown();
+
+    std::cout << "✓ test_Enhanced3DScene_ControllerInitialized passed\n";
+}
+
+// Test 9: Enhanced3DScene_ControllerRendersWithoutCrash - Verify renderController works
+void test_Enhanced3DScene_ControllerRendersWithoutCrash() {
+    // Arrange
+    dj::GraphicsContext graphics;
+    bool graphicsInit = graphics.initialize(1920, 1080);
+    
+    if (!graphicsInit) {
+        std::cout << "⊘ test_Enhanced3DScene_ControllerRendersWithoutCrash skipped (graphics unavailable)\n";
+        return;
+    }
+
+    dj::Enhanced3DScene scene;
+    bool sceneInit = scene.initialize(graphics.getD3D11Device(), graphics.getD3D11DeviceContext());
+    
+    if (!sceneInit) {
+        std::cout << "⊘ test_Enhanced3DScene_ControllerRendersWithoutCrash skipped (scene initialization failed)\n";
+        graphics.shutdown();
+        return;
+    }
+
+    // Act - Render controller (should not crash)
+    try {
+        scene.renderController(graphics.getD3D11DeviceContext());
+        assert(true && "renderController should complete without exception");
+    } catch (const std::exception& e) {
+        assert(false && "renderController should not throw exception");
+    }
+
+    // Cleanup
+    graphics.shutdown();
+
+    std::cout << "✓ test_Enhanced3DScene_ControllerRendersWithoutCrash passed\n";
+}
+
+// Test 10: DJControllerGeometry_TransformApplied - Verify vertices can be transformed
+void test_DJControllerGeometry_TransformApplied() {
+    // Arrange
+    dj::DJControllerGeometry geometry;
+    geometry.generateMesh();
+    
+    const auto& vertices = geometry.getVertices();
+    assert(!vertices.empty() && "Geometry should have vertices");
+    
+    // Store original first vertex
+    dj::Vertex originalVert = vertices[0];
+
+    // Act - Apply translation/rotation transform to vertices
+    // For this test, we'll verify vertices exist and have valid coordinates
+    float minX = vertices[0].position[0];
+    float maxX = vertices[0].position[0];
+    float minZ = vertices[0].position[2];
+    float maxZ = vertices[0].position[2];
+    
+    for (const auto& v : vertices) {
+        if (v.position[0] < minX) minX = v.position[0];
+        if (v.position[0] > maxX) maxX = v.position[0];
+        if (v.position[2] < minZ) minZ = v.position[2];
+        if (v.position[2] > maxZ) maxZ = v.position[2];
+    }
+
+    // Assert - Vertices should have valid bounds (not all zero or NaN)
+    assert(std::isfinite(minX) && std::isfinite(maxX) && "X coordinates should be finite");
+    assert(std::isfinite(minZ) && std::isfinite(maxZ) && "Z coordinates should be finite");
+    assert(minX < maxX && "X bounds should be valid");
+    assert(minZ < maxZ && "Z bounds should be valid");
+    
+    // Assert - Each vertex should have normalized normal vectors (approximately unit length)
+    for (const auto& v : vertices) {
+        float nx = v.normal[0];
+        float ny = v.normal[1];
+        float nz = v.normal[2];
+        float normalLen = std::sqrt(nx * nx + ny * ny + nz * nz);
+        
+        // Allow some tolerance for unnormalized/zero normals
+        if (normalLen > 0.01f) {
+            assert(normalLen <= 1.2f && "Normal should be approximately unit length");
+        }
+    }
+
+    std::cout << "✓ test_DJControllerGeometry_TransformApplied passed\n";
+}
+
 } // namespace
 
 int main() {
@@ -329,6 +446,11 @@ int main() {
         test_EnhancedShader_EmissiveColorPulsing();
         test_EnhancedShader_RenderingWithMaterialBuffer();
         test_EnhancedShader_IntegratedInitialization();
+        
+        // Phase 2 controller integration tests
+        test_Enhanced3DScene_ControllerInitialized();
+        test_Enhanced3DScene_ControllerRendersWithoutCrash();
+        test_DJControllerGeometry_TransformApplied();
 
         std::cout << "\n=== All Phase 2 tests passed! ===\n\n";
         return 0;

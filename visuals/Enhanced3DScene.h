@@ -21,6 +21,7 @@ class TextureManager;
 class TunnelGeometry;
 class ShadowMap;  // Phase 5: Shadow mapping
 class StageGeometry;
+class DJControllerGeometry;  // Phase 2: DJ Controller UI rendering
 class CrowdRenderer;  // Phase 2: Crowd visualization
 class CrowdAnimator;  // Phase 2: Crowd animation
 
@@ -67,6 +68,11 @@ public:
     bool hasMaterialBuffer() const;
     float getBeatIntensity() const;
     float getEmissiveIntensity() const;
+    
+    // Phase 2: DJ Controller rendering
+    bool hasControllerGeometry() const;
+    void renderController(ID3D11DeviceContext* context);
+    DJControllerGeometry* getControllerGeometry() const;
 
 private:
     // Feature flags
@@ -159,6 +165,11 @@ private:
     std::unique_ptr<CrowdAnimator> crowdAnimator_;
     int currentMood_ = 0;  // 0-3: Unimpressed, Calm, Grooving, Hyped
 
+    // Phase 2: DJ Controller geometry and rendering
+    std::unique_ptr<DJControllerGeometry> controllerGeometry_;
+    std::unique_ptr<VertexBuffer> controllerVertexBuffer_;
+    std::unique_ptr<IndexBuffer> controllerIndexBuffer_;
+
     // Helper methods
     void updateDynamicLights();
     void emitParticleBurst(const float* position, float intensity);
@@ -166,6 +177,7 @@ private:
     void applyBloom();
     void renderShadowDepthPass();  // Phase 5: Shadow depth pass
     void renderCrowd(const float* viewMatrix, const float* projMatrix);  // Phase 2: Render crowd
+    bool createControllerGeometry();  // Phase 2: Initialize controller geometry
     
     bool createParticleBuffers();
     bool createStageGeometry();
