@@ -71,7 +71,7 @@ public:
     
     // Phase 2: DJ Controller rendering
     bool hasControllerGeometry() const;
-    void renderController(ID3D11DeviceContext* context);
+    void renderController(ID3D11DeviceContext* context, const float* viewMatrix, const float* projMatrix);
     DJControllerGeometry* getControllerGeometry() const;
 
 private:

@@ -1035,6 +1035,14 @@ int main(int argc, char** argv) {
 
         // Show the window after graphics and optional ImGui setup are complete.
         graphics.showWindow();
+        
+        // Give window time to appear and settle
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        printf("\n==========================================================\n");
+        printf("GRAPHICS WINDOW SHOULD NOW BE VISIBLE!\n");
+        printf("Look for a window titled 'DJ-ROOFRAT' on your screen\n");
+        printf("Press ESC in the graphics window to exit\n");
+        printf("==========================================================\n\n");
 #endif
     } else {
         std::cout << "Graphics unavailable";
@@ -1092,9 +1100,12 @@ int main(int argc, char** argv) {
 
     // Main loop: run indefinitely when graphics enabled, otherwise fixed block count
     int block = 0;
+    printf("[Main Loop] Starting main loop (graphics=%d)\n", graphicsEnabled ? 1 : 0);
+    
     while (true) {
         // Exit conditions
         if (quitRequested) {
+            printf("[Main Loop] Exit requested by user\n");
             break;
         }
         if (!graphicsEnabled && block >= totalBlocks) {
@@ -1102,6 +1113,11 @@ int main(int argc, char** argv) {
         }
         if (!graphicsEnabled && !deckA.isPlaying() && !deckB.isPlaying()) {
             break;  // Console-only mode exits when both decks stop
+        }
+        
+        // Debug: show we're running
+        if (block % 60 == 0 && graphicsEnabled) {
+            printf("[Main Loop] Block %d - window should be visible\n", block);
         }
         
         const float progress = graphicsEnabled ? 0.0f : static_cast<float>(block) / static_cast<float>(totalBlocks - 1);

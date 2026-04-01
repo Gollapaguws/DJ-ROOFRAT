@@ -14,6 +14,8 @@
 #include "visuals/DJControllerGeometry.h"
 #include "visuals/CrowdRenderer.h"  // Phase 2: Crowd visualization
 #include "visuals/CrowdAnimator.h"  // Phase 2: Crowd animation
+#include "visuals/GraphicsContext.h"  // For ConstantBufferData
+#include "visuals/Camera.h"  // For Camera matrices
 #endif
 
 namespace dj {
@@ -250,7 +252,7 @@ void Enhanced3DScene::render(const float* viewMatrix, const float* projMatrix) {
     }
 
     // Phase 2: Render DJ Controller UI geometry
-    renderController(context_);
+    renderController(context_, viewMatrix, projMatrix);
 #endif
 }
 
@@ -744,87 +746,123 @@ DJControllerGeometry* Enhanced3DScene::getControllerGeometry() const {
     return controllerGeometry_.get();
 }
 
-void Enhanced3DScene::renderController(ID3D11DeviceContext* context) {
+void Enhanced3DScene::renderController(ID3D11DeviceContext* context, const float* viewMatrix, const float* projMatrix) {
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
-    if (!controllerGeometry_ || !context) {
-        static int errorCount = 0;
-        if (errorCount++ < 1) {
-            printf("[3D Controller] ERROR: controllerGeometry_=%p context=%p\n", 
-                   controllerGeometry_.get(), context);
-        }
+    if (!controllerGeometry_ || !context || !device_ || !viewMatrix || !projMatrix) {
         return;
     }
 
-    // Get vertices and indices from controller geometry
     const auto& vertices = controllerGeometry_->getVertices();
     const auto& indices = controllerGeometry_->getIndices();
 
-    if (vertices.empty() || indices.empty()) {
-        static int emptyCount = 0;
-        if (emptyCount++ < 1) {
-            printf("[3D Controller] ERROR: Empty geometry! vertices=%zu indices=%zu\n",
-                   vertices.size(), indices.size());
-        }
+    if (vertices.empty() || indices.empty() || !enhancedShader_) {
         return;
     }
 
-    // Use enhanced shader for rendering controller with PBR
-    if (!enhancedShader_) {
-        static int shaderCount = 0;
-        if (shaderCount++ < 1) {
-            printf("[3D Controller] ERROR: No enhanced shader!\n");
-        }
-        return;
-    }
-
-    // Debug output: confirm renderController was called
+    // Debug output once
     static bool once = false;
-    static int frameCount = 0;
     if (!once) {
-        printf("[3D Controller] ===== CONTROLLER RENDERING DIAGNOSTICS =====\n");
-        printf("[3D Controller] Vertices: %zu, Indices: %zu\n", vertices.size(), indices.size());
-        printf("[3D Controller] Vertex sample [0]: pos=(%.2f, %.2f, %.2f)\n",
-               vertices[0].position[0], vertices[0].position[1], vertices[0].position[2]);
-        printf("[3D Controller] Buffers: VB=%p IB=%p\n", 
-               controllerVertexBuffer_.get(), controllerIndexBuffer_.get());
-        printf("[3D Controller] Shader: VS=%p PS=%p\n",
-               enhancedShader_->getVertexShader(), enhancedShader_->getPixelShader());
+        printf("\n");
+        printf("================================================================================\n");
+        printf("   3D CONTROLLER RENDERING DIAGNOSTIC\n");
+        printf("================================================================================\n");
+        printf("[3D Controller] CRITICAL: Do you see a SECOND WINDOW (graphics window)?\n");
+        printf("[3D Controller] - If YES: Look for bright cyan 3D geometry in the graphics window\n");
+        printf("[3D Controller] - If NO: Only console text visible - DirectX window not showing!\n");
+        printf("[3D Controller] \n");
+        printf("[3D Controller] Technical details:\n");
+        printf("[3D Controller] - Rendering %zu vertices, %zu indices\n", vertices.size(), indices.size());
+        printf("[3D Controller] - World position: Z=+30 (camera at Z=-8, looking forward)\n");
+        printf("[3D Controller] - Depth test: DISABLED for diagnostic\n");
+        printf("[3D Controller] - Cull mode: NONE (both faces visible)\n");
+        printf("================================================================================\n");
+        printf("\n");
         once = true;
     }
 
-    frameCount++;
-    if (frameCount % 300 == 0) {
-        printf("[3D Controller] Still rendering (frame %d)\n", frameCount);
+    // DIAGNOSTIC: Disable depth test temporarily to ensure controller draws on top
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthDisabledState;
+    D3D11_DEPTH_STENCIL_DESC depthDesc = {};
+    depthDesc.DepthEnable = FALSE;  // DISABLE depth test for diagnostic
+    depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    device_->CreateDepthStencilState(&depthDesc, &depthDisabledState);
+    if (depthDisabledState) {
+        context->OMSetDepthStencilState(depthDisabledState.Get(), 0);
+    }
+
+    // DIAGNOSTIC: Set rasterizer to no culling to ensure we see front and back faces
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
+    D3D11_RASTERIZER_DESC rasterDesc = {};
+    rasterDesc.FillMode = D3D11_FILL_SOLID;
+    rasterDesc.CullMode = D3D11_CULL_NONE;  // NO CULLING - see both sides
+    rasterDesc.FrontCounterClockwise = FALSE;
+    rasterDesc.DepthClipEnable = TRUE;
+    device_->CreateRasterizerState(&rasterDesc, &rasterizerState);
+    if (rasterizerState) {
+        context->RSSetState(rasterizerState.Get());
+    }
+
+    // CRITICAL FIX: Create world matrix with Z translation to move controller forward
+    // Camera at Z=-8, controller will be placed at Z=+30 (38 units away, clearly visible)
+    float worldMatrix[16] = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 30, 1  // Translate +30 in Z
+    };
+
+    // Create and bind constant buffer with controller-specific world matrix
+    Microsoft::WRL::ComPtr<ID3D11Buffer> controllerConstantBuffer;
+    D3D11_BUFFER_DESC cbDesc = {};
+    cbDesc.ByteWidth = sizeof(ConstantBufferData);
+    cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+    cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+    HRESULT hr = device_->CreateBuffer(&cbDesc, nullptr, &controllerConstantBuffer);
+    if (SUCCEEDED(hr) && controllerConstantBuffer) {
+        D3D11_MAPPED_SUBRESOURCE mapped = {};
+        hr = context->Map(controllerConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+        if (SUCCEEDED(hr)) {
+            ConstantBufferData* cbData = (ConstantBufferData*)mapped.pData;
+            memcpy(cbData->world, worldMatrix, 64);
+            memcpy(cbData->view, viewMatrix, 64);
+            memcpy(cbData->projection, projMatrix, 64);
+            // BRIGHT CYAN LIGHT for maximum visibility
+            cbData->lightDir[0] = 0.0f;
+            cbData->lightDir[1] = 0.0f;
+            cbData->lightDir[2] = 10.0f;  // Very bright light from front
+            cbData->padding = 2.0f;  // Extra brightness multiplier
+            context->Unmap(controllerConstantBuffer.Get(), 0);
+
+            // Bind controller constant buffer
+            context->VSSetConstantBuffers(0, 1, controllerConstantBuffer.GetAddressOf());
+            context->PSSetConstantBuffers(0, 1, controllerConstantBuffer.GetAddressOf());
+        }
     }
 
     // Set shaders
     context->VSSetShader(enhancedShader_->getVertexShader(), nullptr, 0);
     context->PSSetShader(enhancedShader_->getPixelShader(), nullptr, 0);
 
-    // Bind material buffer for PBR properties
+    // Bind material buffer
     if (materialBuffer_) {
         context->PSSetConstantBuffers(1, 1, materialBuffer_.GetAddressOf());
     }
 
-    // Bind vertex and index buffers
+    // Bind vertex/index buffers and draw
     if (controllerVertexBuffer_ && controllerIndexBuffer_) {
         controllerVertexBuffer_->bind(context, 0);
         controllerIndexBuffer_->bind(context);
         context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        // Draw indexed primitives
-        uint32_t indexCount = controllerIndexBuffer_->getIndexCount();
         
-        if (!once || frameCount == 1) {
-            printf("[3D Controller] Issuing DrawIndexed(%u, 0, 0)\n", indexCount);
+        uint32_t indexCount = controllerIndexBuffer_->getIndexCount();
+        if (!once) {
+            printf("[3D Controller] Drawing %u indices with depth test DISABLED, cull mode NONE\n", indexCount);
         }
         
         context->DrawIndexed(indexCount, 0, 0);
-    } else {
-        static int bufferErrorCount = 0;
-        if (bufferErrorCount++ < 1) {
-            printf("[3D Controller] ERROR: Buffers not created properly!\n");
-        }
     }
 #endif
 }

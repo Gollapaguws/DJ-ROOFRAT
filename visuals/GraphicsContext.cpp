@@ -156,7 +156,8 @@ bool GraphicsContext::initialize(int width, int height, std::string* errorOut) {
         }
 
         hwnd_ = CreateWindowA(className, "DJ-ROOFRAT",
-                              WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width_, height_,
+                              WS_OVERLAPPEDWINDOW | WS_VISIBLE, // Add WS_VISIBLE flag
+                              CW_USEDEFAULT, CW_USEDEFAULT, width_, height_,
                               nullptr, nullptr, hInstance, nullptr);
 
         if (!hwnd_) {
@@ -166,6 +167,8 @@ bool GraphicsContext::initialize(int width, int height, std::string* errorOut) {
             }
             return false;
         }
+        
+        printf("[Graphics] Window created successfully (handle=%p, %dx%d)\n", hwnd_, width_, height_);
 
         // Don't show window yet - will be shown after ImGui initialization
 
@@ -643,8 +646,14 @@ void GraphicsContext::present() {
 void GraphicsContext::showWindow() {
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (hwnd_) {
-        ShowWindow((HWND)hwnd_, SW_SHOW);
+        // Force window to show and bring to foreground
+        ShowWindow((HWND)hwnd_, SW_SHOWNORMAL);
+        SetForegroundWindow((HWND)hwnd_);
+        SetFocus((HWND)hwnd_);
         UpdateWindow((HWND)hwnd_);
+        printf("[Graphics] Window should now be visible (handle=%p)\n", hwnd_);
+    } else {
+        printf("[Graphics] ERROR: Cannot show window - hwnd_ is NULL!\n");
     }
 #endif
 }

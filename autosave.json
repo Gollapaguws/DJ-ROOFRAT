@@ -1,7 +1,7 @@
 {
   "deckA": {
     "trackPath": "",
-    "playbackPosition": 90,
+    "playbackPosition": 0,
     "tempoBend": 0.02,
     "isPlaying": false,
     "lowGain": 1,
