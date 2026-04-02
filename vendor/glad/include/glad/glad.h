@@ -124,8 +124,37 @@ typedef char GLchar;
 #define GL_TEXTURE_MAG_FILTER 0x2800
 #define GL_TEXTURE_WRAP_S 0x2802
 #define GL_TEXTURE_WRAP_T 0x2803
+#define GL_TEXTURE_WRAP_R 0x8072
+#define GL_TEXTURE_MAX_LEVEL 0x813D
+#define GL_TEXTURE_BINDING_2D 0x8069
 #define GL_NEAREST 0x2600
 #define GL_LINEAR 0x2601
+#define GL_NEAREST_MIPMAP_NEAREST 0x2700
+#define GL_LINEAR_MIPMAP_NEAREST 0x2701
+#define GL_NEAREST_MIPMAP_LINEAR 0x2702
+#define GL_LINEAR_MIPMAP_LINEAR 0x2703
+#define GL_REPEAT 0x2901
+#define GL_CLAMP_TO_EDGE 0x812F
+#define GL_CLAMP_TO_BORDER 0x812D
+#define GL_MIRRORED_REPEAT 0x8370
+
+/* Texture units */
+#define GL_TEXTURE0 0x84C0
+#define GL_TEXTURE1 0x84C1
+#define GL_TEXTURE2 0x84C2
+#define GL_TEXTURE3 0x84C3
+#define GL_TEXTURE4 0x84C4
+#define GL_TEXTURE5 0x84C5
+#define GL_TEXTURE6 0x84C6
+#define GL_TEXTURE7 0x84C7
+#define GL_TEXTURE8 0x84C8
+#define GL_TEXTURE9 0x84C9
+#define GL_TEXTURE10 0x84CA
+#define GL_TEXTURE11 0x84CB
+#define GL_TEXTURE12 0x84CC
+#define GL_TEXTURE13 0x84CD
+#define GL_TEXTURE14 0x84CE
+#define GL_TEXTURE15 0x84CF
 
 /* Capabilities */
 #define GL_BLEND 0x0BE2
@@ -192,6 +221,21 @@ typedef void (APIENTRYP PFNGLBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, 
 typedef void (APIENTRYP PFNGLDRAWARRAYSPROC)(GLenum mode, GLint first, GLsizei count);
 typedef void (APIENTRYP PFNGLDRAWELEMENTSPROC)(GLenum mode, GLsizei count, GLenum type, const void *indices);
 
+/* Texture functions */
+typedef void (APIENTRYP PFNGLGENTEXTURESPROC)(GLsizei n, GLuint *textures);
+typedef void (APIENTRYP PFNGLDELETETEXTURESPROC)(GLsizei n, const GLuint *textures);
+typedef void (APIENTRYP PFNGLBINDTEXTUREPROC)(GLenum target, GLuint texture);
+typedef void (APIENTRYP PFNGLTEXIMAGE2DPROC)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels);
+typedef void (APIENTRYP PFNGLTEXSUBIMAGE2DPROC)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels);
+typedef void (APIENTRYP PFNGLTEXPARAMETERIPROC)(GLenum target, GLenum pname, GLint param);
+typedef void (APIENTRYP PFNGLTEXPARAMETERFPROC)(GLenum target, GLenum pname, GLfloat param);
+typedef void (APIENTRYP PFNGLTEXPARAMETERIVPROC)(GLenum target, GLenum pname, const GLint *params);
+typedef void (APIENTRYP PFNGLTEXPARAMETERFVPROC)(GLenum target, GLenum pname, const GLfloat *params);
+typedef void (APIENTRYP PFNGLGETTEXPARAMETERIVPROC)(GLenum target, GLenum pname, GLint *params);
+typedef void (APIENTRYP PFNGLGETTEXPARAMETERFVPROC)(GLenum target, GLenum pname, GLfloat *params);
+typedef void (APIENTRYP PFNGLACTIVETEXTUREPROC)(GLenum texture);
+typedef void (APIENTRYP PFNGLGENERATEMIPMAPPROC)(GLenum target);
+
 /* ===== FUNCTION POINTER DECLARATIONS ===== */
 
 typedef struct {
@@ -237,6 +281,20 @@ typedef struct {
     
     PFNGLDRAWARRAYSPROC glDrawArrays;
     PFNGLDRAWELEMENTSPROC glDrawElements;
+    
+    PFNGLGENTEXTURESPROC glGenTextures;
+    PFNGLDELETETEXTURESPROC glDeleteTextures;
+    PFNGLBINDTEXTUREPROC glBindTexture;
+    PFNGLTEXIMAGE2DPROC glTexImage2D;
+    PFNGLTEXSUBIMAGE2DPROC glTexSubImage2D;
+    PFNGLTEXPARAMETERIPROC glTexParameteri;
+    PFNGLTEXPARAMETERFPROC glTexParameterf;
+    PFNGLTEXPARAMETERIVPROC glTexParameteriv;
+    PFNGLTEXPARAMETERFVPROC glTexParameterfv;
+    PFNGLGETTEXPARAMETERIVPROC glGetTexParameteriv;
+    PFNGLGETTEXPARAMETERFVPROC glGetTexParameterfv;
+    PFNGLACTIVETEXTUREPROC glActiveTexture;
+    PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
 } GLADgl;
 
 extern GLADgl g_GLAD;
@@ -337,6 +395,45 @@ extern GLADgl g_GLAD;
 #endif
 #ifdef glDrawElements
 #undef glDrawElements
+#endif
+#ifdef glGenTextures
+#undef glGenTextures
+#endif
+#ifdef glDeleteTextures
+#undef glDeleteTextures
+#endif
+#ifdef glBindTexture
+#undef glBindTexture
+#endif
+#ifdef glTexImage2D
+#undef glTexImage2D
+#endif
+#ifdef glTexSubImage2D
+#undef glTexSubImage2D
+#endif
+#ifdef glTexParameteri
+#undef glTexParameteri
+#endif
+#ifdef glTexParameterf
+#undef glTexParameterf
+#endif
+#ifdef glTexParameteriv
+#undef glTexParameteriv
+#endif
+#ifdef glTexParameterfv
+#undef glTexParameterfv
+#endif
+#ifdef glGetTexParameteriv
+#undef glGetTexParameteriv
+#endif
+#ifdef glGetTexParameterfv
+#undef glGetTexParameterfv
+#endif
+#ifdef glActiveTexture
+#undef glActiveTexture
+#endif
+#ifdef glGenerateMipmap
+#undef glGenerateMipmap
 #endif
 
 extern PFNGLCLEARPROC glClear;

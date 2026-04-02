@@ -2620,3 +2620,47 @@ endif()
 
 set_target_properties(graphicscontext_phase4_test PROPERTIES OUTPUT_NAME "GraphicsContext_Phase4_test")
 
+# ============================================================================
+# Texture Phase 5 Test (OpenGL Texture System)
+# ============================================================================
+add_executable(texture_phase5_test
+    tests/Texture_Phase5_test.cpp
+    visuals/Texture.cpp
+)
+
+target_include_directories(texture_phase5_test PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${GLAD_INCLUDE_DIR}
+)
+
+target_compile_definitions(texture_phase5_test PRIVATE 
+    DJROOFRAT_ENABLE_GRAPHICS=1
+    DJROOFRAT_OPENGL_MIGRATION=1
+)
+
+target_link_libraries(texture_phase5_test PRIVATE 
+    glfw
+    glm::glm
+)
+
+if(EXISTS "${GLAD_SRC}")
+    target_sources(texture_phase5_test PRIVATE "${GLAD_SRC}")
+endif()
+
+if(WIN32)
+    target_link_libraries(texture_phase5_test PRIVATE opengl32)
+elseif(APPLE)
+    target_link_libraries(texture_phase5_test PRIVATE "-framework OpenGL")
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(texture_phase5_test PRIVATE OpenGL::OpenGL)
+endif()
+
+if(MSVC)
+    target_compile_options(texture_phase5_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(texture_phase5_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(texture_phase5_test PROPERTIES OUTPUT_NAME "Texture_Phase5_test")
+
