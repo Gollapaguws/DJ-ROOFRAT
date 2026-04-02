@@ -6,6 +6,10 @@
 #define DJROOFRAT_OPENGL_MIGRATION 1
 #define DJROOFRAT_ENABLE_GRAPHICS 1
 
+// Prevent Windows from including its own OpenGL headers
+#define __gl_h_
+#define __GL_H__
+
 #include <glad/glad.h>
 
 /* Prevent system GL functions from conflicting with GLAD function pointers */
