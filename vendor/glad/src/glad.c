@@ -69,6 +69,20 @@ PFNGLGETTEXPARAMETERFVPROC glGetTexParameterfv = NULL;
 PFNGLACTIVETEXTUREPROC glActiveTexture = NULL;
 PFNGLGENERATEMIPMAPPROC glGenerateMipmap = NULL;
 
+/* FBO function pointers */
+PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers = NULL;
+PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers = NULL;
+PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer = NULL;
+PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D = NULL;
+PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus = NULL;
+PFNGLDRAWBUFFERSPROC glDrawBuffers = NULL;
+PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer = NULL;
+
+/* Compute shader function pointers */
+PFNGLDISPATCHCOMPUTEPROC glDispatchCompute = NULL;
+PFNGLMEMORYBARRIERPROC glMemoryBarrier = NULL;
+PFNGLBINDBUFFERBASEPROC glBindBufferBase = NULL;
+
 int gladLoadGLLoader(GLADloadproc load) {
     if (load == NULL) {
         return 0;
@@ -139,6 +153,20 @@ int gladLoadGLLoader(GLADloadproc load) {
     g_GLAD.glActiveTexture = (PFNGLACTIVETEXTUREPROC)load("glActiveTexture");
     g_GLAD.glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)load("glGenerateMipmap");
 
+    /* Load FBO functions */
+    g_GLAD.glGenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC)load("glGenFramebuffers");
+    g_GLAD.glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSPROC)load("glDeleteFramebuffers");
+    g_GLAD.glBindFramebuffer = (PFNGLBINDFRAMEBUFFERPROC)load("glBindFramebuffer");
+    g_GLAD.glFramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DPROC)load("glFramebufferTexture2D");
+    g_GLAD.glCheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC)load("glCheckFramebufferStatus");
+    g_GLAD.glDrawBuffers = (PFNGLDRAWBUFFERSPROC)load("glDrawBuffers");
+    g_GLAD.glBlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)load("glBlitFramebuffer");
+
+    /* Load compute shader functions */
+    g_GLAD.glDispatchCompute = (PFNGLDISPATCHCOMPUTEPROC)load("glDispatchCompute");
+    g_GLAD.glMemoryBarrier = (PFNGLMEMORYBARRIERPROC)load("glMemoryBarrier");
+    g_GLAD.glBindBufferBase = (PFNGLBINDBUFFERBASEPROC)load("glBindBufferBase");
+
     /* Copy loaded pointers to external variables for API access */
     glClear = g_GLAD.glClear;
     glClearColor = g_GLAD.glClearColor;
@@ -203,6 +231,20 @@ int gladLoadGLLoader(GLADloadproc load) {
     glGetTexParameterfv = g_GLAD.glGetTexParameterfv;
     glActiveTexture = g_GLAD.glActiveTexture;
     glGenerateMipmap = g_GLAD.glGenerateMipmap;
+
+    /* Assign FBO pointers */
+    glGenFramebuffers = g_GLAD.glGenFramebuffers;
+    glDeleteFramebuffers = g_GLAD.glDeleteFramebuffers;
+    glBindFramebuffer = g_GLAD.glBindFramebuffer;
+    glFramebufferTexture2D = g_GLAD.glFramebufferTexture2D;
+    glCheckFramebufferStatus = g_GLAD.glCheckFramebufferStatus;
+    glDrawBuffers = g_GLAD.glDrawBuffers;
+    glBlitFramebuffer = g_GLAD.glBlitFramebuffer;
+
+    /* Assign compute shader pointers */
+    glDispatchCompute = g_GLAD.glDispatchCompute;
+    glMemoryBarrier = g_GLAD.glMemoryBarrier;
+    glBindBufferBase = g_GLAD.glBindBufferBase;
 
     /* Verify critical functions loaded */
     if (!glCreateShader || !glGenVertexArrays || !glCreateProgram) {

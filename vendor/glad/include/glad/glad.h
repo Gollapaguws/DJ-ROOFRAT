@@ -193,6 +193,36 @@ typedef char GLchar;
 #define GL_STACK_UNDERFLOW 0x0504
 #define GL_OUT_OF_MEMORY 0x0505
 
+/* Framebuffer Object (FBO) constants */
+#define GL_FRAMEBUFFER 0x8D40
+#define GL_FRAMEBUFFER_COMPLETE 0x8CD5
+#define GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT 0x8CD6
+#define GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT 0x8CD7
+#define GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER 0x8CDB
+#define GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER 0x8CDC
+#define GL_FRAMEBUFFER_UNSUPPORTED 0x8CDD
+#define GL_COLOR_ATTACHMENT0 0x8CE0
+#define GL_COLOR_ATTACHMENT1 0x8CE1
+#define GL_COLOR_ATTACHMENT2 0x8CE2
+#define GL_COLOR_ATTACHMENT3 0x8CE3
+#define GL_COLOR_ATTACHMENT4 0x8CE4
+#define GL_COLOR_ATTACHMENT5 0x8CE5
+#define GL_COLOR_ATTACHMENT6 0x8CE6
+#define GL_COLOR_ATTACHMENT7 0x8CE7
+#define GL_DEPTH_ATTACHMENT 0x8D00
+#define GL_STENCIL_ATTACHMENT 0x8D20
+#define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
+
+/* Compute shader constants */
+#define GL_COMPUTE_SHADER 0x91B9
+#define GL_ALL_BARRIER_BITS 0xFFFFFFFF
+#define GL_SHADER_STORAGE_BARRIER_BIT 0x2000
+#define GL_UNIFORM_BARRIER_BIT 0x0004
+
+/* Draw buffer constants */
+#define GL_DRAW_BUFFER 0x0C01
+#define GL_READ_BUFFER 0x0C02
+
 /* ===== FUNCTION POINTER TYPEDEFS ===== */
 
 /* Basic functions */
@@ -268,6 +298,20 @@ typedef void (APIENTRYP PFNGLGETTEXPARAMETERFVPROC)(GLenum target, GLenum pname,
 typedef void (APIENTRYP PFNGLACTIVETEXTUREPROC)(GLenum texture);
 typedef void (APIENTRYP PFNGLGENERATEMIPMAPPROC)(GLenum target);
 
+/* Framebuffer Object (FBO) functions */
+typedef void (APIENTRYP PFNGLGENFRAMEBUFFERSPROC)(GLsizei n, GLuint *framebuffers);
+typedef void (APIENTRYP PFNGLDELETEFRAMEBUFFERSPROC)(GLsizei n, const GLuint *framebuffers);
+typedef void (APIENTRYP PFNGLBINDFRAMEBUFFERPROC)(GLenum target, GLuint framebuffer);
+typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE2DPROC)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+typedef GLenum (APIENTRYP PFNGLCHECKFRAMEBUFFERSTATUSPROC)(GLenum target);
+typedef void (APIENTRYP PFNGLDRAWBUFFERSPROC)(GLsizei n, const GLenum *bufs);
+typedef void (APIENTRYP PFNGLBLITFRAMEBUFFERPROC)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+
+/* Compute Shader functions */
+typedef void (APIENTRYP PFNGLDISPATCHCOMPUTEPROC)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
+typedef void (APIENTRYP PFNGLMEMORYBARRIERPROC)(GLbitfield barriers);
+typedef void (APIENTRYP PFNGLBINDBUFFERBASEPROC)(GLenum target, GLuint index, GLuint buffer);
+
 /* ===== FUNCTION POINTER DECLARATIONS ===== */
 
 typedef struct {
@@ -335,7 +379,20 @@ typedef struct {
     PFNGLGETTEXPARAMETERFVPROC glGetTexParameterfv;
     PFNGLACTIVETEXTUREPROC glActiveTexture;
     PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
-} GLADgl;
+    
+    /* FBO functions */
+    PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers;
+    PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers;
+    PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
+    PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
+    PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
+    PFNGLDRAWBUFFERSPROC glDrawBuffers;
+    PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer;
+    
+    /* Compute shader functions */
+    PFNGLDISPATCHCOMPUTEPROC glDispatchCompute;
+    PFNGLMEMORYBARRIERPROC glMemoryBarrier;
+    PFNGLBINDBUFFERBASEPROC glBindBufferBase;
 
 extern GLADgl g_GLAD;
 
@@ -475,6 +532,36 @@ extern GLADgl g_GLAD;
 #ifdef glGenerateMipmap
 #undef glGenerateMipmap
 #endif
+#ifdef glGenFramebuffers
+#undef glGenFramebuffers
+#endif
+#ifdef glDeleteFramebuffers
+#undef glDeleteFramebuffers
+#endif
+#ifdef glBindFramebuffer
+#undef glBindFramebuffer
+#endif
+#ifdef glFramebufferTexture2D
+#undef glFramebufferTexture2D
+#endif
+#ifdef glCheckFramebufferStatus
+#undef glCheckFramebufferStatus
+#endif
+#ifdef glDrawBuffers
+#undef glDrawBuffers
+#endif
+#ifdef glBlitFramebuffer
+#undef glBlitFramebuffer
+#endif
+#ifdef glDispatchCompute
+#undef glDispatchCompute
+#endif
+#ifdef glMemoryBarrier
+#undef glMemoryBarrier
+#endif
+#ifdef glBindBufferBase
+#undef glBindBufferBase
+#endif
 
 extern PFNGLCLEARPROC glClear;
 extern PFNGLCLEARCOLORPROC glClearColor;
@@ -537,6 +624,20 @@ extern PFNGLGETTEXPARAMETERIVPROC glGetTexParameteriv;
 extern PFNGLGETTEXPARAMETERFVPROC glGetTexParameterfv;
 extern PFNGLACTIVETEXTUREPROC glActiveTexture;
 extern PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
+
+/* FBO functions */
+extern PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers;
+extern PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers;
+extern PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
+extern PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
+extern PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
+extern PFNGLDRAWBUFFERSPROC glDrawBuffers;
+extern PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer;
+
+/* Compute shader functions */
+extern PFNGLDISPATCHCOMPUTEPROC glDispatchCompute;
+extern PFNGLMEMORYBARRIERPROC glMemoryBarrier;
+extern PFNGLBINDBUFFERBASEPROC glBindBufferBase;
 
 /* ===== GLAD LOADER FUNCTION ===== */
 

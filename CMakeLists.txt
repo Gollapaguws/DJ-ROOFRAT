@@ -2707,3 +2707,47 @@ endif()
 
 set_target_properties(enhanced3dscene_phase6_test PROPERTIES OUTPUT_NAME "Enhanced3DScene_Phase6_test")
 
+# ============================================================================
+# Framebuffer Phase 7 Test (Framebuffer Objects for Post-Processing)
+# ============================================================================
+add_executable(framebuffer_phase7_test
+    tests/Framebuffer_Phase7_test.cpp
+    visuals/Framebuffer.cpp
+)
+
+target_include_directories(framebuffer_phase7_test PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${GLAD_INCLUDE_DIR}
+)
+
+target_compile_definitions(framebuffer_phase7_test PRIVATE 
+    DJROOFRAT_ENABLE_GRAPHICS=1
+    DJROOFRAT_OPENGL_MIGRATION=1
+)
+
+target_link_libraries(framebuffer_phase7_test PRIVATE 
+    glfw
+    glm::glm
+)
+
+if(EXISTS "${GLAD_SRC}")
+    target_sources(framebuffer_phase7_test PRIVATE "${GLAD_SRC}")
+endif()
+
+if(WIN32)
+    target_link_libraries(framebuffer_phase7_test PRIVATE opengl32)
+elseif(APPLE)
+    target_link_libraries(framebuffer_phase7_test PRIVATE "-framework OpenGL")
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(framebuffer_phase7_test PRIVATE OpenGL::OpenGL)
+endif()
+
+if(MSVC)
+    target_compile_options(framebuffer_phase7_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(framebuffer_phase7_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(framebuffer_phase7_test PROPERTIES OUTPUT_NAME "Framebuffer_Phase7_test")
+
