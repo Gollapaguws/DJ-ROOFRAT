@@ -17,6 +17,28 @@ endif()
 
 include(FetchContent)
 
+# ===== OpenGL Dependencies (Phase 1 Migration) =====
+
+# Fetch GLFW for windowing and OpenGL context
+FetchContent_Declare(
+    glfw3
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.3.8
+)
+FetchContent_MakeAvailable(glfw3)
+
+# Fetch GLM for mathematics (header-only)
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG 0.9.9.8
+)
+FetchContent_MakeAvailable(glm)
+
+# GLAD will be added via vendor/glad/ (generated locally)
+set(GLAD_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/include")
+set(GLAD_SRC "${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/src/glad.c")
+
 # Fetch ImGui for GUI
 FetchContent_Declare(
     imgui
@@ -2365,3 +2387,43 @@ else()
 endif()
 
 set_target_properties(controller_interaction_phase6_test PROPERTIES OUTPUT_NAME "ControllerInteraction_Phase6_test")
+
+# ===== OpenGL Migration Phase 1: GLContext (Infrastructure Setup) =====
+
+# GLContext Phase 1 test
+add_executable(glcontext_phase1_test
+    tests/GLContext_Phase1_test.cpp
+)
+
+target_include_directories(glcontext_phase1_test PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${GLAD_INCLUDE_DIR}
+)
+
+# Link OpenGL libraries
+target_link_libraries(glcontext_phase1_test PRIVATE 
+    glfw
+    glm::glm
+)
+
+# If GLAD source file exists, compile it into the test
+if(EXISTS "${GLAD_SRC}")
+    target_sources(glcontext_phase1_test PRIVATE "${GLAD_SRC}")
+endif()
+
+if(WIN32)
+    target_link_libraries(glcontext_phase1_test PRIVATE opengl32)
+elseif(APPLE)
+    target_link_libraries(glcontext_phase1_test PRIVATE "-framework OpenGL")
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(glcontext_phase1_test PRIVATE OpenGL::OpenGL)
+endif()
+
+if(MSVC)
+    target_compile_options(glcontext_phase1_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(glcontext_phase1_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(glcontext_phase1_test PROPERTIES OUTPUT_NAME "GLContext_Phase1_test")
