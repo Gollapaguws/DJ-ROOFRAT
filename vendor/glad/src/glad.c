@@ -27,6 +27,12 @@ PFNGLGETPROGRAMIVPROC glGetProgramiv = NULL;
 PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = NULL;
 PFNGLUSEPROGRAMPROC glUseProgram = NULL;
 
+PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation = NULL;
+PFNGLUNIFORM1FPROC glUniform1f = NULL;
+PFNGLUNIFORM3FPROC glUniform3f = NULL;
+PFNGLUNIFORM4FPROC glUniform4f = NULL;
+PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv = NULL;
+
 PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = NULL;
 PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays = NULL;
 PFNGLBINDVERTEXARRAYPROC glBindVertexArray = NULL;
@@ -70,6 +76,12 @@ int gladLoadGLLoader(GLADloadproc load) {
     g_GLAD.glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)load("glGetProgramInfoLog");
     g_GLAD.glUseProgram = (PFNGLUSEPROGRAMPROC)load("glUseProgram");
 
+    g_GLAD.glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)load("glGetUniformLocation");
+    g_GLAD.glUniform1f = (PFNGLUNIFORM1FPROC)load("glUniform1f");
+    g_GLAD.glUniform3f = (PFNGLUNIFORM3FPROC)load("glUniform3f");
+    g_GLAD.glUniform4f = (PFNGLUNIFORM4FPROC)load("glUniform4f");
+    g_GLAD.glUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)load("glUniformMatrix4fv");
+
     g_GLAD.glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)load("glGenVertexArrays");
     g_GLAD.glDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)load("glDeleteVertexArrays");
     g_GLAD.glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)load("glBindVertexArray");
@@ -107,6 +119,12 @@ int gladLoadGLLoader(GLADloadproc load) {
     glGetProgramiv = g_GLAD.glGetProgramiv;
     glGetProgramInfoLog = g_GLAD.glGetProgramInfoLog;
     glUseProgram = g_GLAD.glUseProgram;
+
+    glGetUniformLocation = g_GLAD.glGetUniformLocation;
+    glUniform1f = g_GLAD.glUniform1f;
+    glUniform3f = g_GLAD.glUniform3f;
+    glUniform4f = g_GLAD.glUniform4f;
+    glUniformMatrix4fv = g_GLAD.glUniformMatrix4fv;
 
     glGenVertexArrays = g_GLAD.glGenVertexArrays;
     glDeleteVertexArrays = g_GLAD.glDeleteVertexArrays;

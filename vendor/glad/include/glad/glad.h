@@ -167,6 +167,13 @@ typedef void (APIENTRYP PFNGLGETPROGRAMIVPROC)(GLuint program, GLenum pname, GLi
 typedef void (APIENTRYP PFNGLGETPROGRAMINFOLOGPROC)(GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
 typedef void (APIENTRYP PFNGLUSEPROGRAMPROC)(GLuint program);
 
+/* Uniform functions */
+typedef GLint (APIENTRYP PFNGLGETUNIFORMLOCATIONPROC)(GLuint program, const GLchar *name);
+typedef void (APIENTRYP PFNGLUNIFORM1FPROC)(GLint location, GLfloat v0);
+typedef void (APIENTRYP PFNGLUNIFORM3FPROC)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
+typedef void (APIENTRYP PFNGLUNIFORM4FPROC)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+typedef void (APIENTRYP PFNGLUNIFORMMATRIX4FVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+
 /* VAO functions */
 typedef void (APIENTRYP PFNGLGENVERTEXARRAYSPROC)(GLsizei n, GLuint *arrays);
 typedef void (APIENTRYP PFNGLDELETEVERTEXARRAYSPROC)(GLsizei n, const GLuint *arrays);
@@ -209,6 +216,12 @@ typedef struct {
     PFNGLGETPROGRAMIVPROC glGetProgramiv;
     PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
     PFNGLUSEPROGRAMPROC glUseProgram;
+    
+    PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+    PFNGLUNIFORM1FPROC glUniform1f;
+    PFNGLUNIFORM3FPROC glUniform3f;
+    PFNGLUNIFORM4FPROC glUniform4f;
+    PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
     
     PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
     PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
@@ -347,6 +360,12 @@ extern PFNGLLINKPROGRAMPROC glLinkProgram;
 extern PFNGLGETPROGRAMIVPROC glGetProgramiv;
 extern PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
 extern PFNGLUSEPROGRAMPROC glUseProgram;
+
+extern PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+extern PFNGLUNIFORM1FPROC glUniform1f;
+extern PFNGLUNIFORM3FPROC glUniform3f;
+extern PFNGLUNIFORM4FPROC glUniform4f;
+extern PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
 
 extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
 extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;

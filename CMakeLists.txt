@@ -2486,6 +2486,52 @@ endif()
 set_target_properties(vertexbuffer_phase2_test PROPERTIES OUTPUT_NAME "VertexBuffer_Phase2_test")
 
 # ============================================================================
+# Shader Phase 3 Test (OpenGL GLSL)
+# ============================================================================
+add_executable(shader_phase3_test
+    tests/Shader_Phase3_test.cpp
+    visuals/Shader.cpp
+)
+
+target_include_directories(shader_phase3_test PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${GLAD_INCLUDE_DIR}
+)
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(shader_phase3_test PRIVATE 
+        DJROOFRAT_ENABLE_GRAPHICS=1
+        DJROOFRAT_OPENGL_MIGRATION=1
+    )
+endif()
+
+target_link_libraries(shader_phase3_test PRIVATE 
+    glfw
+    glm::glm
+)
+
+if(EXISTS "${GLAD_SRC}")
+    target_sources(shader_phase3_test PRIVATE "${GLAD_SRC}")
+endif()
+
+if(WIN32)
+    target_link_libraries(shader_phase3_test PRIVATE opengl32)
+elseif(APPLE)
+    target_link_libraries(shader_phase3_test PRIVATE "-framework OpenGL")
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(shader_phase3_test PRIVATE OpenGL::OpenGL)
+endif()
+
+if(MSVC)
+    target_compile_options(shader_phase3_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(shader_phase3_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(shader_phase3_test PROPERTIES OUTPUT_NAME "Shader_Phase3_test")
+
+# ============================================================================
 # IndexBuffer Phase 2 Test (OpenGL EBO)
 # ============================================================================
 add_executable(indexbuffer_phase2_test

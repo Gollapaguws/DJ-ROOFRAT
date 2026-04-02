@@ -1,16 +1,201 @@
 #include "visuals/Shader.h"
 
 #include <fstream>
+#include <iostream>
 #include <iterator>
+#include <sstream>
 
 namespace dj {
 
 Shader::Shader() = default;
 
-Shader::~Shader() = default;
+Shader::~Shader() {
+    // Clean up OpenGL resources
+    if (shaderProgram_ != 0) {
+        glDeleteProgram(shaderProgram_);
+    }
+    if (vertexShaderGL_ != 0) {
+        glDeleteShader(vertexShaderGL_);
+    }
+    if (fragmentShaderGL_ != 0) {
+        glDeleteShader(fragmentShaderGL_);
+    }
+}
+
+// ========== OpenGL Implementation (Phase 3+) ==========
+
+std::string Shader::readFileAsString(const char* filePath, std::string* errorOut) {
+    std::ifstream file(filePath, std::ios::binary);
+    if (!file.is_open()) {
+        if (errorOut) {
+            *errorOut = std::string("File not found: ") + filePath;
+        }
+        return "";
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    file.close();
+
+    return buffer.str();
+}
+
+bool Shader::compileShaderSource(const char* source, GLenum shaderType, 
+                                 GLuint& outShader, std::string* errorOut) {
+    if (!source || !*source) {
+        if (errorOut) {
+            *errorOut = "Shader source is null or empty";
+        }
+        return false;
+    }
+
+    outShader = glCreateShader(shaderType);
+    glShaderSource(outShader, 1, &source, nullptr);
+    glCompileShader(outShader);
+
+    // Check compilation status
+    GLint compileStatus;
+    glGetShaderiv(outShader, GL_COMPILE_STATUS, &compileStatus);
+
+    if (compileStatus == GL_FALSE) {
+        // Get error log
+        GLint infoLogLength;
+        glGetShaderiv(outShader, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+        if (infoLogLength > 0) {
+            std::string infoLog(infoLogLength, '\0');
+            glGetShaderInfoLog(outShader, infoLogLength, nullptr, &infoLog[0]);
+            if (errorOut) {
+                *errorOut = infoLog;
+            }
+        } else if (errorOut) {
+            const char* typeStr = (shaderType == GL_VERTEX_SHADER) ? "vertex" : "fragment";
+            *errorOut = std::string(typeStr) + " shader compilation failed (no info log)";
+        }
+
+        glDeleteShader(outShader);
+        outShader = 0;
+        return false;
+    }
+
+    return true;
+}
+
+bool Shader::compile(const char* vertexSource, const char* fragmentSource, 
+                     const char* shaderType, std::string* errorOut) {
+    // Compile vertex shader if source is provided
+    if (vertexSource && shaderType && std::string(shaderType) == "vertex") {
+        return compileShaderSource(vertexSource, GL_VERTEX_SHADER, vertexShaderGL_, errorOut);
+    }
+
+    // Compile fragment shader if source is provided
+    if (fragmentSource && shaderType && std::string(shaderType) == "fragment") {
+        return compileShaderSource(fragmentSource, GL_FRAGMENT_SHADER, fragmentShaderGL_, errorOut);
+    }
+
+    if (errorOut && shaderType) {
+        *errorOut = std::string("Unknown shader type: ") + shaderType;
+    } else if (errorOut) {
+        *errorOut = "No shader source provided";
+    }
+    return false;
+}
+
+bool Shader::link(std::string* errorOut) {
+    // Check if we have both shaders compiled
+    if (vertexShaderGL_ == 0 || fragmentShaderGL_ == 0) {
+        if (errorOut) {
+            *errorOut = "Both vertex and fragment shaders must be compiled before linking";
+        }
+        return false;
+    }
+
+    // Create shader program
+    shaderProgram_ = glCreateProgram();
+    glAttachShader(shaderProgram_, vertexShaderGL_);
+    glAttachShader(shaderProgram_, fragmentShaderGL_);
+    glLinkProgram(shaderProgram_);
+
+    // Check link status
+    GLint linkStatus;
+    glGetProgramiv(shaderProgram_, GL_LINK_STATUS, &linkStatus);
+
+    if (linkStatus == GL_FALSE) {
+        // Get error log
+        GLint infoLogLength;
+        glGetProgramiv(shaderProgram_, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+        if (infoLogLength > 0) {
+            std::string infoLog(infoLogLength, '\0');
+            glGetProgramInfoLog(shaderProgram_, infoLogLength, nullptr, &infoLog[0]);
+            if (errorOut) {
+                *errorOut = infoLog;
+            }
+        } else if (errorOut) {
+            *errorOut = "Shader program linking failed (no info log)";
+        }
+
+        glDeleteProgram(shaderProgram_);
+        shaderProgram_ = 0;
+        return false;
+    }
+
+    // Successfully linked - we can delete the individual shaders now
+    // (they're attached to the program and will be deleted when the program is deleted)
+    glDeleteShader(vertexShaderGL_);
+    glDeleteShader(fragmentShaderGL_);
+    vertexShaderGL_ = 0;
+    fragmentShaderGL_ = 0;
+
+    return true;
+}
+
+void Shader::use() const {
+    if (shaderProgram_ != 0) {
+        glUseProgram(shaderProgram_);
+    }
+}
+
+GLint Shader::getUniformLocation(const char* name) const {
+    if (shaderProgram_ == 0) {
+        return -1;
+    }
+    return glGetUniformLocation(shaderProgram_, name);
+}
+
+bool Shader::loadFromFiles(const char* vertexPath, const char* fragmentPath, 
+                           std::string* errorOut) {
+    // Read vertex shader source
+    std::string vertexSource = readFileAsString(vertexPath, errorOut);
+    if (vertexSource.empty()) {
+        return false;
+    }
+
+    // Read fragment shader source
+    std::string fragmentSource = readFileAsString(fragmentPath, errorOut);
+    if (fragmentSource.empty()) {
+        return false;
+    }
+
+    // Compile vertex shader
+    if (!compile(vertexSource.c_str(), nullptr, "vertex", errorOut)) {
+        return false;
+    }
+
+    // Compile fragment shader
+    if (!compile(nullptr, fragmentSource.c_str(), "fragment", errorOut)) {
+        return false;
+    }
+
+    // Link program
+    return link(errorOut);
+}
+
+// ========== Legacy DirectX Implementation (for backward compatibility) ==========
+
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS) && !defined(DJROOFRAT_OPENGL_MIGRATION)
 
 bool Shader::compile(const std::string& entryPoint, const std::string& target, std::string* errorOut) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     // Simple HLSL shader code embedded as string
     const char* hlslSource = R"(
 cbuffer ConstantBuffer : register(b0) {
@@ -119,15 +304,8 @@ float4 PSMain(PS_INPUT input) : SV_TARGET {
         *errorOut = "Unknown shader target";
     }
     return false;
-#else
-    if (errorOut) {
-        *errorOut = "Shader compilation not available (graphics disabled)";
-    }
-    return false;
-#endif
 }
 
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 bool Shader::createShaders(ID3D11Device* device) {
     if (!device) {
         return false;
@@ -175,10 +353,11 @@ bool Shader::createVertexShader(ID3D11Device* device) {
     return SUCCEEDED(hr);
 }
 
-#endif // defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+#endif // defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS) && !defined(DJROOFRAT_OPENGL_MIGRATION)
+
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS) && !defined(DJROOFRAT_OPENGL_MIGRATION)
 
 bool Shader::compile(const std::string& shaderName, const std::string& entryPoint, const std::string& target, std::string* errorOut) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     // Load shader source from external .hlsl file
     std::string filePath = "shaders/" + shaderName + ".hlsl";
     
@@ -268,15 +447,10 @@ bool Shader::compile(const std::string& shaderName, const std::string& entryPoin
         *errorOut = "Unknown shader target: " + target;
     }
     return false;
-#else
-    (void)shaderName;
-    (void)entryPoint;
-    (void)target;
-    if (errorOut) {
-        *errorOut = "Shader compilation not available (graphics disabled)";
-    }
-    return false;
-#endif
 }
 
+#endif // defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS) && !defined(DJROOFRAT_OPENGL_MIGRATION)
+
 } // namespace dj
+
+
