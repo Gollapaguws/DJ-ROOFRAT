@@ -479,6 +479,20 @@ extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
 extern PFNGLDRAWARRAYSPROC glDrawArrays;
 extern PFNGLDRAWELEMENTSPROC glDrawElements;
 
+extern PFNGLGENTEXTURESPROC glGenTextures;
+extern PFNGLDELETETEXTURESPROC glDeleteTextures;
+extern PFNGLBINDTEXTUREPROC glBindTexture;
+extern PFNGLTEXIMAGE2DPROC glTexImage2D;
+extern PFNGLTEXSUBIMAGE2DPROC glTexSubImage2D;
+extern PFNGLTEXPARAMETERIPROC glTexParameteri;
+extern PFNGLTEXPARAMETERFPROC glTexParameterf;
+extern PFNGLTEXPARAMETERIVPROC glTexParameteriv;
+extern PFNGLTEXPARAMETERFVPROC glTexParameterfv;
+extern PFNGLGETTEXPARAMETERIVPROC glGetTexParameteriv;
+extern PFNGLGETTEXPARAMETERFVPROC glGetTexParameterfv;
+extern PFNGLACTIVETEXTUREPROC glActiveTexture;
+extern PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
+
 /* ===== GLAD LOADER FUNCTION ===== */
 
 typedef void* (*GLADloadproc)(const char *name);

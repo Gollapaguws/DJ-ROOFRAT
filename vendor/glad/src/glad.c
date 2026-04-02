@@ -48,6 +48,20 @@ PFNGLBUFFERSUBDATAPROC glBufferSubData = NULL;
 PFNGLDRAWARRAYSPROC glDrawArrays = NULL;
 PFNGLDRAWELEMENTSPROC glDrawElements = NULL;
 
+PFNGLGENTEXTURESPROC glGenTextures = NULL;
+PFNGLDELETETEXTURESPROC glDeleteTextures = NULL;
+PFNGLBINDTEXTUREPROC glBindTexture = NULL;
+PFNGLTEXIMAGE2DPROC glTexImage2D = NULL;
+PFNGLTEXSUBIMAGE2DPROC glTexSubImage2D = NULL;
+PFNGLTEXPARAMETERIPROC glTexParameteri = NULL;
+PFNGLTEXPARAMETERFPROC glTexParameterf = NULL;
+PFNGLTEXPARAMETERIVPROC glTexParameteriv = NULL;
+PFNGLTEXPARAMETERFVPROC glTexParameterfv = NULL;
+PFNGLGETTEXPARAMETERIVPROC glGetTexParameteriv = NULL;
+PFNGLGETTEXPARAMETERFVPROC glGetTexParameterfv = NULL;
+PFNGLACTIVETEXTUREPROC glActiveTexture = NULL;
+PFNGLGENERATEMIPMAPPROC glGenerateMipmap = NULL;
+
 int gladLoadGLLoader(GLADloadproc load) {
     if (load == NULL) {
         return 0;
@@ -97,6 +111,20 @@ int gladLoadGLLoader(GLADloadproc load) {
     g_GLAD.glDrawArrays = (PFNGLDRAWARRAYSPROC)load("glDrawArrays");
     g_GLAD.glDrawElements = (PFNGLDRAWELEMENTSPROC)load("glDrawElements");
 
+    g_GLAD.glGenTextures = (PFNGLGENTEXTURESPROC)load("glGenTextures");
+    g_GLAD.glDeleteTextures = (PFNGLDELETETEXTURESPROC)load("glDeleteTextures");
+    g_GLAD.glBindTexture = (PFNGLBINDTEXTUREPROC)load("glBindTexture");
+    g_GLAD.glTexImage2D = (PFNGLTEXIMAGE2DPROC)load("glTexImage2D");
+    g_GLAD.glTexSubImage2D = (PFNGLTEXSUBIMAGE2DPROC)load("glTexSubImage2D");
+    g_GLAD.glTexParameteri = (PFNGLTEXPARAMETERIPROC)load("glTexParameteri");
+    g_GLAD.glTexParameterf = (PFNGLTEXPARAMETERFPROC)load("glTexParameterf");
+    g_GLAD.glTexParameteriv = (PFNGLTEXPARAMETERIVPROC)load("glTexParameteriv");
+    g_GLAD.glTexParameterfv = (PFNGLTEXPARAMETERFVPROC)load("glTexParameterfv");
+    g_GLAD.glGetTexParameteriv = (PFNGLGETTEXPARAMETERIVPROC)load("glGetTexParameteriv");
+    g_GLAD.glGetTexParameterfv = (PFNGLGETTEXPARAMETERFVPROC)load("glGetTexParameterfv");
+    g_GLAD.glActiveTexture = (PFNGLACTIVETEXTUREPROC)load("glActiveTexture");
+    g_GLAD.glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)load("glGenerateMipmap");
+
     /* Copy loaded pointers to external variables for API access */
     glClear = g_GLAD.glClear;
     glClearColor = g_GLAD.glClearColor;
@@ -140,6 +168,20 @@ int gladLoadGLLoader(GLADloadproc load) {
 
     glDrawArrays = g_GLAD.glDrawArrays;
     glDrawElements = g_GLAD.glDrawElements;
+
+    glGenTextures = g_GLAD.glGenTextures;
+    glDeleteTextures = g_GLAD.glDeleteTextures;
+    glBindTexture = g_GLAD.glBindTexture;
+    glTexImage2D = g_GLAD.glTexImage2D;
+    glTexSubImage2D = g_GLAD.glTexSubImage2D;
+    glTexParameteri = g_GLAD.glTexParameteri;
+    glTexParameterf = g_GLAD.glTexParameterf;
+    glTexParameteriv = g_GLAD.glTexParameteriv;
+    glTexParameterfv = g_GLAD.glTexParameterfv;
+    glGetTexParameteriv = g_GLAD.glGetTexParameteriv;
+    glGetTexParameterfv = g_GLAD.glGetTexParameterfv;
+    glActiveTexture = g_GLAD.glActiveTexture;
+    glGenerateMipmap = g_GLAD.glGenerateMipmap;
 
     /* Verify critical functions loaded */
     if (!glCreateShader || !glGenVertexArrays || !glCreateProgram) {
