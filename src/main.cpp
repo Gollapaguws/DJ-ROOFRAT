@@ -19,7 +19,13 @@
 #endif
 
 // ImGui headers
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include "imgui.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_glfw.h"
+#elif defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 #include <d3d11.h>  // For ID3D11Device, ID3D11DeviceContext
 #include "imgui.h"
 #include "imgui_impl_win32.h"
@@ -1002,10 +1008,34 @@ int main(int argc, char** argv) {
     bool graphicsEnabled = config.enableGraphics ? graphics.initialize(config.graphicsWidth, config.graphicsHeight, &graphicsError) : false;
     bool imguiEnabled = false;
     if (graphicsEnabled) {
-        std::cout << "DirectX 11 graphics initialized.\n";
+        std::cout << "Graphics initialized.\n";
         
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
-        // Validate graphics resources before ImGui initialization
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+        // OpenGL3 + GLFW ImGui backend initialization
+        GLFWwindow* glfwWindow = (GLFWwindow*)graphics.getGLFWWindow();
+        if (glfwWindow) {
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            ImGuiIO& io = ImGui::GetIO();
+            io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+            
+            // Initialize OpenGL3 backend with GLFW
+            const char* glsl_version = "#version 430";
+            if (ImGui_ImplGLFW_InitForOpenGL(glfwWindow, true) &&
+                ImGui_ImplOpenGL3_Init(glsl_version)) {
+                
+                ImGui::StyleColorsDark();
+                imguiEnabled = true;
+                std::cout << "ImGui interface initialized (OpenGL3 backend).\n";
+            } else {
+                std::cout << "Warning: ImGui OpenGL3 backend initialization failed\n";
+                ImGui::DestroyContext();
+            }
+        } else {
+            std::cout << "Warning: GLFW window not available, skipping ImGui initialization\n";
+        }
+#elif defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+        // DirectX 11 + Win32 ImGui backend initialization
         HWND windowHandle = (HWND)graphics.getWindowHandle();
         ID3D11Device* device = (ID3D11Device*)graphics.getD3D11Device();
         ID3D11DeviceContext* deviceContext = (ID3D11DeviceContext*)graphics.getD3D11DeviceContext();
@@ -1024,9 +1054,9 @@ int main(int argc, char** argv) {
                 // Setup style
                 ImGui::StyleColorsDark();
                 imguiEnabled = true;
-                std::cout << "ImGui interface initialized.\n";
+                std::cout << "ImGui interface initialized (D3D11 backend).\n";
             } else {
-                std::cout << "Warning: ImGui backend initialization failed\n";
+                std::cout << "Warning: ImGui D3D11 backend initialization failed\n";
                 ImGui::DestroyContext();
             }
         } else {
@@ -2176,9 +2206,17 @@ int main(int argc, char** argv) {
 #if defined(DJROOFRAT_ENABLE_GRAPHICS)
         // Render ImGui interface
         if (graphicsEnabled && imguiEnabled && graphics.isAvailable()) {
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+            // OpenGL3 backend frame cycle
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGLFW_NewFrame();
+            ImGui::NewFrame();
+#else
+            // D3D11 backend frame cycle
             ImGui_ImplDX11_NewFrame();
             ImGui_ImplWin32_NewFrame();
             ImGui::NewFrame();
+#endif
 
             const double splashElapsedSeconds =
                 std::chrono::duration<double>(std::chrono::steady_clock::now() - visualSessionStart).count();
@@ -2534,7 +2572,11 @@ int main(int argc, char** argv) {
             if (!graphicsFrameRendered) {
                 graphics.clearRenderTarget(0.1f, 0.1f, 0.15f, 1.0f);
             }
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#else
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+#endif
             graphics.present();
         } else if (graphicsEnabled && graphics.isAvailable()) {
             graphics.present();
@@ -2549,8 +2591,13 @@ int main(int argc, char** argv) {
 #if defined(DJROOFRAT_ENABLE_GRAPHICS)
         // Shutdown ImGui (only if context exists)
         if (imguiEnabled && ImGui::GetCurrentContext()) {
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+            ImGui_ImplOpenGL3_Shutdown();
+            ImGui_ImplGLFW_Shutdown();
+#else
             ImGui_ImplDX11_Shutdown();
             ImGui_ImplWin32_Shutdown();
+#endif
             ImGui::DestroyContext();
         }
 #endif

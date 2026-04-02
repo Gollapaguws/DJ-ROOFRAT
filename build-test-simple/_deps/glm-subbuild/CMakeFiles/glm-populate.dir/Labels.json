@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glm-subbuild/CMakeFiles/glm-populate"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glm-subbuild/CMakeFiles/022eb467138bf20a2b10b6c78c803a0b/glm-populate.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glm-subbuild/CMakeFiles/13afab7130f5e1fc5d29cf2b4f558145/glm-populate-complete.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glm-subbuild/CMakeFiles/4392891158885716f7f602e93ff96415/glm-populate-build.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glm-subbuild/CMakeFiles/4392891158885716f7f602e93ff96415/glm-populate-configure.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glm-subbuild/CMakeFiles/4392891158885716f7f602e93ff96415/glm-populate-download.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glm-subbuild/CMakeFiles/4392891158885716f7f602e93ff96415/glm-populate-install.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glm-subbuild/CMakeFiles/4392891158885716f7f602e93ff96415/glm-populate-mkdir.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glm-subbuild/CMakeFiles/4392891158885716f7f602e93ff96415/glm-populate-patch.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glm-subbuild/CMakeFiles/4392891158885716f7f602e93ff96415/glm-populate-test.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glm-subbuild/CMakeFiles/4392891158885716f7f602e93ff96415/glm-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"glm-populate"
+		],
+		"name" : "glm-populate"
+	}
+}

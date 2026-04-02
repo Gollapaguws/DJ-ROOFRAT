@@ -1,0 +1,15 @@
+# CMake for audio tests (Phase 7B)
+add_executable(particleshader_phase7b_test
+    ParticleShader_Phase7B_test.cpp
+)
+target_include_directories(particleshader_phase7b_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/vendor)
+target_link_libraries(particleshader_phase7b_test PRIVATE glfw glm::glm)
+if(EXISTS "${GLAD_SRC}")
+    target_sources(particleshader_phase7b_test PRIVATE "${GLAD_SRC}")
+endif()
+if(WIN32)
+    target_link_libraries(particleshader_phase7b_test PRIVATE opengl32)
+else()
+    target_link_libraries(particleshader_phase7b_test PRIVATE OpenGL::OpenGL)
+endif()
+set_target_properties(particleshader_phase7b_test PROPERTIES OUTPUT_NAME "ParticleShader_Phase7B_test")

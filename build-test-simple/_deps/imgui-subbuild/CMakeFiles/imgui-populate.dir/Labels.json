@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/imgui-subbuild/CMakeFiles/imgui-populate"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/imgui-subbuild/CMakeFiles/8e1b6412381700d6c0e9219f176ce937/imgui-populate.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/imgui-subbuild/CMakeFiles/0d80b20f3e03f1a5bddbc55945be20db/imgui-populate-complete.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/imgui-subbuild/CMakeFiles/89c8ba2af9a02374658771ba929e996b/imgui-populate-build.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/imgui-subbuild/CMakeFiles/89c8ba2af9a02374658771ba929e996b/imgui-populate-configure.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/imgui-subbuild/CMakeFiles/89c8ba2af9a02374658771ba929e996b/imgui-populate-download.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/imgui-subbuild/CMakeFiles/89c8ba2af9a02374658771ba929e996b/imgui-populate-install.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/imgui-subbuild/CMakeFiles/89c8ba2af9a02374658771ba929e996b/imgui-populate-mkdir.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/imgui-subbuild/CMakeFiles/89c8ba2af9a02374658771ba929e996b/imgui-populate-patch.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/imgui-subbuild/CMakeFiles/89c8ba2af9a02374658771ba929e996b/imgui-populate-test.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/imgui-subbuild/CMakeFiles/89c8ba2af9a02374658771ba929e996b/imgui-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"imgui-populate"
+		],
+		"name" : "imgui-populate"
+	}
+}

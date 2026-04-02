@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\GraphicsContext_Phase8_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\GraphicsContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\LightingRig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\Enhanced3DScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\ShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\TextureManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\TunnelGeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\VertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\IndexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\StageGeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\LaserController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\CrowdRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\CrowdMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\CrowdAnimator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{3C317961-638D-3CD3-B0B9-D4B8ABC126A1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

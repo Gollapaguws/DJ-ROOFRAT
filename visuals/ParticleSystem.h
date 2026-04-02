@@ -1,65 +1,58 @@
 #pragma once
 
 #include <memory>
-#include <vector>
-
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
-#define NOMINMAX
-#include <d3d11.h>
-#include <wrl.h>
-
-using Microsoft::WRL::ComPtr;
-
-namespace dj {
-
-// Particle structure matching shader (must be 16-byte aligned)
-struct Particle {
-    float position[3];      // 12 bytes
-    float lifetime;          // 4 bytes, total 16
-    float velocity[3];       // 12 bytes
-    float initialLife;       // 4 bytes, total 16
-    float color[4];          // 16 bytes
-    float size;              // 4 bytes
-    float padding[3];        // 12 bytes padding to align to 16
-};
-
-// Constant buffer for compute shader (must be 16-byte aligned)
-struct ParticleConstants {
-    float gravity[3];        // 12 bytes
-    float deltaTime;         // 4 bytes, total 16
-    float windForce[3];      // 12 bytes
-    int particleCount;       // 4 bytes, total 16
-};
-
-class ComputeShader;
 
 class ParticleSystem {
 public:
     ParticleSystem();
     ~ParticleSystem();
 
-    // Initialize particle system with default capacity (10,000 particles)
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    // OpenGL migration: initialize and update using OpenGL
+    bool initialize(void* unused = nullptr, int maxParticles = 10000);
+    void updatePhysics(void* unused, float deltaTime, const float gravity[3], const float windForce[3]);
+#else
+    // DirectX path
     bool initialize(ID3D11Device* device, int maxParticles = 10000);
+    void updatePhysics(ID3D11DeviceContext* context, float deltaTime, const float gravity[3], const float windForce[3]);
+#endif
 
-    // Emit particles from a position
-    // position: emission point
-    // count: number of particles to emit
-    // lifetime: particle lifetime in seconds
-    // baseVelocity: initial velocity direction
     void emitParticles(const float position[3], int count, float lifetime, const float baseVelocity[3]);
-
-    // Update physics using compute shader
-    void updatePhysics(ID3D11DeviceContext* context, float deltaTime,
-                       const float gravity[3], const float windForce[3]);
-
-    // Render particles (returns vertex/index count for caller to render)
-    int render(ID3D11DeviceContext* context);
-
-    // Get active particle count
+    int render(
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+        void*
+#else
+        ID3D11DeviceContext* context
+#endif
+    );
     int getActiveParticleCount() const noexcept { return activeParticleCount_; }
-
-    // Get max particle capacity
     int getMaxParticles() const noexcept { return maxParticles_; }
+    float* getParticlePosition(int index);
+    void triggerConfettiBurst(const float position[3], int particleCount = 500);
+    void reset();
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    ID3D11UnorderedAccessView* getParticleUAV() const { return particleUAV_.Get(); }
+#endif
+
+private:
+    int maxParticles_ = 10000;
+    int activeParticleCount_ = 0;
+    int emissionCursor_ = 0;
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    GLuint ssbo_ = 0;
+    GLuint ubo_ = 0;
+    std::unique_ptr<ComputeShader> computeShader_;
+    std::vector<Particle> stagingBuffer_;
+#elif defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    ComPtr<ID3D11Buffer> particleBuffer_;
+    ComPtr<ID3D11Buffer> particleBufferCopy_;
+    ComPtr<ID3D11ShaderResourceView> particleSRV_;
+    ComPtr<ID3D11UnorderedAccessView> particleUAV_;
+    ComPtr<ID3D11Buffer> constantBuffer_;
+    std::unique_ptr<ComputeShader> computeShader_;
+    std::vector<Particle> stagingBuffer_;
+#endif
+};
 
     // Get particle position (for testing)
     // Note: This requires GPU readback and is slow - use sparingly

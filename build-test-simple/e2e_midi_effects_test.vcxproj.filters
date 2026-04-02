@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\tests\integration\E2E_MIDIEffects_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\Deck.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\AudioClip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\ThreeBandEQ.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\TrackLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\BPMDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\MetadataParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\KeyDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\WaveformCache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\EffectChain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\Reverb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\Delay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\VinylSimulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\ScratchDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\SpectrumAnalyzer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\FFTEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\PhaseAligner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\SyncController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\input\MIDIDevice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\input\MIDIMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\input\MIDIController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{3C317961-638D-3CD3-B0B9-D4B8ABC126A1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

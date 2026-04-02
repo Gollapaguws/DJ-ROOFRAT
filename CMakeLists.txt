@@ -47,8 +47,31 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(imgui)
 
-# Create ImGui library with DirectX 11 and Win32 backends
-if(WIN32)
+# Create ImGui library with backend selection
+option(DJROOFRAT_OPENGL_MIGRATION "Use OpenGL3 backend for ImGui (Phase 7A)" OFF)
+
+if(DJROOFRAT_OPENGL_MIGRATION)
+    # OpenGL3 + GLFW backend configuration
+    add_library(imgui_impl STATIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+    )
+    target_include_directories(imgui_impl PUBLIC
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
+        ${GLAD_INCLUDE_DIR}
+    )
+    target_link_libraries(imgui_impl PUBLIC glfw glm::glm)
+    if(EXISTS "${GLAD_SRC}")
+        target_sources(imgui_impl PRIVATE "${GLAD_SRC}")
+    endif()
+elseif(WIN32)
+    # DirectX 11 + Win32 backend configuration (original)
     add_library(imgui_impl STATIC
         ${imgui_SOURCE_DIR}/imgui.cpp
         ${imgui_SOURCE_DIR}/imgui_demo.cpp
@@ -512,6 +535,21 @@ endif()
 
 set_target_properties(crowd_phase5_test PROPERTIES OUTPUT_NAME "CrowdStateMachine_Phase5_test")
 
+# Phase 7B: Particle GLSL compute shader test
+add_executable(particleshader_phase7b_test
+    audio/ParticleShader_Phase7B_test.cpp
+)
+target_include_directories(particleshader_phase7b_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/vendor)
+target_link_libraries(particleshader_phase7b_test PRIVATE glfw glm::glm)
+if(EXISTS "${GLAD_SRC}")
+    target_sources(particleshader_phase7b_test PRIVATE "${GLAD_SRC}")
+endif()
+if(WIN32)
+    target_link_libraries(particleshader_phase7b_test PRIVATE opengl32)
+else()
+    target_link_libraries(particleshader_phase7b_test PRIVATE OpenGL::OpenGL)
+endif()
+set_target_properties(particleshader_phase7b_test PROPERTIES OUTPUT_NAME "ParticleShader_Phase7B_test")
 # CrowdStateMachine Phase 6 test
 add_executable(crowd_phase6_test
     crowdAI/CrowdStateMachine_Phase6_test.cpp
@@ -2751,3 +2789,91 @@ endif()
 
 set_target_properties(framebuffer_phase7_test PROPERTIES OUTPUT_NAME "Framebuffer_Phase7_test")
 
+# ============================================================================
+# ComputeShader Phase 7 Test (OpenGL Compute Shaders for GPGPU)
+# ============================================================================
+add_executable(computeshader_phase7_test
+    tests/ComputeShader_Phase7_test.cpp
+    visuals/ComputeShader.cpp
+)
+
+target_include_directories(computeshader_phase7_test PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${GLAD_INCLUDE_DIR}
+)
+
+target_compile_definitions(computeshader_phase7_test PRIVATE 
+    DJROOFRAT_ENABLE_GRAPHICS=1
+    DJROOFRAT_OPENGL_MIGRATION=1
+)
+
+target_link_libraries(computeshader_phase7_test PRIVATE 
+    glfw
+    glm::glm
+)
+
+if(EXISTS "${GLAD_SRC}")
+    target_sources(computeshader_phase7_test PRIVATE "${GLAD_SRC}")
+endif()
+
+if(WIN32)
+    target_link_libraries(computeshader_phase7_test PRIVATE opengl32)
+elseif(APPLE)
+    target_link_libraries(computeshader_phase7_test PRIVATE "-framework OpenGL")
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(computeshader_phase7_test PRIVATE OpenGL::OpenGL)
+endif()
+
+if(MSVC)
+    target_compile_options(computeshader_phase7_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(computeshader_phase7_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(computeshader_phase7_test PROPERTIES OUTPUT_NAME "ComputeShader_Phase7_test")
+
+# ============================================================================
+# ImGui Phase 7A Test (OpenGL3 Backend Integration)
+# ============================================================================
+add_executable(imgui_phase7a_test
+    tests/ImGui_Phase7A_test.cpp
+)
+
+target_include_directories(imgui_phase7a_test PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${GLAD_INCLUDE_DIR}
+    ${imgui_SOURCE_DIR}
+    ${imgui_SOURCE_DIR}/backends
+)
+
+target_compile_definitions(imgui_phase7a_test PRIVATE 
+    DJROOFRAT_OPENGL_MIGRATION=1
+)
+
+target_link_libraries(imgui_phase7a_test PRIVATE 
+    glfw
+    glm::glm
+    imgui_impl
+)
+
+if(EXISTS "${GLAD_SRC}")
+    target_sources(imgui_phase7a_test PRIVATE "${GLAD_SRC}")
+endif()
+
+if(WIN32)
+    target_link_libraries(imgui_phase7a_test PRIVATE opengl32)
+elseif(APPLE)
+    target_link_libraries(imgui_phase7a_test PRIVATE "-framework OpenGL")
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(imgui_phase7a_test PRIVATE OpenGL::OpenGL)
+endif()
+
+if(MSVC)
+    target_compile_options(imgui_phase7a_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(imgui_phase7a_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(imgui_phase7a_test PROPERTIES OUTPUT_NAME "ImGui_Phase7A_test")

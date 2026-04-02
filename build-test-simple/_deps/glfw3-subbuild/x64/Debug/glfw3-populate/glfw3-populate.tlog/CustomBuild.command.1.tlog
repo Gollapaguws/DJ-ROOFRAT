@@ -1,0 +1,150 @@
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-SIMPLE\_DEPS\GLFW3-SUBBUILD\CMAKEFILES\5EAA559B3EDA0A64E808D3F906C048F4\GLFW3-POPULATE-MKDIR.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -Dcfgdir=/Debug -P C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/glfw3-populate-prefix/tmp/glfw3-populate-mkdirs.cmake
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/glfw3-populate-prefix/src/glfw3-populate-stamp/Debug/glfw3-populate-mkdir
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-SIMPLE\_DEPS\GLFW3-SUBBUILD\CMAKEFILES\5EAA559B3EDA0A64E808D3F906C048F4\GLFW3-POPULATE-DOWNLOAD.RULE
+setlocal
+cd C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/glfw3-populate-prefix/tmp/glfw3-populate-gitclone.cmake
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/glfw3-populate-prefix/src/glfw3-populate-stamp/Debug/glfw3-populate-download
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-SIMPLE\_DEPS\GLFW3-SUBBUILD\CMAKEFILES\5EAA559B3EDA0A64E808D3F906C048F4\GLFW3-POPULATE-UPDATE.RULE
+setlocal
+cd C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-src
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -Dcan_fetch=YES -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/glfw3-populate-prefix/tmp/glfw3-populate-gitupdate.cmake
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-SIMPLE\_DEPS\GLFW3-SUBBUILD\CMAKEFILES\5EAA559B3EDA0A64E808D3F906C048F4\GLFW3-POPULATE-PATCH.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/glfw3-populate-prefix/src/glfw3-populate-stamp/Debug/glfw3-populate-patch
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-SIMPLE\_DEPS\GLFW3-SUBBUILD\CMAKEFILES\5EAA559B3EDA0A64E808D3F906C048F4\GLFW3-POPULATE-CONFIGURE.RULE
+setlocal
+cd C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/glfw3-populate-prefix/src/glfw3-populate-stamp/Debug/glfw3-populate-configure
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-SIMPLE\_DEPS\GLFW3-SUBBUILD\CMAKEFILES\5EAA559B3EDA0A64E808D3F906C048F4\GLFW3-POPULATE-BUILD.RULE
+setlocal
+cd C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/glfw3-populate-prefix/src/glfw3-populate-stamp/Debug/glfw3-populate-build
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-SIMPLE\_DEPS\GLFW3-SUBBUILD\CMAKEFILES\5EAA559B3EDA0A64E808D3F906C048F4\GLFW3-POPULATE-INSTALL.RULE
+setlocal
+cd C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/glfw3-populate-prefix/src/glfw3-populate-stamp/Debug/glfw3-populate-install
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-SIMPLE\_DEPS\GLFW3-SUBBUILD\CMAKEFILES\5EAA559B3EDA0A64E808D3F906C048F4\GLFW3-POPULATE-TEST.RULE
+setlocal
+cd C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/glfw3-populate-prefix/src/glfw3-populate-stamp/Debug/glfw3-populate-test
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-SIMPLE\_DEPS\GLFW3-SUBBUILD\CMAKEFILES\8D09B78969352E346037650D67357544\GLFW3-POPULATE-COMPLETE.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/CMakeFiles/Debug
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/CMakeFiles/Debug/glfw3-populate-complete
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/glfw3-populate-prefix/src/glfw3-populate-stamp/Debug/glfw3-populate-done
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-SIMPLE\_DEPS\GLFW3-SUBBUILD\CMAKEFILES\3A9FD7DDBAC67A8575AB8061D8022E4E\GLFW3-POPULATE.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-SIMPLE\_DEPS\GLFW3-SUBBUILD\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild -BC:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild --check-stamp-file C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

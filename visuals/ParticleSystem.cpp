@@ -1,6 +1,13 @@
 #include "visuals/ParticleSystem.h"
 #include "visuals/ComputeShader.h"
 
+
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <fstream>
+#endif
+
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 
 #include <random>
@@ -13,86 +20,43 @@ ParticleSystem::ParticleSystem() = default;
 
 ParticleSystem::~ParticleSystem() = default;
 
+
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+bool ParticleSystem::initialize(void*, int maxParticlesCount) {
+    maxParticles_ = (maxParticlesCount > 0) ? maxParticlesCount : 10000;
+    activeParticleCount_ = 0;
+    stagingBuffer_.resize(maxParticles_);
+    // OpenGL: create SSBO for particles
+    glGenBuffers(1, &ssbo_);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Particle) * maxParticles_, nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_);
+    // Load and compile GLSL compute shader
+    std::ifstream file("shaders/particles.glsl");
+    std::string src((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    computeShader_ = std::make_unique<ComputeShader>();
+    std::string errorMsg;
+    if (!computeShader_->compileSource(src.c_str(), &errorMsg)) {
+        // Log errorMsg if needed
+    }
+    // Create UBO for constants
+    glGenBuffers(1, &ubo_);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(ParticleConstants), nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_);
+    return true;
+}
+#else
 bool ParticleSystem::initialize(ID3D11Device* device, int maxParticlesCount) {
     if (!device) {
         return false;
     }
-
     maxParticles_ = (maxParticlesCount > 0) ? maxParticlesCount : 10000;
     activeParticleCount_ = 0;
-
-    // Create structured buffer for particles on GPU
-    D3D11_BUFFER_DESC bufferDesc = {};
-    bufferDesc.ByteWidth = sizeof(Particle) * maxParticles_;
-    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    bufferDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-    bufferDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-    bufferDesc.StructureByteStride = sizeof(Particle);
-
-    HRESULT hr = device->CreateBuffer(&bufferDesc, nullptr, particleBuffer_.GetAddressOf());
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    // Create copy buffer for CPU readback
-    D3D11_BUFFER_DESC copyDesc = bufferDesc;
-    copyDesc.Usage = D3D11_USAGE_STAGING;
-    copyDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-    copyDesc.BindFlags = 0;
-    copyDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-
-    hr = device->CreateBuffer(&copyDesc, nullptr, particleBufferCopy_.GetAddressOf());
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    // Create SRV for reading particles (not used yet for rendering)
-    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-    srvDesc.Buffer.NumElements = maxParticles_;
-
-    hr = device->CreateShaderResourceView(particleBuffer_.Get(), &srvDesc, particleSRV_.GetAddressOf());
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    // Create UAV for compute shader
-    D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-    uavDesc.Format = DXGI_FORMAT_UNKNOWN;
-    uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
-    uavDesc.Buffer.NumElements = maxParticles_;
-
-    hr = device->CreateUnorderedAccessView(particleBuffer_.Get(), &uavDesc, particleUAV_.GetAddressOf());
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    // Create constant buffer for compute shader
-    D3D11_BUFFER_DESC cbDesc = {};
-    cbDesc.ByteWidth = sizeof(ParticleConstants);
-    cbDesc.Usage = D3D11_USAGE_DYNAMIC;
-    cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-    hr = device->CreateBuffer(&cbDesc, nullptr, constantBuffer_.GetAddressOf());
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    // Create and compile compute shader
-    computeShader_ = std::make_unique<ComputeShader>();
-    std::string errorMsg;
-    if (!computeShader_->compile(device, "particles", "CSMain", &errorMsg)) {
-        // Compute shader compilation failed, but we can continue with a no-op
-        // This allows testing on systems without shader files
-    }
-
-    // Initialize staging buffer
-    stagingBuffer_.resize(maxParticles_);
-
+    // ...existing code...
     return true;
 }
+#endif
 
 void ParticleSystem::emitParticles(const float position[3], int count, float lifetime, const float baseVelocity[3]) {
     count = std::clamp(count, 0, maxParticles_);
@@ -135,47 +99,42 @@ void ParticleSystem::emitParticles(const float position[3], int count, float lif
     }
 }
 
-void ParticleSystem::updatePhysics(ID3D11DeviceContext* context, float deltaTime,
-                                   const float gravity[3], const float windForce[3]) {
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+void ParticleSystem::updatePhysics(void*, float deltaTime, const float gravity[3], const float windForce[3]) {
+    if (!computeShader_ || activeParticleCount_ <= 0) return;
+    // Upload particle data to SSBO
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Particle) * activeParticleCount_, stagingBuffer_.data());
+    // Update UBO constants
+    struct ParticleConstantsGL {
+        float gravity[3]; float deltaTime;
+        float windForce[3]; int particleCount;
+    } c;
+    c.gravity[0] = gravity[0]; c.gravity[1] = gravity[1]; c.gravity[2] = gravity[2];
+    c.deltaTime = deltaTime;
+    c.windForce[0] = windForce[0]; c.windForce[1] = windForce[1]; c.windForce[2] = windForce[2];
+    c.particleCount = activeParticleCount_;
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ParticleConstantsGL), &c);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_);
+    // Dispatch compute shader
+    computeShader_->use();
+    uint32_t numGroups = (activeParticleCount_ + 255) / 256;
+    computeShader_->dispatch(numGroups, 1, 1);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    // Optionally read back for CPU-side queries
+}
+#else
+void ParticleSystem::updatePhysics(ID3D11DeviceContext* context, float deltaTime, const float gravity[3], const float windForce[3]) {
     if (!context || !computeShader_) {
         return;
     }
-
     if (activeParticleCount_ <= 0) {
         return;
     }
-
-    // Upload particle data to GPU if we have new particles
-    // particleBuffer_ uses D3D11_USAGE_DEFAULT (required for UAV), so use UpdateSubresource
-    context->UpdateSubresource(particleBuffer_.Get(), 0, nullptr,
-                               stagingBuffer_.data(), sizeof(Particle) * activeParticleCount_, 0);
-
-    // Update constant buffer
-    D3D11_MAPPED_SUBRESOURCE cbResource = {};
-    if (SUCCEEDED(context->Map(constantBuffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &cbResource))) {
-        ParticleConstants* pConstants = static_cast<ParticleConstants*>(cbResource.pData);
-        pConstants->gravity[0] = gravity[0];
-        pConstants->gravity[1] = gravity[1];
-        pConstants->gravity[2] = gravity[2];
-        pConstants->deltaTime = deltaTime;
-        pConstants->windForce[0] = windForce[0];
-        pConstants->windForce[1] = windForce[1];
-        pConstants->windForce[2] = windForce[2];
-        pConstants->particleCount = activeParticleCount_;
-        context->Unmap(constantBuffer_.Get(), 0);
-    }
-
-    // Set compute shader resources
-    context->CSSetConstantBuffers(0, 1, constantBuffer_.GetAddressOf());
-    context->CSSetUnorderedAccessViews(0, 1, particleUAV_.GetAddressOf(), nullptr);
-
-    // Dispatch compute shader
-    uint32_t numGroups = (activeParticleCount_ + 255) / 256;  // 256 threads per group
-    computeShader_->dispatch(context, numGroups, 1, 1);
-
-    // Clean up dead particles (simple approach: mark lifetime-expired particles)
-    // This would require GPU readback, so for now we just decrement lifetime in shader
+    // ...existing code...
 }
+#endif
 
 int ParticleSystem::render(ID3D11DeviceContext* context) {
     (void)context; // Placeholder - unused in current implementation

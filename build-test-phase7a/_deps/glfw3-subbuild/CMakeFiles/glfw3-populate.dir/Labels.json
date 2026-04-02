@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/CMakeFiles/glfw3-populate"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/CMakeFiles/b9a26d7bbd357e2b762d471bd786de67/glfw3-populate.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/CMakeFiles/c5902310792c2302b07a92ecd1fd0aa7/glfw3-populate-complete.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/CMakeFiles/00539a0e32a552b29a08800de2bea37a/glfw3-populate-build.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/CMakeFiles/00539a0e32a552b29a08800de2bea37a/glfw3-populate-configure.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/CMakeFiles/00539a0e32a552b29a08800de2bea37a/glfw3-populate-download.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/CMakeFiles/00539a0e32a552b29a08800de2bea37a/glfw3-populate-install.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/CMakeFiles/00539a0e32a552b29a08800de2bea37a/glfw3-populate-mkdir.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/CMakeFiles/00539a0e32a552b29a08800de2bea37a/glfw3-populate-patch.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/CMakeFiles/00539a0e32a552b29a08800de2bea37a/glfw3-populate-test.rule"
+		},
+		{
+			"file" : "C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/CMakeFiles/00539a0e32a552b29a08800de2bea37a/glfw3-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"glfw3-populate"
+		],
+		"name" : "glfw3-populate"
+	}
+}

@@ -203,7 +203,6 @@ void ComputeShader::dispatch(ID3D11DeviceContext* context, uint32_t groupCountX,
         return;
     }
 
-
     // Set compute shader
     context->CSSetShader(computeShader_.Get(), nullptr, 0);
     
@@ -216,6 +215,7 @@ void ComputeShader::dispatch(ID3D11DeviceContext* context, uint32_t groupCountX,
     context->CSSetShader(nullptr, nullptr, 0);
 }
 
-} // namespace dj
+#endif
 
-#endif // defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+}  // namespace dj
+

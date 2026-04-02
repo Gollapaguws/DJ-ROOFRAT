@@ -1,0 +1,10 @@
+^C:\DJROOFRAT\DJ-ROOFRAT\BUILD-TEST-PHASE7A\_DEPS\GLFW3-SUBBUILD\CMAKEFILES\B9A26D7BBD357E2B762D471BD786DE67\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild -BC:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/DJROOFRAT/DJ-ROOFRAT/build-test-phase7a/_deps/glfw3-subbuild/glfw3-populate.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -393,6 +393,7 @@ typedef struct {
     PFNGLDISPATCHCOMPUTEPROC glDispatchCompute;
     PFNGLMEMORYBARRIERPROC glMemoryBarrier;
     PFNGLBINDBUFFERBASEPROC glBindBufferBase;
+} GLADgl;
 
 extern GLADgl g_GLAD;
 

@@ -1,0 +1,316 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\AudioClip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\TrackLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\ThreeBandEQ.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\Deck.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\Mixer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\BPMDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\MetadataParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\KeyDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\WaveformCache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\PortAudioPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\Recorder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\WAVExporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\MP3Exporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\SessionMetadata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\Reverb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\Delay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\EffectChain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\Flanger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\Phaser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\Bitcrusher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\RingModulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\AutoFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\VinylSimulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\ScratchDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\SpectrumAnalyzer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\FFTEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\OnsetDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\BeatGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\BeatGridEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\PhaseAligner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\SyncController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\SyncUndoStack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\EnergyAnalyzer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\audio\CamelotAnalyzer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\crowdAI\CrowdStateMachine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\WaveformRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\SpectrumRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\BeatGridRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\BeatMarkerOverlay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\EnergyHistogram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\SplashScreenAnimator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\GraphicsContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\LightingRig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\LaserController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\CrowdRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\CrowdMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\CrowdAnimator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\CamelotWheel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\ParticleSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\RenderTarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\PostProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\ComputeShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\GameModes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\TutorialSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\ProgressTracker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\MissionSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\Leaderboard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\Venue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\UnlockSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\AchievementSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\lessons\BeatmatchingLesson.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\lessons\EQMixingLesson.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\missions\SustainedBeatmatchMission.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\missions\EnergySurvivalMission.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\missions\TransitionMission.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\EnergyCurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\MixQualityAnalyzer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\gameplay\TransitionCoach.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\EnergyCurveRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\CoachingHUD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\SyncIndicator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\DJControllerGeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\ControllerInteraction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\RayCaster.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\multiplayer\BattleMode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\multiplayer\BattleRules.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\multiplayer\Judge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\core\ConfigManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\core\SessionState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\core\PresetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\input\InputMapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\input\MIDIDevice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\input\MIDIMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\input\MIDIController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\input\MIDIMapping.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\input\MIDILearnMode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\input\ControllerProfiles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\library\TrackLibrary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\library\LibraryScanner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\library\TrackBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\VertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\IndexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\TextureManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\StageGeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\TunnelGeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\Enhanced3DScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\visuals\ShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\DJROOFRAT\DJ-ROOFRAT\vendor\glad\src\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{3C317961-638D-3CD3-B0B9-D4B8ABC126A1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

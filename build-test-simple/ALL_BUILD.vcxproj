@@ -1,0 +1,641 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ResolveNugetPackages>false</ResolveNugetPackages>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CF73849E-C594-3029-B304-21E66B5AA425}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>ALL_BUILD</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/DJROOFRAT/DJ-ROOFRAT/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/DJROOFRAT/DJ-ROOFRAT -BC:/DJROOFRAT/DJ-ROOFRAT/build-test-simple --check-stamp-file C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeCXXCompiler.cmake;C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeRCCompiler.cmake;C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXCompiler.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXCompilerABI.cpp;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCompilerIdDetection.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCXXCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerABI.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerId.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerSupport.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineRCCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeFindBinUtils.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseImplicitIncludeInfo.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseImplicitLinkInfo.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseLibraryArchitecture.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeRCCompiler.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystem.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestCXXCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestCompilerCommon.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestRCCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ADSP-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ARMCC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ARMClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\AppleClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Borland-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Clang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Compaq-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Cray-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\CrayClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Diab-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Embarcadero-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Fujitsu-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\FujitsuClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\GHS-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\GNU-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\HP-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IAR-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IBMCPP-CXX-DetermineVersionInternal.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IBMClang-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Intel-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IntelLLVM-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\LCC-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\NVHPC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\NVIDIA-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\OpenWatcom-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\OrangeC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\PGI-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\PathScale-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Renesas-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\SCO-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\SunPro-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\TI-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\TIClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Tasking-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\VisualAge-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Watcom-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\XL-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\XLClang-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\zOS-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CompilerId\VS-10.vcxproj.in;C:\Program Files\CMake\share\cmake-4.2\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindSQLite3.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeDetermineLinkerId.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeInspectCXXLinker.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\FeatureTesting.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-Determine-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/DJROOFRAT/DJ-ROOFRAT/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/DJROOFRAT/DJ-ROOFRAT -BC:/DJROOFRAT/DJ-ROOFRAT/build-test-simple --check-stamp-file C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeCXXCompiler.cmake;C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeRCCompiler.cmake;C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXCompiler.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXCompilerABI.cpp;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCompilerIdDetection.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCXXCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerABI.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerId.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerSupport.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineRCCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeFindBinUtils.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseImplicitIncludeInfo.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseImplicitLinkInfo.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseLibraryArchitecture.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeRCCompiler.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystem.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestCXXCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestCompilerCommon.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestRCCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ADSP-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ARMCC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ARMClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\AppleClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Borland-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Clang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Compaq-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Cray-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\CrayClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Diab-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Embarcadero-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Fujitsu-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\FujitsuClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\GHS-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\GNU-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\HP-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IAR-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IBMCPP-CXX-DetermineVersionInternal.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IBMClang-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Intel-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IntelLLVM-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\LCC-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\NVHPC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\NVIDIA-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\OpenWatcom-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\OrangeC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\PGI-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\PathScale-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Renesas-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\SCO-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\SunPro-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\TI-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\TIClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Tasking-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\VisualAge-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Watcom-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\XL-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\XLClang-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\zOS-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CompilerId\VS-10.vcxproj.in;C:\Program Files\CMake\share\cmake-4.2\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindSQLite3.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeDetermineLinkerId.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeInspectCXXLinker.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\FeatureTesting.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-Determine-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/DJROOFRAT/DJ-ROOFRAT/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/DJROOFRAT/DJ-ROOFRAT -BC:/DJROOFRAT/DJ-ROOFRAT/build-test-simple --check-stamp-file C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeCXXCompiler.cmake;C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeRCCompiler.cmake;C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXCompiler.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXCompilerABI.cpp;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCompilerIdDetection.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCXXCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerABI.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerId.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerSupport.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineRCCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeFindBinUtils.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseImplicitIncludeInfo.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseImplicitLinkInfo.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseLibraryArchitecture.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeRCCompiler.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystem.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestCXXCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestCompilerCommon.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestRCCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ADSP-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ARMCC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ARMClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\AppleClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Borland-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Clang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Compaq-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Cray-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\CrayClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Diab-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Embarcadero-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Fujitsu-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\FujitsuClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\GHS-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\GNU-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\HP-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IAR-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IBMCPP-CXX-DetermineVersionInternal.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IBMClang-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Intel-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IntelLLVM-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\LCC-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\NVHPC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\NVIDIA-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\OpenWatcom-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\OrangeC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\PGI-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\PathScale-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Renesas-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\SCO-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\SunPro-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\TI-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\TIClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Tasking-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\VisualAge-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Watcom-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\XL-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\XLClang-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\zOS-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CompilerId\VS-10.vcxproj.in;C:\Program Files\CMake\share\cmake-4.2\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindSQLite3.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeDetermineLinkerId.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeInspectCXXLinker.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\FeatureTesting.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-Determine-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/DJROOFRAT/DJ-ROOFRAT/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/DJROOFRAT/DJ-ROOFRAT -BC:/DJROOFRAT/DJ-ROOFRAT/build-test-simple --check-stamp-file C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeCXXCompiler.cmake;C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeRCCompiler.cmake;C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\4.2.3\CMakeSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXCompiler.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXCompilerABI.cpp;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeCompilerIdDetection.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCXXCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerABI.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerId.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineCompilerSupport.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineRCCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeDetermineSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeFindBinUtils.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseImplicitIncludeInfo.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseImplicitLinkInfo.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeParseLibraryArchitecture.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeRCCompiler.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystem.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestCXXCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestCompilerCommon.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CMakeTestRCCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ADSP-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ARMCC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\ARMClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\AppleClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Borland-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Clang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Compaq-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Cray-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\CrayClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Diab-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Embarcadero-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Fujitsu-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\FujitsuClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\GHS-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\GNU-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\HP-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IAR-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IBMCPP-CXX-DetermineVersionInternal.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IBMClang-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Intel-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\IntelLLVM-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\LCC-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\NVHPC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\NVIDIA-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\OpenWatcom-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\OrangeC-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\PGI-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\PathScale-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Renesas-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\SCO-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\SunPro-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\TI-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\TIClang-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Tasking-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\VisualAge-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\Watcom-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\XL-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\XLClang-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Compiler\zOS-CXX-DetermineCompiler.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\CompilerId\VS-10.vcxproj.in;C:\Program Files\CMake\share\cmake-4.2\Modules\ExternalProject\shared_internal_commands.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-4.2\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\FindSQLite3.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeCXXLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeCommonLinkerInformation.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeDetermineLinkerId.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\CMakeInspectCXXLinker.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Internal\FeatureTesting.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Linker\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Linker\MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Linker\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-Determine-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-4.2\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\ZERO_CHECK.vcxproj">
+      <Project>{F34C9E86-17D9-3C6E-AF33-4642B572B315}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\beat_grid_phase32_test.vcxproj">
+      <Project>{DED1B5D2-CD6B-3B03-A304-E579EA26BAC0}</Project>
+      <Name>beat_grid_phase32_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\beatgrid_editor_phase36_test.vcxproj">
+      <Project>{1A02CB82-E96A-3EBD-973D-92C8D46B39F7}</Project>
+      <Name>beatgrid_editor_phase36_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\beatjump_phase41_test.vcxproj">
+      <Project>{61A8D2C0-753F-3236-8485-D578DE8C7BFB}</Project>
+      <Name>beatjump_phase41_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\benchmark_bpm_detector.vcxproj">
+      <Project>{6629D5DB-D330-3174-9D89-34410E722E7B}</Project>
+      <Name>benchmark_bpm_detector</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\benchmark_main_loop_audio.vcxproj">
+      <Project>{59A285DA-82B6-3605-9EFB-F344A250521E}</Project>
+      <Name>benchmark_main_loop_audio</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\benchmark_spectrum_analyzer.vcxproj">
+      <Project>{434DE2DE-9E68-35C1-9CAF-EB8ADAD6474E}</Project>
+      <Name>benchmark_spectrum_analyzer</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\examples\boing.vcxproj">
+      <Project>{E182CEB6-F1D5-33C9-99E1-2262ADC27F66}</Project>
+      <Name>boing</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\camelot_analyzer_phase31_test.vcxproj">
+      <Project>{A1327C2A-4B41-32B2-A14B-7F433D146A64}</Project>
+      <Name>camelot_analyzer_phase31_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\clipboard.vcxproj">
+      <Project>{A3EBDEEF-1701-386F-9DE2-C6A4D10AEFBC}</Project>
+      <Name>clipboard</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\computeshader_phase7_test.vcxproj">
+      <Project>{25B41E94-5C44-3079-A97B-0B461CF24697}</Project>
+      <Name>computeshader_phase7_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\config_system_phase25_test.vcxproj">
+      <Project>{F7A05F64-59DE-3A26-8B15-F154BA50430D}</Project>
+      <Name>config_system_phase25_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\controller_interaction_phase4_test.vcxproj">
+      <Project>{E55E5C33-F5E1-3F66-BA7C-03612A1BA7AE}</Project>
+      <Name>controller_interaction_phase4_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\controller_interaction_phase6_test.vcxproj">
+      <Project>{5C70A283-41EF-3DC4-B90F-E6639E8EC34B}</Project>
+      <Name>controller_interaction_phase6_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\crowd_phase5_test.vcxproj">
+      <Project>{9CABE226-155E-34FC-A495-65FD3DE394F5}</Project>
+      <Name>crowd_phase5_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\crowd_phase6_test.vcxproj">
+      <Project>{E73AC467-1133-31E8-A173-89DC0177F85E}</Project>
+      <Name>crowd_phase6_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\crowd_renderer_phase8_test.vcxproj">
+      <Project>{E6680F76-8FA8-3DF6-B393-AC1D63399FAF}</Project>
+      <Name>crowd_renderer_phase8_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\cursor.vcxproj">
+      <Project>{A93B39EA-E10F-3EBA-A4A5-40CB2CEB9D2C}</Project>
+      <Name>cursor</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\deck_phase2_test.vcxproj">
+      <Project>{745B3A3A-E22C-3D22-B1E0-109B15CA6830}</Project>
+      <Name>deck_phase2_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\deck_phase3_test.vcxproj">
+      <Project>{88B91B30-E45C-3670-8575-B86726D792A3}</Project>
+      <Name>deck_phase3_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\deck_phase4_test.vcxproj">
+      <Project>{2F7B007B-CFB6-3D71-BA9C-B072819A3D72}</Project>
+      <Name>deck_phase4_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\dj_roofrat.vcxproj">
+      <Project>{D23C711E-C128-3179-85E6-084F209B16B9}</Project>
+      <Name>dj_roofrat</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\djcontroller_geometry_phase1_test.vcxproj">
+      <Project>{C6D66001-1093-37A7-9FBE-39F73C1EA354}</Project>
+      <Name>djcontroller_geometry_phase1_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\djcontroller_geometry_phase5_test.vcxproj">
+      <Project>{4F478990-E99C-346A-8472-E5CF6B1AA634}</Project>
+      <Name>djcontroller_geometry_phase5_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\e2e_autosync_test.vcxproj">
+      <Project>{1DB78C9D-159B-3B68-AB65-964F672F7113}</Project>
+      <Name>e2e_autosync_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\e2e_bassclash_detection_test.vcxproj">
+      <Project>{3A856DBA-94E2-3825-8BE7-CABA4588058B}</Project>
+      <Name>e2e_bassclash_detection_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\e2e_battlemode_test.vcxproj">
+      <Project>{7B5F3BFE-E20C-37C4-A6B3-7BF01AFA0B40}</Project>
+      <Name>e2e_battlemode_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\e2e_load_mix_record_test.vcxproj">
+      <Project>{D3E6C639-940B-320B-8E3F-E5EEA67C1AA6}</Project>
+      <Name>e2e_load_mix_record_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\e2e_midi_effects_test.vcxproj">
+      <Project>{4A5BCBCF-5AB2-3B8F-9E51-E37049E35185}</Project>
+      <Name>e2e_midi_effects_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\e2e_session_roundtrip_test.vcxproj">
+      <Project>{452591DC-F5BD-3784-97A7-9A86223AD1D5}</Project>
+      <Name>e2e_session_roundtrip_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\effects_phase15_test.vcxproj">
+      <Project>{EF23AD33-8372-3F33-BA13-1D1E53776909}</Project>
+      <Name>effects_phase15_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\effects_phase16_test.vcxproj">
+      <Project>{0427FD27-6533-3A45-BBFF-F98787664B30}</Project>
+      <Name>effects_phase16_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\empty.vcxproj">
+      <Project>{62C353C2-0510-3241-9364-305A8EFB0129}</Project>
+      <Name>empty</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\energy_analyzer_phase33_test.vcxproj">
+      <Project>{0A229CCE-E0A1-31A5-8E4C-8AFA8526F8D5}</Project>
+      <Name>energy_analyzer_phase33_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\energycurve_phase37_test.vcxproj">
+      <Project>{D636B98D-785C-38B9-ADB7-21717C2546C6}</Project>
+      <Name>energycurve_phase37_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\enhanced3dscene_inputlayout_test.vcxproj">
+      <Project>{C6EA4AC6-D6AD-3259-B9CE-BD5780825820}</Project>
+      <Name>enhanced3dscene_inputlayout_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\enhanced3dscene_phase1_test.vcxproj">
+      <Project>{F5B86B38-3BE9-34C0-91FF-207E97DD59F9}</Project>
+      <Name>enhanced3dscene_phase1_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\enhanced3dscene_phase2_test.vcxproj">
+      <Project>{1CDC00D0-8964-32C0-A596-D5AE99887BCA}</Project>
+      <Name>enhanced3dscene_phase2_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\enhanced3dscene_phase3_test.vcxproj">
+      <Project>{3EA8E66D-07CF-386E-A59F-CED1EB439CDF}</Project>
+      <Name>enhanced3dscene_phase3_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\enhanced3dscene_phase4_test.vcxproj">
+      <Project>{5F33C9BE-EC77-36F4-9B8D-93346CC3B29C}</Project>
+      <Name>enhanced3dscene_phase4_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\enhanced3dscene_phase5_test.vcxproj">
+      <Project>{F31A41CA-9AF3-3E7F-BDB1-038022998A63}</Project>
+      <Name>enhanced3dscene_phase5_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\enhanced3dscene_phase6_test.vcxproj">
+      <Project>{E444A4DC-0F90-3B4D-AD66-DB1556732A92}</Project>
+      <Name>enhanced3dscene_phase6_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\enhanced_recording_phase29_test.vcxproj">
+      <Project>{9B3E75DB-9B52-3FE7-B74D-1E38BE0921B8}</Project>
+      <Name>enhanced_recording_phase29_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\events.vcxproj">
+      <Project>{E1CED2AF-7C72-3605-8646-B0DA0B413B46}</Project>
+      <Name>events</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\fft_phase34_test.vcxproj">
+      <Project>{971B4381-60C8-3051-81C9-468C11CD65A8}</Project>
+      <Name>fft_phase34_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\framebuffer_phase7_test.vcxproj">
+      <Project>{5C56CD07-0934-300F-B57E-A0209170BC3F}</Project>
+      <Name>framebuffer_phase7_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\gameplay_phase21_test.vcxproj">
+      <Project>{2DB8C59A-71BE-3681-8D84-9B8BDAAFDC74}</Project>
+      <Name>gameplay_phase21_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\gameplay_phase22_test.vcxproj">
+      <Project>{56BBC5D6-9096-3DEE-A589-F57280CA8194}</Project>
+      <Name>gameplay_phase22_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\gameplay_phase23_test.vcxproj">
+      <Project>{68B848FE-03EB-3000-8C72-63F13D346B91}</Project>
+      <Name>gameplay_phase23_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\gamma.vcxproj">
+      <Project>{A5D4D70B-5A7C-39CC-BB4B-A110A4154C93}</Project>
+      <Name>gamma</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\examples\gears.vcxproj">
+      <Project>{11EDDD64-043D-36CB-9FD9-87B91F539C9E}</Project>
+      <Name>gears</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\glcontext_phase1_test.vcxproj">
+      <Project>{AADF7C65-DA2D-3C91-A728-34AB8007E081}</Project>
+      <Name>glcontext_phase1_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\src\glfw.vcxproj">
+      <Project>{992D282F-734C-3063-9D59-560E550130ED}</Project>
+      <Name>glfw</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\glfwinfo.vcxproj">
+      <Project>{432851F5-6C74-3B7F-A813-D64D05B396B7}</Project>
+      <Name>glfwinfo</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glm-build\glm\glm.vcxproj">
+      <Project>{751D72D8-14CD-31DD-9F76-7F179B7BF562}</Project>
+      <Name>glm</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\graphics_context_phase18_test.vcxproj">
+      <Project>{74AC0DDF-5670-315D-8BD0-F1353B7AA892}</Project>
+      <Name>graphics_context_phase18_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\graphics_context_phase7_test.vcxproj">
+      <Project>{DFC7941A-58A3-3E27-8252-962A1C8E6BA3}</Project>
+      <Name>graphics_context_phase7_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\graphics_context_phase8_test.vcxproj">
+      <Project>{E80AEBA5-00D9-3F2B-AA98-4A71E5C94133}</Project>
+      <Name>graphics_context_phase8_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\graphics_phase1_test.vcxproj">
+      <Project>{7D85F0B8-3F25-3464-88D2-99811D0734C9}</Project>
+      <Name>graphics_phase1_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\graphics_phase2_test.vcxproj">
+      <Project>{3F62DA14-D1E7-33A3-811F-01FA1979CB41}</Project>
+      <Name>graphics_phase2_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\graphics_phase3_test.vcxproj">
+      <Project>{351D9EF8-D067-3B40-8CD9-3B2EDCADDCD9}</Project>
+      <Name>graphics_phase3_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\graphics_phase5_test.vcxproj">
+      <Project>{2F28DFCD-655E-39C9-BA74-DE70DAA049A8}</Project>
+      <Name>graphics_phase5_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\graphics_phase6_test.vcxproj">
+      <Project>{9BD49304-1F6D-3E2D-9812-B87F5AD5FE55}</Project>
+      <Name>graphics_phase6_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\graphicscontext_phase4_test.vcxproj">
+      <Project>{C1D7947C-F5A7-3BEE-93C6-AC2592B9781B}</Project>
+      <Name>graphicscontext_phase4_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\examples\heightmap.vcxproj">
+      <Project>{FB919417-396B-3293-8B99-FA3FD1D01DF6}</Project>
+      <Name>heightmap</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\icon.vcxproj">
+      <Project>{CD3636BE-B6B8-342D-AE30-0DE030139CB7}</Project>
+      <Name>icon</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\iconify.vcxproj">
+      <Project>{D46CAD23-4770-311F-A9BD-1CB5F9D115E4}</Project>
+      <Name>iconify</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\imgui_impl.vcxproj">
+      <Project>{388A12FD-2923-346D-8E5D-249EC2199923}</Project>
+      <Name>imgui_impl</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\imgui_phase7a_test.vcxproj">
+      <Project>{0145E5BE-69DA-32EF-807F-D0C730719CA6}</Project>
+      <Name>imgui_phase7a_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\indexbuffer_phase2_test.vcxproj">
+      <Project>{8BB879DF-978C-3D80-82CC-6F3EA9630118}</Project>
+      <Name>indexbuffer_phase2_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\input_mapper_phase2_test.vcxproj">
+      <Project>{7A6A5085-A593-38FF-A5F2-605126A51B01}</Project>
+      <Name>input_mapper_phase2_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\input_mapper_phase3_test.vcxproj">
+      <Project>{42F65300-641B-36CC-A6DD-785A5158E6E4}</Project>
+      <Name>input_mapper_phase3_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\input_mapper_phase4_test.vcxproj">
+      <Project>{12CB0C81-2312-34BC-9268-99E3FC5F254F}</Project>
+      <Name>input_mapper_phase4_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\inputlag.vcxproj">
+      <Project>{96187FE2-4891-3300-BACA-25FF706D4E8A}</Project>
+      <Name>inputlag</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\joysticks.vcxproj">
+      <Project>{D3A71EB0-DF3D-3776-A3E1-A78A4D81EB73}</Project>
+      <Name>joysticks</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\laser_controller_phase8_test.vcxproj">
+      <Project>{D5B1634D-AA97-3B32-8360-BCBE75867D07}</Project>
+      <Name>laser_controller_phase8_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\lighting_phase19_test.vcxproj">
+      <Project>{9080E3E8-9830-3257-B729-D1401FFB00F4}</Project>
+      <Name>lighting_phase19_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\lighting_rig_phase7_test.vcxproj">
+      <Project>{92484033-C43D-37A5-B4FB-F74424C00414}</Project>
+      <Name>lighting_rig_phase7_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\midicontroller_phase12_test.vcxproj">
+      <Project>{034E0106-BD7B-3E9A-AE63-FD418D954951}</Project>
+      <Name>midicontroller_phase12_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\midicontroller_phase13_test.vcxproj">
+      <Project>{430F1CA6-B09A-3F78-B4AB-B8460ED5733B}</Project>
+      <Name>midicontroller_phase13_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\monitors.vcxproj">
+      <Project>{7562D683-A537-367C-99FB-7B8C964F6CFB}</Project>
+      <Name>monitors</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\msaa.vcxproj">
+      <Project>{EAE6014A-5CB7-3E3D-AAB1-5286CFC23025}</Project>
+      <Name>msaa</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\multiplayer_phase24_test.vcxproj">
+      <Project>{0051C88E-A7D8-38BA-A9A2-8F79D3243FBA}</Project>
+      <Name>multiplayer_phase24_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\examples\offscreen.vcxproj">
+      <Project>{3815B350-EBBF-3B04-ADD0-1DBD85DC2EC8}</Project>
+      <Name>offscreen</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\opacity.vcxproj">
+      <Project>{FF4535B0-0607-3823-BAD4-1456CF29BFA1}</Project>
+      <Name>opacity</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\examples\particles.vcxproj">
+      <Project>{62D4198A-637A-3DE5-A74B-D67159B79829}</Project>
+      <Name>particles</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\particles_phase20_test.vcxproj">
+      <Project>{4C504CA7-C3EE-33A6-9DDE-14C5E2EC1E8E}</Project>
+      <Name>particles_phase20_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\phasealigner_phase38_test.vcxproj">
+      <Project>{1E70FC82-EB0D-3CA8-9AB4-49D437D33068}</Project>
+      <Name>phasealigner_phase38_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\preset_hotkeys_phase27_test.vcxproj">
+      <Project>{B5A98CB2-A003-31CD-A00C-024BEC67833A}</Project>
+      <Name>preset_hotkeys_phase27_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\raycaster_phase3_test.vcxproj">
+      <Project>{BF03D7E4-2C8C-381A-A379-0FBC2E7D20A1}</Project>
+      <Name>raycaster_phase3_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\recorder_phase14_test.vcxproj">
+      <Project>{FB249BFF-8CB9-3FCC-B3F7-8ADC19F69CF4}</Project>
+      <Name>recorder_phase14_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\reopen.vcxproj">
+      <Project>{A5245B99-E085-3BB0-8778-51CF29C944F4}</Project>
+      <Name>reopen</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\session_autosave_phase26_test.vcxproj">
+      <Project>{E1107D78-2420-31B2-A783-BDC0428A9383}</Project>
+      <Name>session_autosave_phase26_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\shader_phase3_test.vcxproj">
+      <Project>{7C90ACAC-2BEB-3406-8C74-2D23328446AD}</Project>
+      <Name>shader_phase3_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\examples\sharing.vcxproj">
+      <Project>{F3711B56-01F2-38D7-9462-1C8885A7B861}</Project>
+      <Name>sharing</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\examples\simple.vcxproj">
+      <Project>{E91585F4-8124-378B-8F53-50E0255FA39F}</Project>
+      <Name>simple</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\smoke_test_main.vcxproj">
+      <Project>{B59C10A7-09C7-3637-B020-D34F080C517C}</Project>
+      <Name>smoke_test_main</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\spectrum_analyzer_phase30_test.vcxproj">
+      <Project>{6997785A-8035-3F3B-9C89-3A645037A077}</Project>
+      <Name>spectrum_analyzer_phase30_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\spectrum_display_phase35_test.vcxproj">
+      <Project>{2B94D3B0-906E-3B03-9794-20F78B69117A}</Project>
+      <Name>spectrum_display_phase35_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\splashscreen_phase42_test.vcxproj">
+      <Project>{EBD2C566-2CB2-3CBC-BE84-1540D703CCBF}</Project>
+      <Name>splashscreen_phase42_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\examples\splitview.vcxproj">
+      <Project>{BFEEC47B-5C44-3EA9-95E2-3983827209EC}</Project>
+      <Name>splitview</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\synccontroller_phase39_test.vcxproj">
+      <Project>{090CF900-5E71-3BC8-AD44-51062A214309}</Project>
+      <Name>synccontroller_phase39_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\tearing.vcxproj">
+      <Project>{71DA830C-79C0-3EBA-87B0-999A478CC971}</Project>
+      <Name>tearing</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\texture_phase5_test.vcxproj">
+      <Project>{8D5FDC8E-29DD-30BB-8295-1E680F6F4DB2}</Project>
+      <Name>texture_phase5_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\threads.vcxproj">
+      <Project>{D0F02D94-1233-38B1-A0F1-8D5AB3093494}</Project>
+      <Name>threads</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\timeout.vcxproj">
+      <Project>{1AB14F41-B2B2-3BE8-9AD7-584431662412}</Project>
+      <Name>timeout</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\title.vcxproj">
+      <Project>{69A1684C-BB46-381C-96A4-3809E77BB223}</Project>
+      <Name>title</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\tracklibrary_phase11_test.vcxproj">
+      <Project>{879609B5-CFE1-3AED-9187-92C691796A16}</Project>
+      <Name>tracklibrary_phase11_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\trackloader_phase10_test.vcxproj">
+      <Project>{46ED0A5B-92F8-30AE-8B5C-AD8574B1D03B}</Project>
+      <Name>trackloader_phase10_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\trackloader_phase9_test.vcxproj">
+      <Project>{4B3C58BF-0ADF-371E-B960-9F7315B04CD4}</Project>
+      <Name>trackloader_phase9_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\transitioncoach_phase40_test.vcxproj">
+      <Project>{FB19F290-F244-3DA4-8E59-8B49BEB881DF}</Project>
+      <Name>transitioncoach_phase40_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\triangle-vulkan.vcxproj">
+      <Project>{3601609A-B609-3A74-A67E-7769F16EE76F}</Project>
+      <Name>triangle-vulkan</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\vertexbuffer_phase2_test.vcxproj">
+      <Project>{BBE3B8B3-2202-33D0-A593-A7F1F4D37BB4}</Project>
+      <Name>vertexbuffer_phase2_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\vinyl_phase17_test.vcxproj">
+      <Project>{EB1D1045-FF33-39B9-B6FC-36438F258FE4}</Project>
+      <Name>vinyl_phase17_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\examples\wave.vcxproj">
+      <Project>{F179AB20-5113-3EEB-969A-F6A79CD547F0}</Project>
+      <Name>wave</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-build\tests\windows.vcxproj">
+      <Project>{D884356F-D36E-3F49-8807-31BE9E0EC124}</Project>
+      <Name>windows</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

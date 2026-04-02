@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeFiles\5eaa559b3eda0a64e808d3f906c048f4\glfw3-populate-mkdir.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeFiles\5eaa559b3eda0a64e808d3f906c048f4\glfw3-populate-download.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeFiles\5eaa559b3eda0a64e808d3f906c048f4\glfw3-populate-update.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeFiles\5eaa559b3eda0a64e808d3f906c048f4\glfw3-populate-patch.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeFiles\5eaa559b3eda0a64e808d3f906c048f4\glfw3-populate-configure.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeFiles\5eaa559b3eda0a64e808d3f906c048f4\glfw3-populate-build.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeFiles\5eaa559b3eda0a64e808d3f906c048f4\glfw3-populate-install.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeFiles\5eaa559b3eda0a64e808d3f906c048f4\glfw3-populate-test.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeFiles\8d09b78969352e346037650d67357544\glfw3-populate-complete.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeFiles\3a9fd7ddbac67a8575ab8061d8022e4e\glfw3-populate.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\DJROOFRAT\DJ-ROOFRAT\build-test-simple\_deps\glfw3-subbuild\CMakeFiles\glfw3-populate" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{32BCBDA6-B06E-390D-86C4-23BC33AD2FAC}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
