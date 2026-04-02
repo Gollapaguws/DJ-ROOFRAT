@@ -41,22 +41,6 @@ extern "C" {
 #define GLAD_API_CALL
 #endif
 
-/* Function pointer definitions for OpenGL 4.3 Core */
-typedef void (APIENTRYP PFNGLGETSTRINGPROC)(unsigned int);
-typedef void (APIENTRYP PFNGLGETINTEGERVPROC)(unsigned int, int*);
-typedef unsigned int (APIENTRYP PFNGLCREATESHADERPROC)(unsigned int);
-typedef void (APIENTRYP PFNGLSHADERSOURCEPROC)(unsigned int, int, const char* const*, const int*);
-typedef void (APIENTRYP PFNGLCOMPILESHADERPROC)(unsigned int);
-typedef unsigned int (APIENTRYP PFNGLCREATEPROGRAMPROC)(void);
-typedef void (APIENTRYP PFNGLATTACHSHADERPROC)(unsigned int, unsigned int);
-typedef void (APIENTRYP PFNGLLINKPROGRAMPROC)(unsigned int);
-typedef void (APIENTRYP PFNGLUSEPROGRAMPROC)(unsigned int);
-typedef void (APIENTRYP PFNGLDELETESHADERPROC)(unsigned int);
-typedef void (APIENTRYP PFNGLGETPROGRAMIVPROC)(unsigned int, unsigned int, int*);
-typedef void (APIENTRYP PFNGLGETSHADERIVPROC)(unsigned int, unsigned int, int*);
-typedef void (APIENTRYP PFNGLGETPROGRAMINFOLOGPROC)(unsigned int, int, int*, char*);
-typedef void (APIENTRYP PFNGLGETSHADERINFOLOGPROC)(unsigned int, int, int*, char*);
-
 /* OpenGL enum definitions */
 #define GL_VERSION 0x1F02
 #define GL_MAJOR_VERSION 0x821B
