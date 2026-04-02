@@ -10,6 +10,43 @@ Texture::~Texture() {
     cleanup();
 }
 
+// Move constructor
+Texture::Texture(Texture&& other) noexcept
+    : textureID_(other.textureID_)
+    , width_(other.width_)
+    , height_(other.height_)
+    , format_(other.format_)
+    , internalFormat_(other.internalFormat_)
+    , dataType_(other.dataType_)
+{
+    // Leave other in valid but empty state
+    other.textureID_ = 0;
+    other.width_ = 0;
+    other.height_ = 0;
+}
+
+// Move assignment operator
+Texture& Texture::operator=(Texture&& other) noexcept {
+    if (this != &other) {
+        // Clean up existing resources
+        cleanup();
+        
+        // Move data from other
+        textureID_ = other.textureID_;
+        width_ = other.width_;
+        height_ = other.height_;
+        format_ = other.format_;
+        internalFormat_ = other.internalFormat_;
+        dataType_ = other.dataType_;
+        
+        // Leave other in valid but empty state
+        other.textureID_ = 0;
+        other.width_ = 0;
+        other.height_ = 0;
+    }
+    return *this;
+}
+
 bool Texture::create(uint32_t width, uint32_t height, GLenum format) {
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     // Validate dimensions

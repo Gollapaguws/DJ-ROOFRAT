@@ -187,6 +187,34 @@ private:
     bool createShadowResources();  // Phase 5: Initialize shadow mapping
     bool initializeCrowdRendering();  // Phase 2: Initialize crowd rendering
 #endif
+
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    // ========== Phase 6: OpenGL Rendering Members ==========
+    
+    // OpenGL handles
+    unsigned int vao_ = 0;              // Vertex Array Object
+    unsigned int shaderProgram_ = 0;    // Compiled shader program
+    
+    // Uniform locations (cached for performance)
+    int uniformModelMatrix_ = -1;
+    int uniformViewMatrix_ = -1;
+    int uniformProjectionMatrix_ = -1;
+    int uniformLightDir_ = -1;
+    int uniformCameraPos_ = -1;
+    int uniformTexture_ = -1;
+    
+    // OpenGL rendering methods
+    bool initializeOpenGL();                              // Setup VAO, shaders, buffers
+    bool setupOpenGLShaders();                            // Load and compile shaders
+    bool setupOpenGLBuffers();                            // Create VBO/EBO, upload data
+    void setModelMatrix(const float* matrix);             // Set model transformation
+    void setViewMatrix(const float* matrix);              // Set view transformation
+    void setProjectionMatrix(const float* matrix);        // Set projection transformation
+    void bindTextureOpenGL(unsigned int textureID);       // Bind texture to shader
+    void renderOpenGL(const float* viewMatrix, 
+                      const float* projMatrix);           // OpenGL render pass
+    void cleanupOpenGL();                                 // Delete VAO and resources
+#endif
 };
 
 } // namespace dj

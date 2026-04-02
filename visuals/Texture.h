@@ -36,6 +36,12 @@ class Texture {
 public:
     Texture();
     ~Texture();
+    
+    // Rule of Five: Prevent accidental copies, allow moves
+    Texture(const Texture&) = delete;
+    Texture& operator=(const Texture&) = delete;
+    Texture(Texture&& other) noexcept;
+    Texture& operator=(Texture&& other) noexcept;
 
     // ========== OpenGL Methods (Phase 5+) ==========
     

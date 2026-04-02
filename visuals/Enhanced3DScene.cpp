@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 #include "visuals/Shader.h"
@@ -17,6 +19,12 @@
 #include "visuals/CrowdAnimator.h"  // Phase 2: Crowd animation
 #include "visuals/GraphicsContext.h"  // For ConstantBufferData
 #include "visuals/Camera.h"  // For Camera matrices
+#endif
+
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #endif
 
 namespace dj {
@@ -41,7 +49,9 @@ Enhanced3DScene::Enhanced3DScene()
 }
 
 Enhanced3DScene::~Enhanced3DScene() {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    cleanupOpenGL();
+#elif defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     // Clean up D3D11 resources if needed
     // Note: device_ and context_ are owned by GraphicsContext, not this class
     device_ = nullptr;
@@ -50,7 +60,10 @@ Enhanced3DScene::~Enhanced3DScene() {
 }
 
 bool Enhanced3DScene::initialize(ID3D11Device* device, ID3D11DeviceContext* context) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    // OpenGL path
+    return initializeOpenGL();
+#elif defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     // Validate input parameters
     if (device == nullptr || context == nullptr) {
         return false;
@@ -150,7 +163,10 @@ void Enhanced3DScene::update(float bpm, float energy, float beatPhase, float del
 }
 
 void Enhanced3DScene::render(const float* viewMatrix, const float* projMatrix) {
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    // OpenGL path
+    renderOpenGL(viewMatrix, projMatrix);
+#elif defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     // Validate input parameters
     if (viewMatrix == nullptr || projMatrix == nullptr) {
         return;
@@ -1064,6 +1080,288 @@ bool Enhanced3DScene::createControllerGeometry() {
     return false;
 #endif
 }
+
+// ========== Phase 6: OpenGL Migration Implementation ==========
+
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+
+// Initialize OpenGL rendering pipeline: VAO, shaders, buffers
+bool Enhanced3DScene::initializeOpenGL() {
+    // Setup shaders first
+    if (!setupOpenGLShaders()) {
+        std::cout << "[Enhanced3DScene] Failed to setup OpenGL shaders" << std::endl;
+        return false;
+    }
+
+    // Create and bind VAO
+    glGenVertexArrays(1, &vao_);
+    if (vao_ == 0) {
+        std::cout << "[Enhanced3DScene] Failed to create VAO" << std::endl;
+        return false;
+    }
+    glBindVertexArray(vao_);
+
+    // Setup buffers and vertex attributes
+    if (!setupOpenGLBuffers()) {
+        std::cout << "[Enhanced3DScene] Failed to setup OpenGL buffers" << std::endl;
+        cleanupOpenGL();
+        return false;
+    }
+
+    // Unbind VAO
+    glBindVertexArray(0);
+
+    // Enable depth testing
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    std::cout << "[Enhanced3DScene] OpenGL initialization successful" << std::endl;
+    return true;
+}
+
+// Setup OpenGL shaders: load, compile, link, get uniform locations
+bool Enhanced3DScene::setupOpenGLShaders() {
+    // Load shader source from files
+    auto loadShaderFile = [](const char* filepath) -> std::string {
+        std::ifstream file(filepath);
+        if (!file.is_open()) {
+            std::cout << "[Shader] Failed to open: " << filepath << std::endl;
+            return "";
+        }
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        return buffer.str();
+    };
+
+    std::string vertexSource = loadShaderFile("shaders/basic3d.vert");
+    std::string fragmentSource = loadShaderFile("shaders/basic3d.frag");
+
+    if (vertexSource.empty() || fragmentSource.empty()) {
+        std::cout << "[Shader] Failed to load shader files" << std::endl;
+        return false;
+    }
+
+    // Compile vertex shader
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    const char* vsSrc = vertexSource.c_str();
+    glShaderSource(vertexShader, 1, &vsSrc, nullptr);
+    glCompileShader(vertexShader);
+
+    // Check vertex shader compilation
+    GLint success = 0;
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
+        std::cout << "[Shader] Vertex shader compilation failed: " << infoLog << std::endl;
+        glDeleteShader(vertexShader);
+        return false;
+    }
+
+    // Compile fragment shader
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    const char* fsSrc = fragmentSource.c_str();
+    glShaderSource(fragmentShader, 1, &fsSrc, nullptr);
+    glCompileShader(fragmentShader);
+
+    // Check fragment shader compilation
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
+        std::cout << "[Shader] Fragment shader compilation failed: " << infoLog << std::endl;
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+        return false;
+    }
+
+    // Link shader program
+    shaderProgram_ = glCreateProgram();
+    glAttachShader(shaderProgram_, vertexShader);
+    glAttachShader(shaderProgram_, fragmentShader);
+    glLinkProgram(shaderProgram_);
+
+    // Check linking
+    glGetProgramiv(shaderProgram_, GL_LINK_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetProgramInfoLog(shaderProgram_, 512, nullptr, infoLog);
+        std::cout << "[Shader] Program linking failed: " << infoLog << std::endl;
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+        glDeleteProgram(shaderProgram_);
+        shaderProgram_ = 0;
+        return false;
+    }
+
+    // Clean up shader objects (no longer needed after linking)
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    // Get uniform locations
+    uniformModelMatrix_ = glGetUniformLocation(shaderProgram_, "uModel");
+    uniformViewMatrix_ = glGetUniformLocation(shaderProgram_, "uView");
+    uniformProjectionMatrix_ = glGetUniformLocation(shaderProgram_, "uProjection");
+    uniformLightDir_ = glGetUniformLocation(shaderProgram_, "uLightDir");
+    uniformCameraPos_ = glGetUniformLocation(shaderProgram_, "uCameraPos");
+    uniformTexture_ = glGetUniformLocation(shaderProgram_, "uTexture");
+
+    std::cout << "[Shader] OpenGL shaders compiled and linked successfully" << std::endl;
+    return true;
+}
+
+// Setup OpenGL buffers: create VBO/EBO, upload vertex/index data, configure attributes
+bool Enhanced3DScene::setupOpenGLBuffers() {
+    // Create VBO and upload vertex data
+    // For now, we create a simple test triangle
+    // In a full implementation, this would use StageGeometry data
+    
+    struct Vertex {
+        float position[3];
+        float normal[3];
+        float texCoord[2];
+    };
+
+    Vertex vertices[] = {
+        {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+        {{ 1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+        {{ 1.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+        {{-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}
+    };
+
+    uint32_t indices[] = {
+        0, 1, 2,  // First triangle
+        0, 2, 3   // Second triangle
+    };
+
+    // Create VBO
+    GLuint vbo = 0;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // Create EBO
+    GLuint ebo = 0;
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    // Configure vertex attributes
+    GLsizei stride = sizeof(Vertex);
+
+    // Position (location = 0)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // Normal (location = 1)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)12);
+    glEnableVertexAttribArray(1);
+
+    // TexCoord (location = 2)
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)24);
+    glEnableVertexAttribArray(2);
+
+    std::cout << "[Enhanced3DScene] OpenGL buffers created and attributes configured" << std::endl;
+    return true;
+}
+
+// Set model transformation matrix
+void Enhanced3DScene::setModelMatrix(const float* matrix) {
+    if (shaderProgram_ == 0 || uniformModelMatrix_ < 0 || matrix == nullptr) {
+        return;
+    }
+
+    glUseProgram(shaderProgram_);
+    glUniformMatrix4fv(uniformModelMatrix_, 1, GL_FALSE, matrix);
+}
+
+// Set view transformation matrix
+void Enhanced3DScene::setViewMatrix(const float* matrix) {
+    if (shaderProgram_ == 0 || uniformViewMatrix_ < 0 || matrix == nullptr) {
+        return;
+    }
+
+    glUseProgram(shaderProgram_);
+    glUniformMatrix4fv(uniformViewMatrix_, 1, GL_FALSE, matrix);
+}
+
+// Set projection transformation matrix
+void Enhanced3DScene::setProjectionMatrix(const float* matrix) {
+    if (shaderProgram_ == 0 || uniformProjectionMatrix_ < 0 || matrix == nullptr) {
+        return;
+    }
+
+    glUseProgram(shaderProgram_);
+    glUniformMatrix4fv(uniformProjectionMatrix_, 1, GL_FALSE, matrix);
+}
+
+// Bind texture to shader sampler
+void Enhanced3DScene::bindTextureOpenGL(unsigned int textureID) {
+    if (shaderProgram_ == 0 || uniformTexture_ < 0) {
+        return;
+    }
+
+    glUseProgram(shaderProgram_);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glUniform1i(uniformTexture_, 0);  // Texture unit 0
+}
+
+// OpenGL render pass: clear, bind, set uniforms, draw, swap
+void Enhanced3DScene::renderOpenGL(const float* viewMatrix, const float* projMatrix) {
+    if (shaderProgram_ == 0 || vao_ == 0 || viewMatrix == nullptr || projMatrix == nullptr) {
+        return;
+    }
+
+    // Clear color and depth buffers
+    glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Use shader program
+    glUseProgram(shaderProgram_);
+
+    // Set view and projection matrices
+    glUniformMatrix4fv(uniformViewMatrix_, 1, GL_FALSE, viewMatrix);
+    glUniformMatrix4fv(uniformProjectionMatrix_, 1, GL_FALSE, projMatrix);
+
+    // Set model matrix (identity for now)
+    glm::mat4 model = glm::mat4(1.0f);
+    glUniformMatrix4fv(uniformModelMatrix_, 1, GL_FALSE, glm::value_ptr(model));
+
+    // Set light direction
+    if (uniformLightDir_ >= 0) {
+        glm::vec3 lightDir = glm::normalize(glm::vec3(1.0f, 1.0f, -1.0f));
+        glUniform3fv(uniformLightDir_, 1, glm::value_ptr(lightDir));
+    }
+
+    // Set camera position
+    if (uniformCameraPos_ >= 0) {
+        glm::vec3 cameraPos(0.0f, -2.0f, 8.0f);
+        glUniform3fv(uniformCameraPos_, 1, glm::value_ptr(cameraPos));
+    }
+
+    // Bind VAO and draw
+    glBindVertexArray(vao_);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+}
+
+// Cleanup OpenGL resources
+void Enhanced3DScene::cleanupOpenGL() {
+    if (vao_ != 0) {
+        glDeleteVertexArrays(1, &vao_);
+        vao_ = 0;
+    }
+
+    if (shaderProgram_ != 0) {
+        glDeleteProgram(shaderProgram_);
+        shaderProgram_ = 0;
+    }
+
+    std::cout << "[Enhanced3DScene] OpenGL resources cleaned up" << std::endl;
+}
+
+#endif // DJROOFRAT_OPENGL_MIGRATION
 
 } // namespace dj
 

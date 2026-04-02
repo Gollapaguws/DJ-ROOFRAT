@@ -2664,3 +2664,46 @@ endif()
 
 set_target_properties(texture_phase5_test PROPERTIES OUTPUT_NAME "Texture_Phase5_test")
 
+# ============================================================================
+# Enhanced3DScene Phase 6 Test (OpenGL 3D Rendering Pipeline)
+# ============================================================================
+add_executable(enhanced3dscene_phase6_test
+    tests/Enhanced3DScene_Phase6_test.cpp
+)
+
+target_include_directories(enhanced3dscene_phase6_test PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${GLAD_INCLUDE_DIR}
+)
+
+target_compile_definitions(enhanced3dscene_phase6_test PRIVATE 
+    DJROOFRAT_ENABLE_GRAPHICS=1
+    DJROOFRAT_OPENGL_MIGRATION=1
+)
+
+target_link_libraries(enhanced3dscene_phase6_test PRIVATE 
+    glfw
+    glm::glm
+)
+
+if(EXISTS "${GLAD_SRC}")
+    target_sources(enhanced3dscene_phase6_test PRIVATE "${GLAD_SRC}")
+endif()
+
+if(WIN32)
+    target_link_libraries(enhanced3dscene_phase6_test PRIVATE opengl32)
+elseif(APPLE)
+    target_link_libraries(enhanced3dscene_phase6_test PRIVATE "-framework OpenGL")
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(enhanced3dscene_phase6_test PRIVATE OpenGL::OpenGL)
+endif()
+
+if(MSVC)
+    target_compile_options(enhanced3dscene_phase6_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(enhanced3dscene_phase6_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(enhanced3dscene_phase6_test PROPERTIES OUTPUT_NAME "Enhanced3DScene_Phase6_test")
+

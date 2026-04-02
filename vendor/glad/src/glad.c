@@ -12,6 +12,11 @@ PFNGLGETINTEGERVPROC glGetIntegerv = NULL;
 PFNGLVIEWPORTPROC glViewport = NULL;
 PFNGLENABLEPROC glEnable = NULL;
 PFNGLDISABLEPROC glDisable = NULL;
+PFNGLGETERRORPROC glGetError = NULL;
+PFNGLISENABLEDPROC glIsEnabled = NULL;
+PFNGLGETFLOATVPROC glGetFloatv = NULL;
+PFNGLGETVERTEXATTRIBIVPROC glGetVertexAttribiv = NULL;
+PFNGLDEPTHFUNCPROC glDepthFunc = NULL;
 
 PFNGLCREATESHADERPROC glCreateShader = NULL;
 PFNGLDELETESHADERPROC glDeleteShader = NULL;
@@ -28,8 +33,10 @@ PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = NULL;
 PFNGLUSEPROGRAMPROC glUseProgram = NULL;
 
 PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation = NULL;
+PFNGLUNIFORM1IPROC glUniform1i = NULL;
 PFNGLUNIFORM1FPROC glUniform1f = NULL;
 PFNGLUNIFORM3FPROC glUniform3f = NULL;
+PFNGLUNIFORM3FVPROC glUniform3fv = NULL;
 PFNGLUNIFORM4FPROC glUniform4f = NULL;
 PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv = NULL;
 
@@ -75,6 +82,11 @@ int gladLoadGLLoader(GLADloadproc load) {
     g_GLAD.glViewport = (PFNGLVIEWPORTPROC)load("glViewport");
     g_GLAD.glEnable = (PFNGLENABLEPROC)load("glEnable");
     g_GLAD.glDisable = (PFNGLDISABLEPROC)load("glDisable");
+    g_GLAD.glGetError = (PFNGLGETERRORPROC)load("glGetError");
+    g_GLAD.glIsEnabled = (PFNGLISENABLEDPROC)load("glIsEnabled");
+    g_GLAD.glGetFloatv = (PFNGLGETFLOATVPROC)load("glGetFloatv");
+    g_GLAD.glGetVertexAttribiv = (PFNGLGETVERTEXATTRIBIVPROC)load("glGetVertexAttribiv");
+    g_GLAD.glDepthFunc = (PFNGLDEPTHFUNCPROC)load("glDepthFunc");
 
     g_GLAD.glCreateShader = (PFNGLCREATESHADERPROC)load("glCreateShader");
     g_GLAD.glDeleteShader = (PFNGLDELETESHADERPROC)load("glDeleteShader");
@@ -91,8 +103,10 @@ int gladLoadGLLoader(GLADloadproc load) {
     g_GLAD.glUseProgram = (PFNGLUSEPROGRAMPROC)load("glUseProgram");
 
     g_GLAD.glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)load("glGetUniformLocation");
+    g_GLAD.glUniform1i = (PFNGLUNIFORM1IPROC)load("glUniform1i");
     g_GLAD.glUniform1f = (PFNGLUNIFORM1FPROC)load("glUniform1f");
     g_GLAD.glUniform3f = (PFNGLUNIFORM3FPROC)load("glUniform3f");
+    g_GLAD.glUniform3fv = (PFNGLUNIFORM3FVPROC)load("glUniform3fv");
     g_GLAD.glUniform4f = (PFNGLUNIFORM4FPROC)load("glUniform4f");
     g_GLAD.glUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)load("glUniformMatrix4fv");
 
@@ -133,6 +147,11 @@ int gladLoadGLLoader(GLADloadproc load) {
     glViewport = g_GLAD.glViewport;
     glEnable = g_GLAD.glEnable;
     glDisable = g_GLAD.glDisable;
+    glGetError = g_GLAD.glGetError;
+    glIsEnabled = g_GLAD.glIsEnabled;
+    glGetFloatv = g_GLAD.glGetFloatv;
+    glGetVertexAttribiv = g_GLAD.glGetVertexAttribiv;
+    glDepthFunc = g_GLAD.glDepthFunc;
 
     glCreateShader = g_GLAD.glCreateShader;
     glDeleteShader = g_GLAD.glDeleteShader;
@@ -149,8 +168,10 @@ int gladLoadGLLoader(GLADloadproc load) {
     glUseProgram = g_GLAD.glUseProgram;
 
     glGetUniformLocation = g_GLAD.glGetUniformLocation;
+    glUniform1i = g_GLAD.glUniform1i;
     glUniform1f = g_GLAD.glUniform1f;
     glUniform3f = g_GLAD.glUniform3f;
+    glUniform3fv = g_GLAD.glUniform3fv;
     glUniform4f = g_GLAD.glUniform4f;
     glUniformMatrix4fv = g_GLAD.glUniformMatrix4fv;
 

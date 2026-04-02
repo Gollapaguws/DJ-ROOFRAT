@@ -161,6 +161,29 @@ typedef char GLchar;
 #define GL_CULL_FACE 0x0B44
 #define GL_DEPTH_TEST 0x0B71
 
+/* Buffer bits */
+#define GL_COLOR_BUFFER_BIT 0x00004000
+#define GL_DEPTH_BUFFER_BIT 0x00000100
+#define GL_STENCIL_BUFFER_BIT 0x00000400
+
+/* Depth function */
+#define GL_NEVER 0x0200
+#define GL_LESS 0x0201
+#define GL_EQUAL 0x0202
+#define GL_LEQUAL 0x0203
+#define GL_GREATER 0x0204
+#define GL_NOTEQUAL 0x0205
+#define GL_GEQUAL 0x0206
+#define GL_ALWAYS 0x0207
+
+/* Get parameters */
+#define GL_CURRENT_PROGRAM 0x8B8D
+#define GL_VERTEX_ARRAY_BINDING 0x85B5
+#define GL_VIEWPORT 0x0BA2
+#define GL_DEPTH_FUNC 0x0B74
+#define GL_COLOR_CLEAR_VALUE 0x0C22
+#define GL_VERTEX_ATTRIB_ARRAY_ENABLED 0x8622
+
 /* Error codes */
 #define GL_NO_ERROR 0
 #define GL_INVALID_ENUM 0x0500
@@ -198,8 +221,10 @@ typedef void (APIENTRYP PFNGLUSEPROGRAMPROC)(GLuint program);
 
 /* Uniform functions */
 typedef GLint (APIENTRYP PFNGLGETUNIFORMLOCATIONPROC)(GLuint program, const GLchar *name);
+typedef void (APIENTRYP PFNGLUNIFORM1IPROC)(GLint location, GLint v0);
 typedef void (APIENTRYP PFNGLUNIFORM1FPROC)(GLint location, GLfloat v0);
 typedef void (APIENTRYP PFNGLUNIFORM3FPROC)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
+typedef void (APIENTRYP PFNGLUNIFORM3FVPROC)(GLint location, GLsizei count, const GLfloat *value);
 typedef void (APIENTRYP PFNGLUNIFORM4FPROC)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
 typedef void (APIENTRYP PFNGLUNIFORMMATRIX4FVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 
@@ -220,6 +245,13 @@ typedef void (APIENTRYP PFNGLBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, 
 /* Draw functions */
 typedef void (APIENTRYP PFNGLDRAWARRAYSPROC)(GLenum mode, GLint first, GLsizei count);
 typedef void (APIENTRYP PFNGLDRAWELEMENTSPROC)(GLenum mode, GLsizei count, GLenum type, const void *indices);
+
+/* Additional query functions */
+typedef GLenum (APIENTRYP PFNGLGETERRORPROC)(void);
+typedef GLboolean (APIENTRYP PFNGLISENABLEDPROC)(GLenum cap);
+typedef void (APIENTRYP PFNGLGETFLOATVPROC)(GLenum pname, GLfloat *data);
+typedef void (APIENTRYP PFNGLGETVERTEXATTRIBIVPROC)(GLuint index, GLenum pname, GLint *params);
+typedef void (APIENTRYP PFNGLDEPTHFUNCPROC)(GLenum func);
 
 /* Texture functions */
 typedef void (APIENTRYP PFNGLGENTEXTURESPROC)(GLsizei n, GLuint *textures);
@@ -262,8 +294,10 @@ typedef struct {
     PFNGLUSEPROGRAMPROC glUseProgram;
     
     PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+    PFNGLUNIFORM1IPROC glUniform1i;
     PFNGLUNIFORM1FPROC glUniform1f;
     PFNGLUNIFORM3FPROC glUniform3f;
+    PFNGLUNIFORM3FVPROC glUniform3fv;
     PFNGLUNIFORM4FPROC glUniform4f;
     PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
     
@@ -281,6 +315,12 @@ typedef struct {
     
     PFNGLDRAWARRAYSPROC glDrawArrays;
     PFNGLDRAWELEMENTSPROC glDrawElements;
+    
+    PFNGLGETERRORPROC glGetError;
+    PFNGLISENABLEDPROC glIsEnabled;
+    PFNGLGETFLOATVPROC glGetFloatv;
+    PFNGLGETVERTEXATTRIBIVPROC glGetVertexAttribiv;
+    PFNGLDEPTHFUNCPROC glDepthFunc;
     
     PFNGLGENTEXTURESPROC glGenTextures;
     PFNGLDELETETEXTURESPROC glDeleteTextures;
@@ -443,6 +483,11 @@ extern PFNGLGETINTEGERVPROC glGetIntegerv;
 extern PFNGLVIEWPORTPROC glViewport;
 extern PFNGLENABLEPROC glEnable;
 extern PFNGLDISABLEPROC glDisable;
+extern PFNGLGETERRORPROC glGetError;
+extern PFNGLISENABLEDPROC glIsEnabled;
+extern PFNGLGETFLOATVPROC glGetFloatv;
+extern PFNGLGETVERTEXATTRIBIVPROC glGetVertexAttribiv;
+extern PFNGLDEPTHFUNCPROC glDepthFunc;
 
 extern PFNGLCREATESHADERPROC glCreateShader;
 extern PFNGLDELETESHADERPROC glDeleteShader;
