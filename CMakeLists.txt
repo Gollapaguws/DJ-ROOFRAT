@@ -301,9 +301,23 @@ endif()
 
 if(DJROOFRAT_ENABLE_GRAPHICS)
     target_compile_definitions(${DJ_ROOFRAT_TARGET} PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    target_include_directories(${DJ_ROOFRAT_TARGET} PRIVATE ${GLAD_INCLUDE_DIR})
+    
+    # Add GLFW, GLM for OpenGL support
+    target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE glfw glm::glm)
+    
+    # Add GLAD source for OpenGL function loading
+    if(EXISTS "${GLAD_SRC}")
+        target_sources(${DJ_ROOFRAT_TARGET} PRIVATE "${GLAD_SRC}")
+    endif()
+    
     if(WIN32)
-        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE d3d11 dxgi d3dcompiler imgui_impl)
+        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE d3d11 dxgi d3dcompiler imgui_impl opengl32)
         target_include_directories(${DJ_ROOFRAT_TARGET} PRIVATE ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
+    elseif(APPLE)
+        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE "-framework OpenGL")
+    else()
+        target_link_libraries(${DJ_ROOFRAT_TARGET} PRIVATE OpenGL::OpenGL)
     endif()
 endif()
 
@@ -2427,3 +2441,89 @@ else()
 endif()
 
 set_target_properties(glcontext_phase1_test PROPERTIES OUTPUT_NAME "GLContext_Phase1_test")
+
+# ============================================================================
+# VertexBuffer Phase 2 Test (OpenGL VBO)
+# ============================================================================
+add_executable(vertexbuffer_phase2_test
+    tests/VertexBuffer_Phase2_test.cpp
+    visuals/VertexBuffer.cpp
+)
+
+target_include_directories(vertexbuffer_phase2_test PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${GLAD_INCLUDE_DIR}
+)
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(vertexbuffer_phase2_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+endif()
+
+target_link_libraries(vertexbuffer_phase2_test PRIVATE 
+    glfw
+    glm::glm
+)
+
+if(EXISTS "${GLAD_SRC}")
+    target_sources(vertexbuffer_phase2_test PRIVATE "${GLAD_SRC}")
+endif()
+
+if(WIN32)
+    target_link_libraries(vertexbuffer_phase2_test PRIVATE opengl32)
+elseif(APPLE)
+    target_link_libraries(vertexbuffer_phase2_test PRIVATE "-framework OpenGL")
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(vertexbuffer_phase2_test PRIVATE OpenGL::OpenGL)
+endif()
+
+if(MSVC)
+    target_compile_options(vertexbuffer_phase2_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(vertexbuffer_phase2_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(vertexbuffer_phase2_test PROPERTIES OUTPUT_NAME "VertexBuffer_Phase2_test")
+
+# ============================================================================
+# IndexBuffer Phase 2 Test (OpenGL EBO)
+# ============================================================================
+add_executable(indexbuffer_phase2_test
+    tests/IndexBuffer_Phase2_test.cpp
+    visuals/IndexBuffer.cpp
+)
+
+target_include_directories(indexbuffer_phase2_test PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${GLAD_INCLUDE_DIR}
+)
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(indexbuffer_phase2_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+endif()
+
+target_link_libraries(indexbuffer_phase2_test PRIVATE 
+    glfw
+    glm::glm
+)
+
+if(EXISTS "${GLAD_SRC}")
+    target_sources(indexbuffer_phase2_test PRIVATE "${GLAD_SRC}")
+endif()
+
+if(WIN32)
+    target_link_libraries(indexbuffer_phase2_test PRIVATE opengl32)
+elseif(APPLE)
+    target_link_libraries(indexbuffer_phase2_test PRIVATE "-framework OpenGL")
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(indexbuffer_phase2_test PRIVATE OpenGL::OpenGL)
+endif()
+
+if(MSVC)
+    target_compile_options(indexbuffer_phase2_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(indexbuffer_phase2_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(indexbuffer_phase2_test PROPERTIES OUTPUT_NAME "IndexBuffer_Phase2_test")

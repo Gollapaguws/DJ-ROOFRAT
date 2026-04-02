@@ -1,56 +1,156 @@
 #include "visuals/VertexBuffer.h"
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
-#include <d3d11.h>
+#include <glad/glad.h>
 #endif
 
 namespace dj {
 
 VertexBuffer::VertexBuffer() = default;
 
-bool VertexBuffer::create(ID3D11Device* device, const void* vertices, uint32_t vertexCount, uint32_t vertexSize) {
+VertexBuffer::~VertexBuffer() {
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
-    if (!device || !vertices || vertexCount == 0) {
+    if (vbo_ != 0) {
+        glDeleteBuffers(1, &vbo_);
+        vbo_ = 0;
+    }
+#endif
+}
+
+bool VertexBuffer::create(const void* vertices, uint32_t size, GLenum usage) {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (!vertices || size == 0) {
         return false;
     }
 
-    vertexCount_ = vertexCount;
-    vertexSize_ = vertexSize;
+    // Clean up old buffer if exists
+    if (vbo_ != 0) {
+        glDeleteBuffers(1, &vbo_);
+        vbo_ = 0;
+    }
 
-    D3D11_BUFFER_DESC bufferDesc = {};
-    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    bufferDesc.ByteWidth = vertexCount * vertexSize;
-    bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    // Generate a VBO handle
+    glGenBuffers(1, &vbo_);
+    if (vbo_ == 0) {
+        return false;
+    }
 
-    D3D11_SUBRESOURCE_DATA initData = {};
-    initData.pSysMem = vertices;
+    // Bind the buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
 
-    HRESULT hr = device->CreateBuffer(&bufferDesc, &initData, buffer_.GetAddressOf());
-    return SUCCEEDED(hr);
+    // Upload data to GPU
+    glBufferData(GL_ARRAY_BUFFER, size, vertices, usage);
+
+    // Unbind
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    bufferSize_ = size;
+    vertexCount_ = 0;  // Not known in this API
+    vertexSize_ = 0;   // Not known in this API
+    return true;
 #else
-    (void)device;
     (void)vertices;
-    (void)vertexCount;
-    (void)vertexSize;
+    (void)size;
+    (void)usage;
     return false;
 #endif
 }
 
-bool VertexBuffer::bind(ID3D11DeviceContext* context, uint32_t slot) {
+bool VertexBuffer::update(const void* data, uint32_t size, uint32_t offset) {
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
-    if (!context || !buffer_) {
+    if (!data || size == 0 || vbo_ == 0) {
         return false;
     }
 
-    uint32_t stride = vertexSize_;
-    uint32_t offset = 0;
-    context->IASetVertexBuffers(slot, 1, buffer_.GetAddressOf(), &stride, &offset);
+    // Check that offset + size doesn't exceed buffer
+    if (offset + size > bufferSize_) {
+        return false;
+    }
+
+    // Bind and update
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+    glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     return true;
 #else
-    (void)context;
-    (void)slot;
+    (void)data;
+    (void)size;
+    (void)offset;
     return false;
 #endif
+}
+
+bool VertexBuffer::bind() const {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    if (vbo_ == 0) {
+        return false;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+    return true;
+#else
+    return false;
+#endif
+}
+
+void VertexBuffer::unbind() const {
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+#endif
+}
+
+// DirectX-compatible overload
+bool VertexBuffer::create(void* device, const void* vertices, uint32_t count, uint32_t stride) {
+    // Ignore device parameter (not needed in OpenGL)
+    (void)device;
+
+    if (count == 0 || stride == 0 || !vertices) {
+        return false;
+    }
+
+#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+    // Clean up old buffer if exists
+    if (vbo_ != 0) {
+        glDeleteBuffers(1, &vbo_);
+        vbo_ = 0;
+    }
+
+    size_t size = static_cast<size_t>(count) * stride;
+    
+    // Generate a VBO handle
+    glGenBuffers(1, &vbo_);
+    if (vbo_ == 0) {
+        return false;
+    }
+
+    // Bind the buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+
+    // Upload data to GPU
+    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+
+    // Unbind
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    bufferSize_ = static_cast<uint32_t>(size);
+    vertexCount_ = count;
+    vertexSize_ = stride;
+    return true;
+#else
+    return false;
+#endif
+}
+
+// DirectX-compatible bind overload (ignores parameters)
+void VertexBuffer::bind(void* context, uint32_t slot) const {
+    // Ignore context and slot parameters (not needed in OpenGL)
+    (void)context;
+    (void)slot;
+
+    // Call OpenGL implementation
+    bind();
 }
 
 } // namespace dj
+
