@@ -2,9 +2,9 @@
 // Beat-reactive lighting, rim lighting, and dynamic coloring
 
 cbuffer ConstantBuffer : register(b0) {
-    matrix World;
-    matrix View;
-    matrix Projection;
+    row_major matrix World;
+    row_major matrix View;
+    row_major matrix Projection;
     float3 LightDir;
     float BeatIntensity;      // 0-1, pulses with music beats
 };

@@ -169,6 +169,7 @@ private:
     std::unique_ptr<DJControllerGeometry> controllerGeometry_;
     std::unique_ptr<VertexBuffer> controllerVertexBuffer_;
     std::unique_ptr<IndexBuffer> controllerIndexBuffer_;
+    ComPtr<ID3D11InputLayout> controllerInputLayout_;  // Phase 1: Input layout for controller vertex structure
 
     // Helper methods
     void updateDynamicLights();

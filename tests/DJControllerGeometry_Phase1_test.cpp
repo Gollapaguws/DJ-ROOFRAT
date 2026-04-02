@@ -92,7 +92,7 @@ void test_DJControllerGeometry_ControlPositionsNonOverlapping() {
     // Check all pairs for overlap (with tolerance)
     for (size_t i = 0; i < bounds.size(); ++i) {
         for (size_t j = i + 1; j < bounds.size(); ++j) {
-            bool overlaps = boundingBoxesIntersect(bounds[i], bounds[j]);
+            [[maybe_unused]] bool overlaps = boundingBoxesIntersect(bounds[i], bounds[j]);
             
             // Allow some overlap for closely-spaced EQ knobs, but not major overlaps
             float dx = bounds[j].centerX - bounds[i].centerX;

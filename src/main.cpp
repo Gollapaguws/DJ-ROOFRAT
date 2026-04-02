@@ -935,7 +935,7 @@ int main(int argc, char** argv) {
     dj::EnergyHistogram energyHistogram;
     dj::CamelotWheel camelotWheel;
     dj::CamelotAnalyzer camelotAnalyzerA;  // For harmonic analysis
-    dj::CamelotAnalyzer camelotAnalyzerB;
+    [[maybe_unused]] dj::CamelotAnalyzer camelotAnalyzerB;
     bool showBeatGridPanel = false;
     bool showEnergyHistogramPanel = false;
     bool showCamelotWheelPanel = false;

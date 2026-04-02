@@ -351,12 +351,15 @@ void DJControllerGeometry::createCrossfader(float x, float y, float z, float wid
 }
 
 void DJControllerGeometry::updateCrossfaderPosition(float crossfaderValue) {
+    (void)crossfaderValue;
     // Phase 5/6: Update crossfader control position based on value [-1, 1]
     // For now, just a placeholder to avoid linker errors
     // In full implementation, this would update vertex positions
 }
 
 void DJControllerGeometry::updatePlayButtonGlow(ControlID button, bool isPlaying) {
+    (void)button;
+    (void)isPlaying;
     // Phase 5/6: Update play button visual state based on playback
     // For now, just a placeholder
 }

@@ -814,6 +814,59 @@ endif()
 
 set_target_properties(enhanced3dscene_phase2_test PROPERTIES OUTPUT_NAME "Enhanced3DScene_Phase2_test")
 
+# Enhanced3DScene InputLayout test (Input Layout Binding for 3D Controller Visibility)
+add_executable(enhanced3dscene_inputlayout_test
+    tests/Enhanced3DScene_InputLayout_test.cpp
+    visuals/Enhanced3DScene.cpp
+    visuals/DJControllerGeometry.cpp
+    visuals/ShadowMap.cpp
+    visuals/TunnelGeometry.cpp
+    visuals/TextureManager.cpp
+    visuals/GraphicsContext.cpp
+    visuals/Camera.cpp
+    visuals/Shader.cpp
+    visuals/VertexBuffer.cpp
+    visuals/IndexBuffer.cpp
+    visuals/StageGeometry.cpp
+    visuals/LaserController.cpp
+    visuals/CrowdRenderer.cpp
+    visuals/CrowdMesh.cpp
+    visuals/CrowdAnimator.cpp
+    visuals/LightingRig.cpp
+    visuals/ParticleSystem.cpp
+    visuals/RenderTarget.cpp
+    visuals/PostProcessor.cpp
+    visuals/RayCaster.cpp
+    audio/Deck.cpp
+    audio/AudioClip.cpp
+    audio/Mixer.cpp
+    audio/ThreeBandEQ.cpp
+    audio/TrackLoader.cpp
+    audio/MetadataParser.cpp
+    audio/BPMDetector.cpp
+    audio/KeyDetector.cpp
+    audio/EffectChain.cpp
+    audio/Reverb.cpp
+    audio/Delay.cpp
+)
+
+target_include_directories(enhanced3dscene_inputlayout_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(DJROOFRAT_ENABLE_GRAPHICS)
+    target_compile_definitions(enhanced3dscene_inputlayout_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(WIN32)
+        target_link_libraries(enhanced3dscene_inputlayout_test PRIVATE d3d11 dxgi d3dcompiler)
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(enhanced3dscene_inputlayout_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(enhanced3dscene_inputlayout_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(enhanced3dscene_inputlayout_test PROPERTIES OUTPUT_NAME "Enhanced3DScene_InputLayout_test")
+
 # Enhanced3DScene Phase 3 test (UV-based texture mapping with procedural checkerboard)
 add_executable(enhanced3dscene_phase3_test
     tests/Enhanced3DScene_Phase3_test.cpp

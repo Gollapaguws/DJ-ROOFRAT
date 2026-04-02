@@ -81,15 +81,18 @@ void Camera::updateProjectionMatrix() {
 }
 
 void Camera::updateViewMatrix() {
-    // Create identity view matrix (camera at origin, looking down negative Z)
+    // Create identity view matrix
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
             viewMatrix_.m[i][j] = (i == j) ? 1.0f : 0.0f;
         }
     }
 
-    viewMatrix_.m[3][1] = -2.0f;
-    viewMatrix_.m[3][2] = 8.0f;
+    // Camera at (0, -2, 8) looking at origin (0, 0, 0)
+    // View matrix translates world by negative of camera position
+    viewMatrix_.m[3][0] = 0.0f;     // X: -cameraX = -0 = 0
+    viewMatrix_.m[3][1] = 2.0f;     // Y: -cameraY = -(-2) = +2
+    viewMatrix_.m[3][2] = -8.0f;    // Z: -cameraZ = -8
 
     // Create world matrix (identity)
     for (int i = 0; i < 4; ++i) {

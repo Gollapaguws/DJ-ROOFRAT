@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 #include "visuals/Shader.h"
@@ -198,10 +199,11 @@ void Enhanced3DScene::render(const float* viewMatrix, const float* projMatrix) {
 
         matData->roughness = 0.48f - (0.18f * beatIntensity);
         
-        // Set camera position (default at origin for now)
+        // Set camera position - matches the camera setup in Camera.cpp
+        // Camera is at (0, -2, 8) looking at origin
         matData->cameraPosition[0] = 0.0f;
-        matData->cameraPosition[1] = 0.0f;
-        matData->cameraPosition[2] = 0.0f;
+        matData->cameraPosition[1] = -2.0f;
+        matData->cameraPosition[2] = 8.0f;
         
         // Set BPM
         matData->bpm = currentBPM_;
@@ -305,16 +307,26 @@ bool Enhanced3DScene::loadEnhancedShader() {
     // Compile vertex shader from enhanced.hlsl
     std::string error;
     if (!enhancedShader_->compile("enhanced", "VSMain", "vs_5_0", &error)) {
+        std::cout << "[Shader ERROR] Vertex shader compilation failed: " << error << std::endl;
         return false;
     }
+    std::cout << "[Shader] Vertex shader compiled successfully from shaders/enhanced.hlsl" << std::endl;
 
     // Compile pixel shader from enhanced.hlsl
     if (!enhancedShader_->compile("enhanced", "PSMain", "ps_5_0", &error)) {
+        std::cout << "[Shader ERROR] Pixel shader compilation failed: " << error << std::endl;
         return false;
     }
+    std::cout << "[Shader] Pixel shader compiled successfully from shaders/enhanced.hlsl" << std::endl;
 
     // Create shader objects in D3D11
-    return enhancedShader_->createShaders(device_);
+    if (!enhancedShader_->createShaders(device_)) {
+        std::cout << "[Shader ERROR] Failed to create D3D11 shader objects" << std::endl;
+        return false;
+    }
+    std::cout << "[Shader] D3D11 shader objects created successfully" << std::endl;
+
+    return true;
 #else
     return false;
 #endif
@@ -711,7 +723,7 @@ void Enhanced3DScene::renderCrowd(const float* viewMatrix, const float* projMatr
 
     // Map current mood based on energy level
     // Energy-based mood transition: low energy = unimpressed, high energy = hyped
-    const int previousMood = currentMood_;
+    [[maybe_unused]] const int previousMood = currentMood_;
     if (currentEnergy_ < 0.25f) {
         currentMood_ = 0;  // Unimpressed
     } else if (currentEnergy_ < 0.5f) {
@@ -727,7 +739,7 @@ void Enhanced3DScene::renderCrowd(const float* viewMatrix, const float* projMatr
     float3 cameraPos(0.0f, 0.0f, -5.0f);  // Camera position from view matrix (simplified)
     
     // Calculate LOD level
-    int lodLevel = crowdRenderer_->calculateLODLevel(crowdPos, cameraPos);
+    [[maybe_unused]] int lodLevel = crowdRenderer_->calculateLODLevel(crowdPos, cameraPos);
 
     // Render the crowd
     if (!crowdRenderer_->renderInstanced(context_, cameraPos)) {
@@ -764,17 +776,49 @@ void Enhanced3DScene::renderController(ID3D11DeviceContext* context, const float
     if (!once) {
         std::cout << std::endl;
         std::cout << "================================================================================" << std::endl;
-        std::cout << "  3D CONTROLLER RENDERING ACTIVE" << std::endl;
+        std::cout << "  3D CONTROLLER RENDERING ACTIVE - PHASE 3 FIXES" << std::endl;
         std::cout << "================================================================================" << std::endl;
         std::cout << "[3D Controller] Geometry: " << vertices.size() << " vertices, " << indices.size() << " indices" << std::endl;
-        std::cout << "[3D Controller] Render state: Depth test OFF, Cull mode NONE (diagnostic)" << std::endl;
-        std::cout << "[3D Controller] Look for 3D geometry in the graphics window!" << std::endl;
+        std::cout << "[3D Controller] Controller at origin (0,0,0), camera at (0,-2,8) looking at origin" << std::endl;
+        std::cout << "[3D Controller] Scale: 2.0x, Depth test: OFF (diagnostic), Blend: Opaque" << std::endl;
+        std::cout << "[3D Controller] Texture binding: enabled (SceneTexture at t1)" << std::endl;
+        std::cout << "[3D Controller] Viewport: will be set to device backbuffer dimensions" << std::endl;
         std::cout << "================================================================================" << std::endl;
         std::cout << std::endl;
-        once = true;
     }
 
-    // DIAGNOSTIC: Disable depth test temporarily to ensure controller draws on top
+    // Phase 3: CRITICAL FIX - Set viewport explicitly
+    // Without this, geometry may be clipped or not visible at all.
+    // Get the render target dimensions from the active render target
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> currentRTV;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> currentDSV;
+    context->OMGetRenderTargets(1, &currentRTV, &currentDSV);
+    
+    if (currentRTV) {
+        Microsoft::WRL::ComPtr<ID3D11Resource> resource;
+        currentRTV->GetResource(&resource);
+        
+        Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
+        if (SUCCEEDED(resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&texture))) {
+            D3D11_TEXTURE2D_DESC desc;
+            texture->GetDesc(&desc);
+            
+            D3D11_VIEWPORT viewport = {};
+            viewport.TopLeftX = 0.0f;
+            viewport.TopLeftY = 0.0f;
+            viewport.Width = static_cast<float>(desc.Width);
+            viewport.Height = static_cast<float>(desc.Height);
+            viewport.MinDepth = 0.0f;
+            viewport.MaxDepth = 1.0f;
+            
+            context->RSSetViewports(1, &viewport);
+            if (!once) {
+                std::cout << "[3D Controller] Viewport set: " << desc.Width << " x " << desc.Height << std::endl;
+            }
+        }
+    }
+
+    // Phase 3: CRITICAL FIX - Disable depth test temporarily to ensure controller draws on top
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthDisabledState;
     D3D11_DEPTH_STENCIL_DESC depthDesc = {};
     depthDesc.DepthEnable = FALSE;  // DISABLE depth test for diagnostic
@@ -785,7 +829,7 @@ void Enhanced3DScene::renderController(ID3D11DeviceContext* context, const float
         context->OMSetDepthStencilState(depthDisabledState.Get(), 0);
     }
 
-    // DIAGNOSTIC: Set rasterizer to no culling to ensure we see front and back faces
+    // Phase 3: CRITICAL FIX - Set rasterizer to no culling
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
     D3D11_RASTERIZER_DESC rasterDesc = {};
     rasterDesc.FillMode = D3D11_FILL_SOLID;
@@ -797,30 +841,36 @@ void Enhanced3DScene::renderController(ID3D11DeviceContext* context, const float
         context->RSSetState(rasterizerState.Get());
     }
 
-    // CRITICAL FIX: Scale up controller massively for visibility test
-    // If we can't see it at 50x scale, there's a fundamental matrix issue
-    float worldMatrix[16] = {
-        50, 0, 0, 0,   // Scale X by 50
-        0, 50, 0, 0,   // Scale Y by 50
-        0, 0, 50, 0,   // Scale Z by 50
-        0, -5, 0, 1    // Translate Y down by 5 to center in view
-    };
+    // Phase 3: CRITICAL FIX - Set blend state to opaque (no transparency)
+    Microsoft::WRL::ComPtr<ID3D11BlendState> blendState;
+    D3D11_BLEND_DESC blendDesc = {};
+    blendDesc.AlphaToCoverageEnable = FALSE;
+    blendDesc.IndependentBlendEnable = FALSE;
+    blendDesc.RenderTarget[0].BlendEnable = FALSE;  // NO BLENDING - fully opaque
+    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+    blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+    blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     
-    // DEBUG: Print detailed matrix info once
+    if (SUCCEEDED(device_->CreateBlendState(&blendDesc, &blendState))) {
+        context->OMSetBlendState(blendState.Get(), nullptr, 0xFFFFFFFF);
         if (!once) {
-         std::cout << "[3D Controller] === RENDERING DEBUG ===" << std::endl;
-         std::cout << "[3D Controller] World matrix: SCALE 50x, translate Y=-5" << std::endl;
-         std::cout << "[3D Controller] View matrix row 3: ["
-                << viewMatrix[12] << ", " << viewMatrix[13] << ", " << viewMatrix[14] << ", " << viewMatrix[15] << "]" << std::endl;
-         std::cout << "[3D Controller] Projection matrix [0][0]=" << projMatrix[0]
-                << " [1][1]=" << projMatrix[5] << std::endl;
-         std::cout << "[3D Controller] First vertex: (" << vertices[0].position[0] << ", " << vertices[0].position[1] << ", " << vertices[0].position[2] << ")" << std::endl;
-         std::cout << "[3D Controller] After 50x scale, first vertex world pos: ("
-                << vertices[0].position[0] * 50.0f << ", "
-                << vertices[0].position[1] * 50.0f - 5.0f << ", "
-                << vertices[0].position[2] * 50.0f << ")" << std::endl;
-         std::cout << "[3D Controller] THIS SHOULD FILL THE ENTIRE SCREEN!" << std::endl;
+            std::cout << "[3D Controller] Blend state set to OPAQUE" << std::endl;
         }
+    }
+
+    // Set up controller world matrix with reasonable scale and positioning
+    // Camera is at (0, -2, 8) looking at origin, so place controller at origin
+    float scale = 2.0f;  // Reasonable scale for DJ controller
+    float worldMatrix[16] = {
+        scale, 0, 0, 0,   // Scale X
+        0, scale, 0, 0,   // Scale Y
+        0, 0, scale, 0,   // Scale Z
+        0, 0, 0, 1        // Position at origin (0, 0, 0) where camera is looking
+    };
 
     // Create and bind constant buffer with controller-specific world matrix
     Microsoft::WRL::ComPtr<ID3D11Buffer> controllerConstantBuffer;
@@ -831,48 +881,102 @@ void Enhanced3DScene::renderController(ID3D11DeviceContext* context, const float
     cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
     HRESULT hr = device_->CreateBuffer(&cbDesc, nullptr, &controllerConstantBuffer);
-    if (SUCCEEDED(hr) && controllerConstantBuffer) {
-        D3D11_MAPPED_SUBRESOURCE mapped = {};
-        hr = context->Map(controllerConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-        if (SUCCEEDED(hr)) {
-            ConstantBufferData* cbData = (ConstantBufferData*)mapped.pData;
-            memcpy(cbData->world, worldMatrix, 64);
-            memcpy(cbData->view, viewMatrix, 64);
-            memcpy(cbData->projection, projMatrix, 64);
-            // BRIGHT CYAN LIGHT for maximum visibility
-            cbData->lightDir[0] = 0.0f;
-            cbData->lightDir[1] = 0.0f;
-            cbData->lightDir[2] = 10.0f;  // Very bright light from front
-            cbData->padding = 2.0f;  // Extra brightness multiplier
-            context->Unmap(controllerConstantBuffer.Get(), 0);
-
-            // Bind controller constant buffer
-            context->VSSetConstantBuffers(0, 1, controllerConstantBuffer.GetAddressOf());
-            context->PSSetConstantBuffers(0, 1, controllerConstantBuffer.GetAddressOf());
+    if (FAILED(hr)) {
+        if (!once) {
+            std::cout << "[3D Controller] ERROR: Failed to create constant buffer (HRESULT 0x" << std::hex << hr << std::dec << ")" << std::endl;
         }
+        return;
     }
+
+    D3D11_MAPPED_SUBRESOURCE mapped = {};
+    hr = context->Map(controllerConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+    if (FAILED(hr)) {
+        if (!once) {
+            std::cout << "[3D Controller] ERROR: Failed to map constant buffer (HRESULT 0x" << std::hex << hr << std::dec << ")" << std::endl;
+        }
+        return;
+    }
+
+    if (!once) {
+        std::cout << "[3D Controller] Matrix Values:" << std::endl;
+        std::cout << "  World matrix (scale 2.0): [0]=" << worldMatrix[0] << ", [5]=" << worldMatrix[5] << ", [10]=" << worldMatrix[10] << std::endl;
+        std::cout << "  View matrix[12-15]: [" << viewMatrix[12] << ", " << viewMatrix[13] << ", " << viewMatrix[14] << ", " << viewMatrix[15] << "]" << std::endl;
+        std::cout << "  Proj matrix[0,5,10,11]: [" << projMatrix[0] << ", " << projMatrix[5] << ", " << projMatrix[10] << ", " << projMatrix[11] << "]" << std::endl;
+    }
+
+    ConstantBufferData* cbData = (ConstantBufferData*)mapped.pData;
+    memcpy(cbData->world, worldMatrix, 64);
+    memcpy(cbData->view, viewMatrix, 64);
+    memcpy(cbData->projection, projMatrix, 64);
+    
+    // BRIGHT CYAN LIGHT for maximum visibility
+    cbData->lightDir[0] = 0.0f;
+    cbData->lightDir[1] = 0.0f;
+    cbData->lightDir[2] = 10.0f;  // Very bright light from front
+    cbData->lightDir[3] = 0.0f;
+    cbData->padding = 2.0f;  // Extra brightness multiplier
+    
+    context->Unmap(controllerConstantBuffer.Get(), 0);
+
+    // Bind controller constant buffer
+    context->VSSetConstantBuffers(0, 1, controllerConstantBuffer.GetAddressOf());
+    context->PSSetConstantBuffers(0, 1, controllerConstantBuffer.GetAddressOf());
 
     // Set shaders
     context->VSSetShader(enhancedShader_->getVertexShader(), nullptr, 0);
     context->PSSetShader(enhancedShader_->getPixelShader(), nullptr, 0);
 
+    // Phase 3: CRITICAL FIX - Bind texture and sampler for pixel shader
+    // The shader expects SceneTexture at register(t1) and SceneSampler at register(s1)
+    if (textureManager_) {
+        textureManager_->bind(context, 1);  // Bind SceneTexture to slot 1
+        if (!once) {
+            std::cout << "[3D Controller] Texture manager bound to slot t1" << std::endl;
+        }
+    } else if (!once) {
+        std::cout << "[3D Controller] WARNING: Texture manager not available - shader may use default texture" << std::endl;
+    }
+
     // Bind material buffer
     if (materialBuffer_) {
         context->PSSetConstantBuffers(1, 1, materialBuffer_.GetAddressOf());
+        if (!once) {
+            std::cout << "[3D Controller] Material buffer bound to ps_cb1" << std::endl;
+        }
     }
 
     // Bind vertex/index buffers and draw
     if (controllerVertexBuffer_ && controllerIndexBuffer_) {
         controllerVertexBuffer_->bind(context, 0);
         controllerIndexBuffer_->bind(context);
+        
+        // Phase 1: CRITICAL FIX - Bind input layout before drawing
+        // This tells the GPU how to interpret the vertex buffer data
+        if (controllerInputLayout_) {
+            context->IASetInputLayout(controllerInputLayout_.Get());
+            if (!once) {
+                std::cout << "[3D Controller] Input layout bound successfully" << std::endl;
+            }
+        } else {
+            if (!once) {
+                std::cout << "[3D Controller] WARNING: Input layout not available, draw may fail" << std::endl;
+            }
+            return;
+        }
+        
         context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         
         uint32_t indexCount = controllerIndexBuffer_->getIndexCount();
         if (!once) {
-            std::cout << "[3D Controller] Drawing " << indexCount << " indices with depth test DISABLED, cull mode NONE" << std::endl;
+            std::cout << "[3D Controller] Drawing " << indexCount << " indices" << std::endl;
+            std::cout << "[3D Controller] Render state: depth OFF, cull NONE, blend OPAQUE" << std::endl;
         }
         
         context->DrawIndexed(indexCount, 0, 0);
+        if (!once) {
+            std::cout << "[3D Controller] Draw call completed" << std::endl;
+            once = true;  // Mark debug output as complete AFTER all messages are printed
+        }
     }
 #endif
 }
@@ -919,6 +1023,37 @@ bool Enhanced3DScene::createControllerGeometry() {
         printf("[3D Controller] ERROR: Failed to create index buffer (%u indices)\n", 
                static_cast<uint32_t>(indices.size()));
         return false;
+    }
+
+    // Phase 1: Create input layout for controller vertex structure
+    // This layout must match the Vertex structure exactly:
+    // - Position: float3 at offset 0
+    // - Normal: float3 at offset 12
+    // - TexCoord: float2 at offset 24
+    if (enhancedShader_ && enhancedShader_->getVertexShaderBlob()) {
+        D3D11_INPUT_ELEMENT_DESC layout[] = {
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        };
+
+        HRESULT hr = device_->CreateInputLayout(
+            layout, 
+            3,
+            enhancedShader_->getVertexShaderBlob()->GetBufferPointer(),
+            enhancedShader_->getVertexShaderBlob()->GetBufferSize(),
+            controllerInputLayout_.GetAddressOf()
+        );
+
+        if (FAILED(hr)) {
+            printf("[3D Controller] ERROR: Failed to create input layout (HRESULT 0x%08x)\n", hr);
+            return false;
+        }
+
+        printf("[3D Controller] Input layout created successfully\n");
+    } else {
+        printf("[3D Controller] WARNING: Enhanced shader or shader blob not available for input layout\n");
+        // Don't fail - we may still render, but input layout binding will be skipped
     }
 
     printf("[3D Controller] Geometry created successfully: %u vertices, %u indices\n",
