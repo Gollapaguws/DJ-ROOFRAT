@@ -3,6 +3,11 @@
 #include <memory>
 #include <string>
 
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+// Forward declare GLFW window for OpenGL migration
+struct GLFWwindow;
+#endif
+
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 #include <d3d11.h>
 #include <dxgi1_3.h>
@@ -98,6 +103,16 @@ public:
     // Clear render target to a background color
     void clearRenderTarget(float r, float g, float b, float a);
 
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    // OpenGL migration methods
+    GLFWwindow* getGLFWWindow() const { return glfwWindow_; }
+    void resize(int width, int height);
+    void swapBuffers();
+    void pollEvents();
+    bool shouldClose() const;
+    void makeContextCurrent();
+#endif
+
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     // Create additive blend state for laser effects (Phase 19)
@@ -113,6 +128,11 @@ private:
     std::unique_ptr<LightingRig> lightingRig_;
     std::unique_ptr<LaserController> laserController_;
     std::unique_ptr<CrowdRenderer> crowdRenderer_;
+
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    // OpenGL resources
+    GLFWwindow* glfwWindow_ = nullptr;
+#endif
 
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     // D3D11 resources

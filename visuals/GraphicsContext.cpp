@@ -8,6 +8,34 @@
 #include "visuals/LaserController.h"
 #include "visuals/CrowdRenderer.h"
 
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+#include <glad/glad.h>
+
+/* Prevent system GL functions from conflicting with GLAD function pointers */
+#define glClear __system_glClear
+#define glClearColor __system_glClearColor
+#define glGetString __system_glGetString
+#define glGetIntegerv __system_glGetIntegerv
+#define glViewport __system_glViewport
+#define glEnable __system_glEnable
+#define glDisable __system_glDisable
+#define glDrawArrays __system_glDrawArrays
+#define glDrawElements __system_glDrawElements
+
+#include <GLFW/glfw3.h>
+
+/* Undefine the system GL renamings to restore our GLAD pointers */
+#undef glClear
+#undef glClearColor
+#undef glGetString
+#undef glGetIntegerv
+#undef glViewport
+#undef glEnable
+#undef glDisable
+#undef glDrawArrays
+#undef glDrawElements
+#endif
+
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
 #include "visuals/Enhanced3DScene.h"
 #include "visuals/ParticleSystem.h"
@@ -58,7 +86,70 @@ bool GraphicsContext::initialize(int width, int height, std::string* errorOut) {
     width_ = width;
     height_ = height;
 
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    // OpenGL migration path using GLFW + GLAD
+    
+    // Validate window size
+    if (width <= 0 || height <= 0) {
+        if (errorOut) {
+            *errorOut = "Invalid window size (width and height must be > 0)";
+        }
+        available_ = false;
+        return false;
+    }
+    
+    // Initialize GLFW
+    if (!glfwInit()) {
+        if (errorOut) {
+            *errorOut = "Failed to initialize GLFW";
+        }
+        available_ = false;
+        return false;
+    }
+    
+    // Set OpenGL 4.3 Core Profile hints
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);  // Hidden by default for headless testing
+    
+    // Create GLFW window
+    glfwWindow_ = glfwCreateWindow(width_, height_, "DJ-ROOFRAT", nullptr, nullptr);
+    if (!glfwWindow_) {
+        if (errorOut) {
+            *errorOut = "Failed to create GLFW window";
+        }
+        glfwTerminate();
+        available_ = false;
+        return false;
+    }
+    
+    // Make context current
+    glfwMakeContextCurrent(glfwWindow_);
+    
+    // Load OpenGL functions via GLAD
+    int gladVersion = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
+    if (gladVersion == 0) {
+        if (errorOut) {
+            *errorOut = "Failed to load OpenGL functions via GLAD";
+        }
+        glfwDestroyWindow(glfwWindow_);
+        glfwWindow_ = nullptr;
+        glfwTerminate();
+        available_ = false;
+        return false;
+    }
+    
+    // Set initial viewport
+    glViewport(0, 0, width_, height_);
+    
+    // Enable depth testing
+    glEnable(GL_DEPTH_TEST);
+    
+    available_ = true;
+    return true;
+
+#elif defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     try {
         // Create D3D11 device and context
         D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
@@ -599,6 +690,15 @@ bool GraphicsContext::renderFrame(float bpm, float energy, int mood, float cross
 }
 
 void GraphicsContext::shutdown() {
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    // OpenGL cleanup
+    if (glfwWindow_) {
+        glfwDestroyWindow(glfwWindow_);
+        glfwWindow_ = nullptr;
+    }
+    glfwTerminate();
+#endif
+
 #if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
     if (context_) {
         context_->ClearState();
@@ -718,6 +818,41 @@ class DJControllerGeometry* GraphicsContext::getControllerGeometry() const {
         return const_cast<class DJControllerGeometry*>(enhancedScene_->getControllerGeometry());
     }
     return nullptr;
+}
+#endif
+
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+// OpenGL migration method implementations
+
+void GraphicsContext::resize(int width, int height) {
+    width_ = width;
+    height_ = height;
+    if (glfwWindow_) {
+        glViewport(0, 0, width, height);
+    }
+}
+
+void GraphicsContext::swapBuffers() {
+    if (glfwWindow_) {
+        glfwSwapBuffers(glfwWindow_);
+    }
+}
+
+void GraphicsContext::pollEvents() {
+    glfwPollEvents();
+}
+
+bool GraphicsContext::shouldClose() const {
+    if (glfwWindow_) {
+        return glfwWindowShouldClose(glfwWindow_) != 0;
+    }
+    return true;
+}
+
+void GraphicsContext::makeContextCurrent() {
+    if (glfwWindow_) {
+        glfwMakeContextCurrent(glfwWindow_);
+    }
 }
 #endif
 

@@ -2573,3 +2573,50 @@ else()
 endif()
 
 set_target_properties(indexbuffer_phase2_test PROPERTIES OUTPUT_NAME "IndexBuffer_Phase2_test")
+
+# ============================================================================
+# GraphicsContext Phase 4 Test (OpenGL Context Creation)
+# ============================================================================
+add_executable(graphicscontext_phase4_test
+    tests/GraphicsContext_Phase4_test.cpp
+    visuals/GraphicsContext.cpp
+    visuals/LightingRig.cpp
+    visuals/LaserController.cpp
+    visuals/CrowdRenderer.cpp
+)
+
+target_include_directories(graphicscontext_phase4_test PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${GLAD_INCLUDE_DIR}
+)
+
+target_compile_definitions(graphicscontext_phase4_test PRIVATE 
+    DJROOFRAT_OPENGL_MIGRATION=1
+)
+
+target_link_libraries(graphicscontext_phase4_test PRIVATE 
+    glfw
+    glm::glm
+)
+
+if(EXISTS "${GLAD_SRC}")
+    target_sources(graphicscontext_phase4_test PRIVATE "${GLAD_SRC}")
+endif()
+
+if(WIN32)
+    target_link_libraries(graphicscontext_phase4_test PRIVATE opengl32)
+elseif(APPLE)
+    target_link_libraries(graphicscontext_phase4_test PRIVATE "-framework OpenGL")
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(graphicscontext_phase4_test PRIVATE OpenGL::OpenGL)
+endif()
+
+if(MSVC)
+    target_compile_options(graphicscontext_phase4_test PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(graphicscontext_phase4_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(graphicscontext_phase4_test PROPERTIES OUTPUT_NAME "GraphicsContext_Phase4_test")
+
