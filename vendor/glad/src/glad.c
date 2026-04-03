@@ -253,6 +253,9 @@ int gladLoadGLLoader(GLADloadproc load) {
     glDrawBuffers = g_GLAD.glDrawBuffers;
     glBlitFramebuffer = g_GLAD.glBlitFramebuffer;
 
+    /* Assign pixel transfer pointers */
+    glReadPixels = g_GLAD.glReadPixels;
+
     /* Assign compute shader pointers */
     glDispatchCompute = g_GLAD.glDispatchCompute;
     glMemoryBarrier = g_GLAD.glMemoryBarrier;
