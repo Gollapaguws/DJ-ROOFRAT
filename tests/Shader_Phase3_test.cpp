@@ -40,6 +40,7 @@
 #define glDrawArrays __system_glDrawArrays
 #define glDrawElements __system_glDrawElements
 
+#define GLFW_INCLUDE_NONE  // Prevent GLFW from including GL headers
 #include <GLFW/glfw3.h>
 
 /* Undefine the system GL renamings to restore our GLAD pointers */

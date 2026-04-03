@@ -15,9 +15,19 @@
     using Microsoft::WRL::ComPtr;
 #endif
 
-// Forward declarations
-class ComputeShader;
-struct Particle;
+#include "visuals/ComputeShader.h"
+
+// Particle struct (matches GLSL std430 layout)
+// Allows array-style access via operator[] on glm types
+struct Particle {
+    float position[3];  // vec3 in GLSL
+    float lifetime;
+    float velocity[3];  // vec3 in GLSL
+    float initialLife;
+    float color[4];     // vec4 in GLSL
+    float size;
+    float padding[3];   // vec3 padding for alignment
+};
 
 namespace dj {
 

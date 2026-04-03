@@ -1,3 +1,10 @@
+/* Prevent Windows from including OpenGL headers */
+#if defined(_WIN32)
+    #define WIN32_LEAN_AND_MEAN
+    #define NOMINMAX
+    #define NOGDI
+#endif
+
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -21,6 +28,7 @@
 #define glDrawArrays __system_glDrawArrays
 #define glDrawElements __system_glDrawElements
 
+#define GLFW_INCLUDE_NONE  // Prevent GLFW from including GL headers
 #include <GLFW/glfw3.h>
 
 /* Undefine the system GL renamings to restore our GLAD pointers */
