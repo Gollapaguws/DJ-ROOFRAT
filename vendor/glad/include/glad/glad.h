@@ -95,6 +95,11 @@ typedef char GLchar;
 #define GL_DYNAMIC_READ 0x88E9
 #define GL_DYNAMIC_COPY 0x88EA
 
+/* Buffer access */
+#define GL_READ_ONLY 0x88B8
+#define GL_WRITE_ONLY 0x88B9
+#define GL_READ_WRITE 0x88BA
+
 /* Draw modes */
 #define GL_POINTS 0x0000
 #define GL_LINES 0x0001
@@ -271,6 +276,8 @@ typedef void (APIENTRYP PFNGLDELETEBUFFERSPROC)(GLsizei n, const GLuint *buffers
 typedef void (APIENTRYP PFNGLBINDBUFFERPROC)(GLenum target, GLuint buffer);
 typedef void (APIENTRYP PFNGLBUFFERDATAPROC)(GLenum target, GLsizeiptr size, const void *data, GLenum usage);
 typedef void (APIENTRYP PFNGLBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
+typedef void* (APIENTRYP PFNGLMAPBUFFERPROC)(GLenum target, GLenum access);
+typedef GLboolean (APIENTRYP PFNGLUNMAPBUFFERPROC)(GLenum target);
 
 /* Draw functions */
 typedef void (APIENTRYP PFNGLDRAWARRAYSPROC)(GLenum mode, GLint first, GLsizei count);
@@ -356,6 +363,8 @@ typedef struct {
     PFNGLBINDBUFFERPROC glBindBuffer;
     PFNGLBUFFERDATAPROC glBufferData;
     PFNGLBUFFERSUBDATAPROC glBufferSubData;
+    PFNGLMAPBUFFERPROC glMapBuffer;
+    PFNGLUNMAPBUFFERPROC glUnmapBuffer;
     
     PFNGLDRAWARRAYSPROC glDrawArrays;
     PFNGLDRAWELEMENTSPROC glDrawElements;
@@ -608,6 +617,8 @@ extern PFNGLDELETEBUFFERSPROC glDeleteBuffers;
 extern PFNGLBINDBUFFERPROC glBindBuffer;
 extern PFNGLBUFFERDATAPROC glBufferData;
 extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
+extern PFNGLMAPBUFFERPROC glMapBuffer;
+extern PFNGLUNMAPBUFFERPROC glUnmapBuffer;
 
 extern PFNGLDRAWARRAYSPROC glDrawArrays;
 extern PFNGLDRAWELEMENTSPROC glDrawElements;

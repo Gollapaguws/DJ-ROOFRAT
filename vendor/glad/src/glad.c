@@ -51,6 +51,8 @@ PFNGLDELETEBUFFERSPROC glDeleteBuffers = NULL;
 PFNGLBINDBUFFERPROC glBindBuffer = NULL;
 PFNGLBUFFERDATAPROC glBufferData = NULL;
 PFNGLBUFFERSUBDATAPROC glBufferSubData = NULL;
+PFNGLMAPBUFFERPROC glMapBuffer = NULL;
+PFNGLUNMAPBUFFERPROC glUnmapBuffer = NULL;
 
 PFNGLDRAWARRAYSPROC glDrawArrays = NULL;
 PFNGLDRAWELEMENTSPROC glDrawElements = NULL;
@@ -135,6 +137,8 @@ int gladLoadGLLoader(GLADloadproc load) {
     g_GLAD.glBindBuffer = (PFNGLBINDBUFFERPROC)load("glBindBuffer");
     g_GLAD.glBufferData = (PFNGLBUFFERDATAPROC)load("glBufferData");
     g_GLAD.glBufferSubData = (PFNGLBUFFERSUBDATAPROC)load("glBufferSubData");
+    g_GLAD.glMapBuffer = (PFNGLMAPBUFFERPROC)load("glMapBuffer");
+    g_GLAD.glUnmapBuffer = (PFNGLUNMAPBUFFERPROC)load("glUnmapBuffer");
 
     g_GLAD.glDrawArrays = (PFNGLDRAWARRAYSPROC)load("glDrawArrays");
     g_GLAD.glDrawElements = (PFNGLDRAWELEMENTSPROC)load("glDrawElements");
@@ -214,6 +218,8 @@ int gladLoadGLLoader(GLADloadproc load) {
     glBindBuffer = g_GLAD.glBindBuffer;
     glBufferData = g_GLAD.glBufferData;
     glBufferSubData = g_GLAD.glBufferSubData;
+    glMapBuffer = g_GLAD.glMapBuffer;
+    glUnmapBuffer = g_GLAD.glUnmapBuffer;
 
     glDrawArrays = g_GLAD.glDrawArrays;
     glDrawElements = g_GLAD.glDrawElements;

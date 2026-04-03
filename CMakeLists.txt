@@ -537,9 +537,10 @@ set_target_properties(crowd_phase5_test PROPERTIES OUTPUT_NAME "CrowdStateMachin
 
 # Phase 7B: Particle GLSL compute shader test
 add_executable(particleshader_phase7b_test
-    audio/ParticleShader_Phase7B_test.cpp
+    tests/ParticleShader_Phase7B_test.cpp
 )
-target_include_directories(particleshader_phase7b_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/vendor)
+target_include_directories(particleshader_phase7b_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${GLAD_INCLUDE_DIR})
+target_compile_definitions(particleshader_phase7b_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1 DJROOFRAT_OPENGL_MIGRATION=1)
 target_link_libraries(particleshader_phase7b_test PRIVATE glfw glm::glm)
 if(EXISTS "${GLAD_SRC}")
     target_sources(particleshader_phase7b_test PRIVATE "${GLAD_SRC}")
