@@ -551,6 +551,24 @@ else()
     target_link_libraries(particleshader_phase7b_test PRIVATE OpenGL::OpenGL)
 endif()
 set_target_properties(particleshader_phase7b_test PROPERTIES OUTPUT_NAME "ParticleShader_Phase7B_test")
+
+# Phase 7C: Post-Processing GLSL shaders test
+add_executable(postprocessing_phase7c_test
+    tests/PostProcessing_Phase7C_test.cpp
+)
+target_include_directories(postprocessing_phase7c_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${GLAD_INCLUDE_DIR})
+target_compile_definitions(postprocessing_phase7c_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1 DJROOFRAT_OPENGL_MIGRATION=1)
+target_link_libraries(postprocessing_phase7c_test PRIVATE glfw glm::glm)
+if(EXISTS "${GLAD_SRC}")
+    target_sources(postprocessing_phase7c_test PRIVATE "${GLAD_SRC}")
+endif()
+if(WIN32)
+    target_link_libraries(postprocessing_phase7c_test PRIVATE opengl32)
+else()
+    target_link_libraries(postprocessing_phase7c_test PRIVATE OpenGL::OpenGL)
+endif()
+set_target_properties(postprocessing_phase7c_test PROPERTIES OUTPUT_NAME "PostProcessing_Phase7C_test")
+
 # CrowdStateMachine Phase 6 test
 add_executable(crowd_phase6_test
     crowdAI/CrowdStateMachine_Phase6_test.cpp

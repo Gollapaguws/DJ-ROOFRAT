@@ -227,7 +227,12 @@ typedef char GLchar;
 /* Draw buffer constants */
 #define GL_DRAW_BUFFER 0x0C01
 #define GL_READ_BUFFER 0x0C02
-
+/* Texture format constants */
+#define GL_RGB 0x1907
+#define GL_RGBA8 0x8058
+#define GL_RGBA16F 0x881A
+#define GL_FLOAT 0x1406
+#define GL_UNSIGNED_BYTE 0x1401
 /* ===== FUNCTION POINTER TYPEDEFS ===== */
 
 /* Basic functions */
@@ -314,6 +319,9 @@ typedef GLenum (APIENTRYP PFNGLCHECKFRAMEBUFFERSTATUSPROC)(GLenum target);
 typedef void (APIENTRYP PFNGLDRAWBUFFERSPROC)(GLsizei n, const GLenum *bufs);
 typedef void (APIENTRYP PFNGLBLITFRAMEBUFFERPROC)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 
+/* Pixel transfer functions */
+typedef void (APIENTRYP PFNGLREADPIXELSPROC)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *pixels);
+
 /* Compute Shader functions */
 typedef void (APIENTRYP PFNGLDISPATCHCOMPUTEPROC)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
 typedef void (APIENTRYP PFNGLMEMORYBARRIERPROC)(GLbitfield barriers);
@@ -398,6 +406,9 @@ typedef struct {
     PFNGLDRAWBUFFERSPROC glDrawBuffers;
     PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer;
     
+    /* Pixel transfer functions */
+    PFNGLREADPIXELSPROC glReadPixels;
+
     /* Compute shader functions */
     PFNGLDISPATCHCOMPUTEPROC glDispatchCompute;
     PFNGLMEMORYBARRIERPROC glMemoryBarrier;
@@ -645,6 +656,9 @@ extern PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
 extern PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
 extern PFNGLDRAWBUFFERSPROC glDrawBuffers;
 extern PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer;
+
+/* Pixel transfer functions */
+extern PFNGLREADPIXELSPROC glReadPixels;
 
 /* Compute shader functions */
 extern PFNGLDISPATCHCOMPUTEPROC glDispatchCompute;

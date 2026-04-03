@@ -80,6 +80,9 @@ PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus = NULL;
 PFNGLDRAWBUFFERSPROC glDrawBuffers = NULL;
 PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer = NULL;
 
+/* Pixel transfer function pointers */
+PFNGLREADPIXELSPROC glReadPixels = NULL;
+
 /* Compute shader function pointers */
 PFNGLDISPATCHCOMPUTEPROC glDispatchCompute = NULL;
 PFNGLMEMORYBARRIERPROC glMemoryBarrier = NULL;
