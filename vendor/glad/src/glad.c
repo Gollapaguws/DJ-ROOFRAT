@@ -169,6 +169,9 @@ int gladLoadGLLoader(GLADloadproc load) {
     g_GLAD.glDrawBuffers = (PFNGLDRAWBUFFERSPROC)load("glDrawBuffers");
     g_GLAD.glBlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)load("glBlitFramebuffer");
 
+    /* Load pixel transfer functions */
+    g_GLAD.glReadPixels = (PFNGLREADPIXELSPROC)load("glReadPixels");
+
     /* Load compute shader functions */
     g_GLAD.glDispatchCompute = (PFNGLDISPATCHCOMPUTEPROC)load("glDispatchCompute");
     g_GLAD.glMemoryBarrier = (PFNGLMEMORYBARRIERPROC)load("glMemoryBarrier");
