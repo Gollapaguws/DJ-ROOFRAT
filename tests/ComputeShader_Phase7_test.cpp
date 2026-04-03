@@ -1,3 +1,9 @@
+#if defined(_WIN32)
+    #define WIN32_LEAN_AND_MEAN
+    #define NOMINMAX
+    #define NOGDI
+#endif
+
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -7,6 +13,7 @@
 #define DJROOFRAT_ENABLE_GRAPHICS 1
 
 #include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include "visuals/ComputeShader.h"
 

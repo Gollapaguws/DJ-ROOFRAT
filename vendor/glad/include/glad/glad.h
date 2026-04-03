@@ -113,6 +113,19 @@ typedef char GLchar;
 #define GL_WRITE_ONLY 0x88B9
 #define GL_READ_WRITE 0x88BA
 
+/* Buffer mapping flags */
+#define GL_MAP_READ_BIT 0x0001
+#define GL_MAP_WRITE_BIT 0x0002
+#define GL_MAP_INVALIDATE_RANGE_BIT 0x0004
+#define GL_MAP_INVALIDATE_BUFFER_BIT 0x0008
+#define GL_MAP_FLUSH_EXPLICIT_BIT 0x0010
+#define GL_MAP_UNSYNCHRONIZED_BIT 0x0020
+
+/* Texture constants */
+#define GL_TEXTURE 0x1702
+#define GL_DEPTH_COMPONENT 0x1902
+#define GL_DEPTH_COMPONENT32F 0x8CAC
+
 /* Draw modes */
 #define GL_POINTS 0x0000
 #define GL_LINES 0x0001
@@ -201,6 +214,11 @@ typedef char GLchar;
 #define GL_DEPTH_FUNC 0x0B74
 #define GL_COLOR_CLEAR_VALUE 0x0C22
 #define GL_VERTEX_ATTRIB_ARRAY_ENABLED 0x8622
+#define GL_FRAMEBUFFER_BINDING 0x8CA6
+#define GL_MAX_DRAW_BUFFERS 0x8824
+
+/* Framebuffer attachment constants */
+#define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE 0x8CD0
 
 /* Error codes */
 #define GL_NO_ERROR 0
@@ -236,6 +254,7 @@ typedef char GLchar;
 #define GL_ALL_BARRIER_BITS 0xFFFFFFFF
 #define GL_SHADER_STORAGE_BARRIER_BIT 0x2000
 #define GL_UNIFORM_BARRIER_BIT 0x0004
+#define GL_BUFFER_UPDATE_BARRIER_BIT 0x0200
 
 /* Draw buffer constants */
 #define GL_DRAW_BUFFER 0x0C01
@@ -295,6 +314,7 @@ typedef void (APIENTRYP PFNGLBINDBUFFERPROC)(GLenum target, GLuint buffer);
 typedef void (APIENTRYP PFNGLBUFFERDATAPROC)(GLenum target, GLsizeiptr size, const void *data, GLenum usage);
 typedef void (APIENTRYP PFNGLBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
 typedef void* (APIENTRYP PFNGLMAPBUFFERPROC)(GLenum target, GLenum access);
+typedef void* (APIENTRYP PFNGLMAPBUFFERRANGEPROC)(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access);
 typedef GLboolean (APIENTRYP PFNGLUNMAPBUFFERPROC)(GLenum target);
 
 /* Draw functions */
@@ -331,6 +351,7 @@ typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE2DPROC)(GLenum target, GLenum att
 typedef GLenum (APIENTRYP PFNGLCHECKFRAMEBUFFERSTATUSPROC)(GLenum target);
 typedef void (APIENTRYP PFNGLDRAWBUFFERSPROC)(GLsizei n, const GLenum *bufs);
 typedef void (APIENTRYP PFNGLBLITFRAMEBUFFERPROC)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+typedef void (APIENTRYP PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC)(GLenum target, GLenum attachment, GLenum pname, GLint *params);
 
 /* Pixel transfer functions */
 typedef void (APIENTRYP PFNGLREADPIXELSPROC)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *pixels);
@@ -385,6 +406,7 @@ typedef struct {
     PFNGLBUFFERDATAPROC glBufferData;
     PFNGLBUFFERSUBDATAPROC glBufferSubData;
     PFNGLMAPBUFFERPROC glMapBuffer;
+    PFNGLMAPBUFFERRANGEPROC glMapBufferRange;
     PFNGLUNMAPBUFFERPROC glUnmapBuffer;
     
     PFNGLDRAWARRAYSPROC glDrawArrays;
@@ -418,6 +440,7 @@ typedef struct {
     PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
     PFNGLDRAWBUFFERSPROC glDrawBuffers;
     PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer;
+    PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC glGetFramebufferAttachmentParameteriv;
     
     /* Pixel transfer functions */
     PFNGLREADPIXELSPROC glReadPixels;
@@ -642,6 +665,7 @@ extern PFNGLBINDBUFFERPROC glBindBuffer;
 extern PFNGLBUFFERDATAPROC glBufferData;
 extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
 extern PFNGLMAPBUFFERPROC glMapBuffer;
+extern PFNGLMAPBUFFERRANGEPROC glMapBufferRange;
 extern PFNGLUNMAPBUFFERPROC glUnmapBuffer;
 
 extern PFNGLDRAWARRAYSPROC glDrawArrays;
@@ -669,6 +693,7 @@ extern PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
 extern PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
 extern PFNGLDRAWBUFFERSPROC glDrawBuffers;
 extern PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer;
+extern PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC glGetFramebufferAttachmentParameteriv;
 
 /* Pixel transfer functions */
 extern PFNGLREADPIXELSPROC glReadPixels;

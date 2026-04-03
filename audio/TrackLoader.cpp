@@ -90,6 +90,7 @@ static std::optional<AudioClip> loadMp3File(const std::string& path, std::string
 
 // Helper: Enrich audio clip with metadata, BPM detection, and key detection
 static std::optional<AudioClip> enrichAudioClipWithMetadata(AudioClip& clip, const std::string& path, std::string* errorOut) {
+    (void)errorOut;
     // Parse file metadata (ID3 tags)
     auto metadata = MetadataParser::parseFile(path, nullptr);
     if (!metadata.has_value()) {

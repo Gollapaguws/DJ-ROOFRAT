@@ -1,12 +1,18 @@
+#if defined(_WIN32)
+    #define WIN32_LEAN_AND_MEAN
+    #define NOMINMAX
+    #define NOGDI
+#endif
+
 #include <cassert>
 #include <iostream>
 #include <memory>
 #include <vector>
 
-// GLAD must be included before GLFW to prevent GL header conflicts
-#include <glad/glad.h>
+#define DJROOFRAT_OPENGL_MIGRATION 1
+#define DJROOFRAT_ENABLE_GRAPHICS 1
 
-// Define GLFW_INCLUDE_NONE to prevent GLFW from including GL headers
+#include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>

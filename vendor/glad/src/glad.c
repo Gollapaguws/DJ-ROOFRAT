@@ -52,6 +52,7 @@ PFNGLBINDBUFFERPROC glBindBuffer = NULL;
 PFNGLBUFFERDATAPROC glBufferData = NULL;
 PFNGLBUFFERSUBDATAPROC glBufferSubData = NULL;
 PFNGLMAPBUFFERPROC glMapBuffer = NULL;
+PFNGLMAPBUFFERRANGEPROC glMapBufferRange = NULL;
 PFNGLUNMAPBUFFERPROC glUnmapBuffer = NULL;
 
 PFNGLDRAWARRAYSPROC glDrawArrays = NULL;
@@ -77,6 +78,9 @@ PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers = NULL;
 PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer = NULL;
 PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D = NULL;
 PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus = NULL;
+PFNGLDRAWBUFFERSPROC glDrawBuffers = NULL;
+PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer = NULL;
+PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC glGetFramebufferAttachmentParameteriv = NULL;
 PFNGLDRAWBUFFERSPROC glDrawBuffers = NULL;
 PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer = NULL;
 
@@ -141,6 +145,7 @@ int gladLoadGLLoader(GLADloadproc load) {
     g_GLAD.glBufferData = (PFNGLBUFFERDATAPROC)load("glBufferData");
     g_GLAD.glBufferSubData = (PFNGLBUFFERSUBDATAPROC)load("glBufferSubData");
     g_GLAD.glMapBuffer = (PFNGLMAPBUFFERPROC)load("glMapBuffer");
+    g_GLAD.glMapBufferRange = (PFNGLMAPBUFFERRANGEPROC)load("glMapBufferRange");
     g_GLAD.glUnmapBuffer = (PFNGLUNMAPBUFFERPROC)load("glUnmapBuffer");
 
     g_GLAD.glDrawArrays = (PFNGLDRAWARRAYSPROC)load("glDrawArrays");
@@ -168,6 +173,7 @@ int gladLoadGLLoader(GLADloadproc load) {
     g_GLAD.glCheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC)load("glCheckFramebufferStatus");
     g_GLAD.glDrawBuffers = (PFNGLDRAWBUFFERSPROC)load("glDrawBuffers");
     g_GLAD.glBlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)load("glBlitFramebuffer");
+    g_GLAD.glGetFramebufferAttachmentParameteriv = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC)load("glGetFramebufferAttachmentParameteriv");
 
     /* Load pixel transfer functions */
     g_GLAD.glReadPixels = (PFNGLREADPIXELSPROC)load("glReadPixels");
@@ -225,6 +231,7 @@ int gladLoadGLLoader(GLADloadproc load) {
     glBufferData = g_GLAD.glBufferData;
     glBufferSubData = g_GLAD.glBufferSubData;
     glMapBuffer = g_GLAD.glMapBuffer;
+    glMapBufferRange = g_GLAD.glMapBufferRange;
     glUnmapBuffer = g_GLAD.glUnmapBuffer;
 
     glDrawArrays = g_GLAD.glDrawArrays;
@@ -252,6 +259,7 @@ int gladLoadGLLoader(GLADloadproc load) {
     glCheckFramebufferStatus = g_GLAD.glCheckFramebufferStatus;
     glDrawBuffers = g_GLAD.glDrawBuffers;
     glBlitFramebuffer = g_GLAD.glBlitFramebuffer;
+    glGetFramebufferAttachmentParameteriv = g_GLAD.glGetFramebufferAttachmentParameteriv;
 
     /* Assign pixel transfer pointers */
     glReadPixels = g_GLAD.glReadPixels;
