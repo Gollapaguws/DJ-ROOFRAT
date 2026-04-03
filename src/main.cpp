@@ -1,5 +1,7 @@
 #if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
+#define NOGDI
 #endif
 
 #include <algorithm>
@@ -21,6 +23,7 @@
 // ImGui headers
 #if defined(DJROOFRAT_OPENGL_MIGRATION)
 #include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
@@ -1007,12 +1010,15 @@ int main(int argc, char** argv) {
     std::string graphicsError;
     bool graphicsEnabled = config.enableGraphics ? graphics.initialize(config.graphicsWidth, config.graphicsHeight, &graphicsError) : false;
     bool imguiEnabled = false;
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    GLFWwindow* glfwWindow = nullptr;
+#endif
     if (graphicsEnabled) {
         std::cout << "Graphics initialized.\n";
         
 #if defined(DJROOFRAT_OPENGL_MIGRATION)
         // OpenGL3 + GLFW ImGui backend initialization
-        GLFWwindow* glfwWindow = (GLFWwindow*)graphics.getGLFWWindow();
+        glfwWindow = (GLFWwindow*)graphics.getGLFWWindow();
         if (glfwWindow) {
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
@@ -1021,7 +1027,7 @@ int main(int argc, char** argv) {
             
             // Initialize OpenGL3 backend with GLFW
             const char* glsl_version = "#version 430";
-            if (ImGui_ImplGLFW_InitForOpenGL(glfwWindow, true) &&
+            if (ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true) &&
                 ImGui_ImplOpenGL3_Init(glsl_version)) {
                 
                 ImGui::StyleColorsDark();
@@ -1152,7 +1158,15 @@ int main(int argc, char** argv) {
         
         const float progress = graphicsEnabled ? 0.0f : static_cast<float>(block) / static_cast<float>(totalBlocks - 1);
 
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+        // Process GLFW events for OpenGL migration
+        if (graphicsEnabled) {
+            glfwPollEvents();
+            if (glfwWindowShouldClose(glfwWindow)) {
+                quitRequested = true;
+            }
+        }
+#elif defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
         // Process Windows messages to keep window alive and responsive
         if (graphicsEnabled) {
             MSG msg;
@@ -2209,7 +2223,7 @@ int main(int argc, char** argv) {
 #if defined(DJROOFRAT_OPENGL_MIGRATION)
             // OpenGL3 backend frame cycle
             ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGLFW_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 #else
             // D3D11 backend frame cycle
@@ -2593,7 +2607,7 @@ int main(int argc, char** argv) {
         if (imguiEnabled && ImGui::GetCurrentContext()) {
 #if defined(DJROOFRAT_OPENGL_MIGRATION)
             ImGui_ImplOpenGL3_Shutdown();
-            ImGui_ImplGLFW_Shutdown();
+            ImGui_ImplGlfw_Shutdown();
 #else
             ImGui_ImplDX11_Shutdown();
             ImGui_ImplWin32_Shutdown();

@@ -219,6 +219,8 @@ typedef char GLchar;
 
 /* Framebuffer attachment constants */
 #define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE 0x8CD0
+#define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME 0x8CD1
+#define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE 0x8CD0
 
 /* Error codes */
 #define GL_NO_ERROR 0

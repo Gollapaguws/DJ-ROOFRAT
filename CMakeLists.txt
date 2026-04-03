@@ -324,6 +324,9 @@ endif()
 
 if(DJROOFRAT_ENABLE_GRAPHICS)
     target_compile_definitions(${DJ_ROOFRAT_TARGET} PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    if(DJROOFRAT_OPENGL_MIGRATION)
+        target_compile_definitions(${DJ_ROOFRAT_TARGET} PRIVATE DJROOFRAT_OPENGL_MIGRATION=1)
+    endif()
     target_include_directories(${DJ_ROOFRAT_TARGET} PRIVATE ${GLAD_INCLUDE_DIR})
     
     # Add GLFW, GLM for OpenGL support

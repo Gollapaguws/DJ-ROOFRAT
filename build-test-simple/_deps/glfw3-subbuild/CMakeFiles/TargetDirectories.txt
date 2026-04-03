@@ -1,3 +1,0 @@
-C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/CMakeFiles/glfw3-populate.dir
-C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/CMakeFiles/ALL_BUILD.dir
-C:/DJROOFRAT/DJ-ROOFRAT/build-test-simple/_deps/glfw3-subbuild/CMakeFiles/ZERO_CHECK.dir

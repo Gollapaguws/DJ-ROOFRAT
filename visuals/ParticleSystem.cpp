@@ -42,7 +42,11 @@ bool ParticleSystem::initialize(void*, int maxParticlesCount) {
     // Create UBO for constants
     glGenBuffers(1, &ubo_);
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(ParticleConstants), nullptr, GL_DYNAMIC_DRAW);
+    struct ParticleConstantsGL {
+        float gravity[3]; float deltaTime;
+        float windForce[3]; int particleCount;
+    };
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(ParticleConstantsGL), nullptr, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_);
     return true;
 }
@@ -136,12 +140,21 @@ void ParticleSystem::updatePhysics(ID3D11DeviceContext* context, float deltaTime
 }
 #endif
 
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+int ParticleSystem::render(void* context) {
+    (void)context;  // Placeholder - unused in current implementation
+    //This is a placeholder for particle rendering
+    // In a full implementation, this would set up vertex buffers and draw
+    return 0;
+}
+#else
 int ParticleSystem::render(ID3D11DeviceContext* context) {
     (void)context; // Placeholder - unused in current implementation
     // This is a placeholder for particle rendering
     // In a full implementation, this would set up vertex buffers and draw
     return 0;
 }
+#endif
 
 float* ParticleSystem::getParticlePosition(int index) {
     if (index < 0 || index >= activeParticleCount_) {
