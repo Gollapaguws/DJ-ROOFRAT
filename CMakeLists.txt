@@ -774,13 +774,25 @@ add_executable(lighting_phase19_test
     visuals/CrowdAnimator.cpp
 )
 
-target_include_directories(lighting_phase19_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(lighting_phase19_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${GLAD_INCLUDE_DIR})
 
 if(DJROOFRAT_ENABLE_GRAPHICS)
-    target_compile_definitions(lighting_phase19_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
-    if(WIN32)
-        target_link_libraries(lighting_phase19_test PRIVATE d3d11 dxgi d3dcompiler)
-    endif()
+    target_compile_definitions(lighting_phase19_test PRIVATE 
+        DJROOFRAT_ENABLE_GRAPHICS=1 
+        DJROOFRAT_OPENGL_MIGRATION=1
+        WIN32_LEAN_AND_MEAN
+        NOGDI
+    )
+endif()
+
+target_link_libraries(lighting_phase19_test PRIVATE glfw glm::glm)
+if(EXISTS "${GLAD_SRC}")
+    target_sources(lighting_phase19_test PRIVATE "${GLAD_SRC}")
+endif()
+if(WIN32)
+    target_link_libraries(lighting_phase19_test PRIVATE opengl32)
+else()
+    target_link_libraries(lighting_phase19_test PRIVATE OpenGL::OpenGL)
 endif()
 
 if(MSVC)
@@ -817,13 +829,25 @@ add_executable(particles_phase20_test
     visuals/RayCaster.cpp
 )
 
-target_include_directories(particles_phase20_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(particles_phase20_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${GLAD_INCLUDE_DIR})
 
 if(DJROOFRAT_ENABLE_GRAPHICS)
-    target_compile_definitions(particles_phase20_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
-    if(WIN32)
-        target_link_libraries(particles_phase20_test PRIVATE d3d11 dxgi d3dcompiler)
-    endif()
+    target_compile_definitions(particles_phase20_test PRIVATE 
+        DJROOFRAT_ENABLE_GRAPHICS=1 
+        DJROOFRAT_OPENGL_MIGRATION=1
+        WIN32_LEAN_AND_MEAN
+        NOGDI
+    )
+endif()
+
+target_link_libraries(particles_phase20_test PRIVATE glfw glm::glm)
+if(EXISTS "${GLAD_SRC}")
+    target_sources(particles_phase20_test PRIVATE "${GLAD_SRC}")
+endif()
+if(WIN32)
+    target_link_libraries(particles_phase20_test PRIVATE opengl32)
+else()
+    target_link_libraries(particles_phase20_test PRIVATE OpenGL::OpenGL)
 endif()
 
 if(MSVC)
@@ -2513,7 +2537,12 @@ target_include_directories(vertexbuffer_phase2_test PRIVATE
 )
 
 if(DJROOFRAT_ENABLE_GRAPHICS)
-    target_compile_definitions(vertexbuffer_phase2_test PRIVATE DJROOFRAT_ENABLE_GRAPHICS=1)
+    target_compile_definitions(vertexbuffer_phase2_test PRIVATE 
+        DJROOFRAT_ENABLE_GRAPHICS=1
+        DJROOFRAT_OPENGL_MIGRATION=1
+        WIN32_LEAN_AND_MEAN
+        NOGDI
+    )
 endif()
 
 target_link_libraries(vertexbuffer_phase2_test PRIVATE 
@@ -2559,6 +2588,8 @@ if(DJROOFRAT_ENABLE_GRAPHICS)
     target_compile_definitions(shader_phase3_test PRIVATE 
         DJROOFRAT_ENABLE_GRAPHICS=1
         DJROOFRAT_OPENGL_MIGRATION=1
+        WIN32_LEAN_AND_MEAN
+        NOGDI
     )
 endif()
 

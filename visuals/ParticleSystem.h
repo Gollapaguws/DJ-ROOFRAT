@@ -1,6 +1,25 @@
 #pragma once
 
 #include <memory>
+#include <vector>
+
+#if defined(DJROOFRAT_ENABLE_GRAPHICS)
+
+#if defined(DJROOFRAT_OPENGL_MIGRATION)
+    #include <glad/glad.h>
+#endif
+
+#if defined(_WIN32) && !defined(DJROOFRAT_OPENGL_MIGRATION)
+    #include <d3d11.h>
+    #include <wrl.h>
+    using Microsoft::WRL::ComPtr;
+#endif
+
+// Forward declarations
+class ComputeShader;
+struct Particle;
+
+namespace dj {
 
 class ParticleSystem {
 public:
@@ -30,7 +49,7 @@ public:
     float* getParticlePosition(int index);
     void triggerConfettiBurst(const float position[3], int particleCount = 500);
     void reset();
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+#if !defined(DJROOFRAT_OPENGL_MIGRATION) && defined(_WIN32)
     ID3D11UnorderedAccessView* getParticleUAV() const { return particleUAV_.Get(); }
 #endif
 
@@ -43,46 +62,13 @@ private:
     GLuint ubo_ = 0;
     std::unique_ptr<ComputeShader> computeShader_;
     std::vector<Particle> stagingBuffer_;
-#elif defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
+#elif defined(_WIN32)
     ComPtr<ID3D11Buffer> particleBuffer_;
     ComPtr<ID3D11Buffer> particleBufferCopy_;
     ComPtr<ID3D11ShaderResourceView> particleSRV_;
     ComPtr<ID3D11UnorderedAccessView> particleUAV_;
     ComPtr<ID3D11Buffer> constantBuffer_;
     std::unique_ptr<ComputeShader> computeShader_;
-    std::vector<Particle> stagingBuffer_;
-#endif
-};
-
-    // Get particle position (for testing)
-    // Note: This requires GPU readback and is slow - use sparingly
-    float* getParticlePosition(int index);
-
-    // Trigger confetti burst for pyrotechnics
-    void triggerConfettiBurst(const float position[3], int particleCount = 500);
-
-    // Reset all particles
-    void reset();
-
-    // Get UAV for compute shader
-    ID3D11UnorderedAccessView* getParticleUAV() const { return particleUAV_.Get(); }
-
-private:
-    int maxParticles_ = 10000;
-    int activeParticleCount_ = 0;
-    int emissionCursor_ = 0;
-    
-#if defined(_WIN32) && defined(DJROOFRAT_ENABLE_GRAPHICS)
-    // GPU resources
-    ComPtr<ID3D11Buffer> particleBuffer_;              // Structured buffer on GPU
-    ComPtr<ID3D11Buffer> particleBufferCopy_;          // Copy for CPU readback
-    ComPtr<ID3D11ShaderResourceView> particleSRV_;     // For rendering
-    ComPtr<ID3D11UnorderedAccessView> particleUAV_;    // For compute shader
-    ComPtr<ID3D11Buffer> constantBuffer_;              // For compute shader constants
-    
-    std::unique_ptr<ComputeShader> computeShader_;
-    
-    // Temporary system memory buffer for CPU->GPU transfers
     std::vector<Particle> stagingBuffer_;
 #endif
 };
@@ -99,7 +85,7 @@ public:
     bool initialize(void*, int = 10000) { return false; }
     void emitParticles(const float[3], int, float, const float[3]) {}
     void updatePhysics(void*, float, const float[3], const float[3]) {}
-    int render(void*) { return 0; }
+    int render(void*) {return 0; }
     int getActiveParticleCount() const { return 0; }
     int getMaxParticles() const { return 0; }
     float* getParticlePosition(int) { return nullptr; }

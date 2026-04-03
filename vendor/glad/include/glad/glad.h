@@ -9,6 +9,19 @@
 #ifndef __GLAD_H_
 #define __GLAD_H_
 
+/* Prevent Windows headers from including their own OpenGL headers */
+#if defined(_WIN32) || defined(_WIN64)
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+    #ifndef NOGDI
+        #define NOGDI
+    #endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
